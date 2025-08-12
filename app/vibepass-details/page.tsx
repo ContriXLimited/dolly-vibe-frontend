@@ -5,9 +5,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ArrowRight, Crown, Medal, Award } from "lucide-react"
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from "recharts"
 
 export default function VibePassDetailsPage() {
   const [selectedPeriod, setSelectedPeriod] = useState("daily")
+
+  // Radar chart data
+  const radarData = [
+    { skill: "Engagement", value: 85 },
+    { skill: "Activity", value: 70 },
+    { skill: "Influence", value: 90 },
+    { skill: "Consistency", value: 75 },
+    { skill: "Growth", value: 80 },
+    { skill: "Community", value: 65 },
+  ]
 
   const leaderboardData = [
     { rank: 1, name: "Jackie4853", referral: 460000, points: 190082, trend: "up" },
@@ -59,11 +70,36 @@ export default function VibePassDetailsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center gap-4">
-                {/* Purple Orb */}
-                <div className="relative w-20 h-20 flex-shrink-0">
-                  <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl opacity-80"></div>
-                  <div className="absolute inset-2 bg-gradient-to-br from-purple-400 to-pink-400 rounded-xl opacity-60"></div>
-                  <div className="absolute inset-4 bg-gradient-to-br from-purple-300 to-pink-300 rounded-lg opacity-40"></div>
+                {/* Radar Chart */}
+                <div className="w-60 h-44 flex-shrink-0">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RadarChart data={radarData}>
+                      <PolarGrid
+                        stroke="#525252"
+                        strokeWidth={0.5}
+                        radialLines={true}
+                      />
+                      <PolarAngleAxis
+                        dataKey="skill"
+                        tick={{ fill: '#737373', fontSize: 10 }}
+                        className="text-xs"
+                      />
+                      <PolarRadiusAxis
+                        angle={90}
+                        domain={[0, 100]}
+                        tick={false}
+                        axisLine={false}
+                      />
+                      <Radar
+                        name="Stats"
+                        dataKey="value"
+                        stroke="#f97316"
+                        fill="#f97316"
+                        fillOpacity={0.3}
+                        strokeWidth={2}
+                      />
+                    </RadarChart>
+                  </ResponsiveContainer>
                 </div>
 
                 <div className="flex-1">
