@@ -13,7 +13,7 @@ import VibePassDetailsPage from "./vibepass-details/page"
 import SpacePage from "./space/page"
 
 export default function TacticalDashboard() {
-  const [activeSection, setActiveSection] = useState("overview")
+  const [activeSection, setActiveSection] = useState("vibepass")
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [vibepassView, setVibepassView] = useState("collections") // "collections" or "details"
 
@@ -48,7 +48,7 @@ export default function TacticalDashboard() {
 
           <nav className="space-y-2">
             {[
-              { id: "overview", icon: Monitor, label: "COMMAND CENTER", onClick: () => setActiveSection("overview") },
+              /* { id: "overview", icon: Monitor, label: "COMMAND CENTER", onClick: () => setActiveSection("overview") },
               { id: "agents", icon: Users, label: "AGENT NETWORK", onClick: () => setActiveSection("agents") },
               { id: "operations", icon: Target, label: "OPERATIONS", onClick: () => setActiveSection("operations") },
               {
@@ -56,9 +56,9 @@ export default function TacticalDashboard() {
                 icon: Shield,
                 label: "INTELLIGENCE",
                 onClick: () => setActiveSection("intelligence"),
-              },
+              }, */
               { id: "vibepass", icon: Trophy, label: "VIBEPASS", onClick: handleVibePassClick },
-              { id: "systems", icon: Settings, label: "SYSTEMS", onClick: () => setActiveSection("systems") },
+              /* { id: "systems", icon: Settings, label: "SYSTEMS", onClick: () => setActiveSection("systems") }, */
               { id: "space", icon: Globe, label: "SPACE", onClick: () => setActiveSection("space") },
             ].map((item) => (
               <button
@@ -140,15 +140,15 @@ export default function TacticalDashboard() {
 
         {/* Dashboard Content */}
         <div className="flex-1 overflow-auto">
-          {activeSection === "overview" && <CommandCenterPage />}
+          {/* {activeSection === "overview" && <CommandCenterPage />}
           {activeSection === "agents" && <AgentNetworkPage />}
           {activeSection === "operations" && <OperationsPage />}
-          {activeSection === "intelligence" && <IntelligencePage />}
+          {activeSection === "intelligence" && <IntelligencePage />} */}
           {activeSection === "vibepass" && vibepassView === "collections" && (
             <VibePassPage onNavigateToDetails={() => setVibepassView("details")} />
           )}
           {activeSection === "vibepass" && vibepassView === "details" && <VibePassDetailsPage />}
-          {activeSection === "systems" && <SystemsPage />}
+          {/* {activeSection === "systems" && <SystemsPage />} */}
           {activeSection === "space" && <SpacePage />}
         </div>
       </div>
