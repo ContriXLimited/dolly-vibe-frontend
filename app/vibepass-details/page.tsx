@@ -1,0 +1,216 @@
+"use client"
+
+import { useState } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ArrowRight, Crown, Medal, Award } from "lucide-react"
+
+export default function VibePassDetailsPage() {
+  const [selectedPeriod, setSelectedPeriod] = useState("daily")
+
+  const leaderboardData = [
+    { rank: 1, name: "Jackie4853", referral: 460000, points: 190082, trend: "up" },
+    { rank: 2, name: "Whiskey236", referral: 440000, points: 170082, trend: "up" },
+    { rank: 3, name: "Summer", referral: 350000, points: 155082, trend: "up" },
+    { rank: 4, name: "JXlong", referral: 330240, points: 153082, trend: "down" },
+    { rank: 5, name: "GuruMusk", referral: 150000, points: 124082, trend: "up" },
+    { rank: 6, name: "Hardman", referral: 340000, points: 116082, trend: "up" },
+    { rank: 7, name: "Asakar", referral: 330240, points: 113082, trend: "down" },
+    { rank: 8, name: "Arster", referral: 330240, points: 113082, trend: "down" },
+  ]
+
+  const opportunities = [
+    "Unlock special channel in OG Discord",
+    "Access exclusive agent briefings",
+    "Premium mission assignments",
+  ]
+
+  const getRankIcon = (rank) => {
+    switch (rank) {
+      case 1:
+        return <Crown className="w-4 h-4 text-yellow-500" />
+      case 2:
+        return <Medal className="w-4 h-4 text-gray-400" />
+      case 3:
+        return <Award className="w-4 h-4 text-orange-600" />
+      default:
+        return <span className="text-neutral-400 font-mono text-sm">{rank}</span>
+    }
+  }
+
+  return (
+    <div className="p-6 space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-white tracking-wider">MY VIBEPASS</h1>
+          <p className="text-sm text-neutral-400">Agent performance and community engagement</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column - Stats and BattleOfAgents */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Stats Card */}
+          <Card className="bg-neutral-900 border-neutral-700">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-neutral-300 tracking-wider">STATS</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center gap-4">
+                {/* Purple Orb */}
+                <div className="relative w-20 h-20 flex-shrink-0">
+                  <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl opacity-80"></div>
+                  <div className="absolute inset-2 bg-gradient-to-br from-purple-400 to-pink-400 rounded-xl opacity-60"></div>
+                  <div className="absolute inset-4 bg-gradient-to-br from-purple-300 to-pink-300 rounded-lg opacity-40"></div>
+                </div>
+
+                <div className="flex-1">
+                  <p className="text-sm text-neutral-300 mb-2">
+                    Battle of Agents INFT represents the power of the BOA discord's Vibe event.{" "}
+                    <span className="text-orange-500 underline cursor-pointer">Know more about this event.</span>
+                  </p>
+
+                  <div className="grid grid-cols-2 gap-4 text-xs">
+                    <div>
+                      <span className="text-neutral-400">Mega 24h:</span>
+                      <span className="text-white font-mono ml-2">22</span>
+                    </div>
+                    <div>
+                      <span className="text-neutral-400">Engagement Score:</span>
+                      <span className="text-white font-mono ml-2">22,344</span>
+                    </div>
+                    <div>
+                      <span className="text-neutral-400">Referral Score:</span>
+                      <span className="text-white font-mono ml-2">5,520</span>
+                    </div>
+                    <div>
+                      <span className="text-neutral-400">Merkle Root:</span>
+                      <span className="text-white font-mono ml-2">0x0f0...2d22</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-2 text-xs">
+                    <span className="text-neutral-400">Grindstone GID:</span>
+                    <span className="text-white font-mono ml-2">score.json/proofs.json</span>
+                  </div>
+
+                  <div className="flex gap-2 mt-3">
+                    <Badge className="bg-neutral-800 text-neutral-300 text-xs">Doji</Badge>
+                    <Badge className="bg-neutral-800 text-neutral-300 text-xs">Agents</Badge>
+                    <Badge className="bg-neutral-800 text-neutral-300 text-xs">BOA</Badge>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* BattleOfAgents Card */}
+          <Card className="bg-neutral-900 border-neutral-700">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg font-bold text-white tracking-wider">BATTLEOFAGENTS</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-3 gap-6">
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-1 mb-1">
+                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                    <span className="text-xs text-neutral-400">VibePoints:</span>
+                  </div>
+                  <div className="text-xl font-bold text-white font-mono">234,454</div>
+                </div>
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-1 mb-1">
+                    <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                    <span className="text-xs text-neutral-400">Referrals:</span>
+                  </div>
+                  <div className="text-xl font-bold text-white font-mono">293,392</div>
+                </div>
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-1 mb-1">
+                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                    <span className="text-xs text-neutral-400">Rank:</span>
+                  </div>
+                  <div className="text-xl font-bold text-white font-mono">454</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Opportunities Card */}
+          <Card className="bg-neutral-900 border-neutral-700">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg font-bold text-white tracking-wider">OPPORTUNITIES</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {opportunities.map((opportunity, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-3 bg-neutral-800 rounded-lg hover:bg-neutral-700 transition-colors cursor-pointer"
+                >
+                  <span className="text-sm text-white">{opportunity}</span>
+                  <ArrowRight className="w-4 h-4 text-orange-500" />
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right Column - Leaderboard */}
+        <div className="lg:col-span-1">
+          <Card className="bg-neutral-900 border-neutral-700 h-fit">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg font-bold text-white tracking-wider">LEADERBOARD</CardTitle>
+                <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
+                  <SelectTrigger className="w-20 h-8 bg-neutral-800 border-neutral-600 text-white text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-neutral-800 border-neutral-600">
+                    <SelectItem value="daily" className="text-white">
+                      Daily
+                    </SelectItem>
+                    <SelectItem value="weekly" className="text-white">
+                      Weekly
+                    </SelectItem>
+                    <SelectItem value="monthly" className="text-white">
+                      Monthly
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-1">
+                {/* Header */}
+                <div className="grid grid-cols-12 gap-2 text-xs text-neutral-400 font-medium pb-2 border-b border-neutral-700">
+                  <div className="col-span-1">#</div>
+                  <div className="col-span-4">Name</div>
+                  <div className="col-span-3">Referral</div>
+                  <div className="col-span-4">Points</div>
+                </div>
+
+                {/* Leaderboard Entries */}
+                {leaderboardData.map((entry) => (
+                  <div
+                    key={entry.rank}
+                    className="grid grid-cols-12 gap-2 text-xs py-2 hover:bg-neutral-800 rounded transition-colors"
+                  >
+                    <div className="col-span-1 flex items-center">{getRankIcon(entry.rank)}</div>
+                    <div className="col-span-4 text-white font-medium truncate">{entry.name}</div>
+                    <div className="col-span-3 text-orange-500 font-mono">{entry.referral.toLocaleString()}</div>
+                    <div className="col-span-4 flex items-center gap-1">
+                      <span className="text-white font-mono">{entry.points.toLocaleString()}</span>
+                      <div className={`w-1 h-1 rounded-full ${entry.trend === "up" ? "bg-white" : "bg-red-500"}`}></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  )
+}
