@@ -68,71 +68,107 @@ export default function VibePassDetailsPage() {
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-neutral-300 tracking-wider">STATS</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-4">
-                {/* Radar Chart */}
-                <div className="w-60 h-44 flex-shrink-0">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <RadarChart data={radarData}>
-                      <PolarGrid
-                        stroke="#525252"
-                        strokeWidth={0.5}
-                        radialLines={true}
-                      />
-                      <PolarAngleAxis
-                        dataKey="skill"
-                        tick={{ fill: '#737373', fontSize: 10 }}
-                        className="text-xs"
-                      />
-                      <PolarRadiusAxis
-                        angle={90}
-                        domain={[0, 100]}
-                        tick={false}
-                        axisLine={false}
-                      />
-                      <Radar
-                        name="Stats"
-                        dataKey="value"
-                        stroke="#f97316"
-                        fill="#f97316"
-                        fillOpacity={0.3}
-                        strokeWidth={2}
-                      />
-                    </RadarChart>
-                  </ResponsiveContainer>
+            <CardContent>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Left Column - Radar Chart and Stats */}
+                <div className="space-y-4">
+                  {/* Radar Chart */}
+                  <div className="w-full h-48">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RadarChart data={radarData}>
+                        <PolarGrid
+                          stroke="#525252"
+                          strokeWidth={0.5}
+                          radialLines={true}
+                        />
+                        <PolarAngleAxis
+                          dataKey="skill"
+                          tick={{ fill: '#737373', fontSize: 10 }}
+                          className="text-xs"
+                        />
+                        <PolarRadiusAxis
+                          angle={90}
+                          domain={[0, 100]}
+                          tick={false}
+                          axisLine={false}
+                        />
+                        <Radar
+                          name="Stats"
+                          dataKey="value"
+                          stroke="#f97316"
+                          fill="#f97316"
+                          fillOpacity={0.3}
+                          strokeWidth={2}
+                        />
+                      </RadarChart>
+                    </ResponsiveContainer>
+                  </div>
+                  
+                  {/* BattleOfAgents Stats Card */}
+                  <div className="p-4 bg-black rounded-lg border border-neutral-800">
+                    <h3 className="text-white font-bold text-base mb-3">BattleOfAgents</h3>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-cyan-400">💎</span>
+                          <span className="text-neutral-400 text-sm">VibePoints:</span>
+                        </div>
+                        <span className="text-white font-mono text-sm">234,454</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-yellow-500">👥</span>
+                          <span className="text-neutral-400 text-sm">Holders:</span>
+                        </div>
+                        <span className="text-white font-mono text-sm">223,322</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-neutral-400">🏆</span>
+                          <span className="text-neutral-400 text-sm">Rank:</span>
+                        </div>
+                        <span className="text-white font-mono text-sm">454</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="flex-1">
-                  <p className="text-sm text-neutral-300 mb-2">
+                {/* Right Column - Description and Details */}
+                <div className="space-y-4">
+                  <p className="text-sm text-neutral-300">
                     Battle of Agents INFT represents the power of the BOA discord's Vibe event.{" "}
                     <span className="text-orange-500 underline cursor-pointer">Know more about this event.</span>
                   </p>
 
-                  <div className="grid grid-cols-2 gap-4 text-xs">
-                    <div>
-                      <span className="text-neutral-400">Mega 24h:</span>
-                      <span className="text-white font-mono ml-2">22</span>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-3">
+                      <div>
+                        <div className="text-xs text-neutral-400">Mega 24h</div>
+                        <div className="text-sm text-white font-mono">22</div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-neutral-400">Referral Score</div>
+                        <div className="text-sm text-white font-mono">5,520</div>
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-neutral-400">Engagement Score:</span>
-                      <span className="text-white font-mono ml-2">22,344</span>
-                    </div>
-                    <div>
-                      <span className="text-neutral-400">Referral Score:</span>
-                      <span className="text-white font-mono ml-2">5,520</span>
-                    </div>
-                    <div>
-                      <span className="text-neutral-400">Merkle Root:</span>
-                      <span className="text-white font-mono ml-2">0x0f0...2d22</span>
+                    <div className="space-y-3">
+                      <div>
+                        <div className="text-xs text-neutral-400">Engagement Score</div>
+                        <div className="text-sm text-white font-mono">22,344</div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-neutral-400">Merkle Root</div>
+                        <div className="text-sm text-white font-mono">0x0f0...2d22</div>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="mt-2 text-xs">
-                    <span className="text-neutral-400">Grindstone GID:</span>
-                    <span className="text-white font-mono ml-2">score.json/proofs.json</span>
+                  <div>
+                    <div className="text-xs text-neutral-400 mb-1">Grindstone GID</div>
+                    <div className="text-sm text-white font-mono">score.json/proofs.json</div>
                   </div>
 
-                  <div className="flex gap-2 mt-3">
+                  <div className="flex gap-2">
                     <Badge className="bg-neutral-800 text-neutral-300 text-xs">Doji</Badge>
                     <Badge className="bg-neutral-800 text-neutral-300 text-xs">Agents</Badge>
                     <Badge className="bg-neutral-800 text-neutral-300 text-xs">BOA</Badge>
