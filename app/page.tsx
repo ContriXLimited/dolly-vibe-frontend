@@ -26,69 +26,57 @@ export default function TacticalDashboard() {
     <div className="flex h-screen">
       {/* Sidebar */}
       <div
-        className={`${sidebarCollapsed ? "w-16" : "w-70"} bg-neutral-900 border-r border-neutral-700 transition-all duration-300 fixed md:relative z-50 md:z-auto h-full md:h-auto ${!sidebarCollapsed ? "md:block" : ""}`}
+        className={`${sidebarCollapsed ? "w-16" : "w-70"} bg-neutral-900 border-r border-neutral-700 transition-all duration-300 fixed md:relative z-50 md:z-auto h-full md:h-auto ${!sidebarCollapsed ? "md:block" : ""} flex flex-col`}
       >
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-8">
-            <div className={`${sidebarCollapsed ? "hidden" : "block"}`}>
-              <h1 className="text-orange-500 font-bold text-lg tracking-wider">Dolly Vibe</h1>
-              <p className="text-neutral-500 text-xs">v2.1.7 COMMUNITY</p>
+        <div className="p-4 flex-1 flex flex-col justify-between h-full">
+          <div>
+            <div className="flex items-center justify-between mb-8">
+              <div className={`${sidebarCollapsed ? "hidden" : "block"}`}>
+                <h1 className="text-orange-500 font-bold text-lg tracking-wider">Dolly Vibe</h1>
+                <p className="text-neutral-500 text-xs">v2.1.7 COMMUNITY</p>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                className="text-neutral-400 hover:text-orange-500"
+              >
+                <ChevronRight
+                  className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform ${sidebarCollapsed ? "" : "rotate-180"}`}
+                />
+              </Button>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className="text-neutral-400 hover:text-orange-500"
-            >
-              <ChevronRight
-                className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform ${sidebarCollapsed ? "" : "rotate-180"}`}
-              />
-            </Button>
-          </div>
 
-          <nav className="space-y-2">
-            {[
-              /* { id: "overview", icon: Monitor, label: "COMMAND CENTER", onClick: () => setActiveSection("overview") },
-              { id: "agents", icon: Users, label: "AGENT NETWORK", onClick: () => setActiveSection("agents") },
-              { id: "operations", icon: Target, label: "OPERATIONS", onClick: () => setActiveSection("operations") },
-              {
-                id: "intelligence",
-                icon: Shield,
-                label: "INTELLIGENCE",
-                onClick: () => setActiveSection("intelligence"),
-              }, */
-              { id: "vibepass", icon: Trophy, label: "VIBEPASS", onClick: handleVibePassClick },
-              /* { id: "systems", icon: Settings, label: "SYSTEMS", onClick: () => setActiveSection("systems") }, */
-              { id: "space", icon: Globe, label: "SPACE", onClick: () => setActiveSection("space") },
-            ].map((item) => (
-              <button
-                key={item.id}
-                onClick={item.onClick}
-                className={`w-full flex items-center gap-3 p-3 rounded transition-colors ${
-                  activeSection === item.id
+            <nav className="space-y-2">
+              {[
+                /* { id: "overview", icon: Monitor, label: "COMMAND CENTER", onClick: () => setActiveSection("overview") },
+                { id: "agents", icon: Users, label: "AGENT NETWORK", onClick: () => setActiveSection("agents") },
+                { id: "operations", icon: Target, label: "OPERATIONS", onClick: () => setActiveSection("operations") },
+                {
+                  id: "intelligence",
+                  icon: Shield,
+                  label: "INTELLIGENCE",
+                  onClick: () => setActiveSection("intelligence"),
+                }, */
+                { id: "vibepass", icon: Trophy, label: "VIBEPASS", onClick: handleVibePassClick },
+                /* { id: "systems", icon: Settings, label: "SYSTEMS", onClick: () => setActiveSection("systems") }, */
+                { id: "space", icon: Globe, label: "SPACE", onClick: () => setActiveSection("space") },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  onClick={item.onClick}
+                  className={`w-full flex items-center gap-3 p-3 rounded transition-colors ${activeSection === item.id
                     ? "bg-orange-500 text-white"
                     : "text-neutral-400 hover:text-white hover:bg-neutral-800"
-                }`}
-              >
-                <item.icon className="w-5 h-5 md:w-5 md:h-5 sm:w-6 sm:h-6" />
-                {!sidebarCollapsed && <span className="text-sm font-medium">{item.label}</span>}
-              </button>
-            ))}
-          </nav>
+                    }`}
+                >
+                  <item.icon className="w-5 h-5 md:w-5 md:h-5 sm:w-6 sm:h-6" />
+                  {!sidebarCollapsed && <span className="text-sm font-medium">{item.label}</span>}
+                </button>
+              ))}
+            </nav>
+          </div>
 
-          {!sidebarCollapsed && (
-            <div className="mt-8 p-4 bg-neutral-800 border border-neutral-700 rounded">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                <span className="text-xs text-white">SYSTEM ONLINE</span>
-              </div>
-              <div className="text-xs text-neutral-500">
-                <div>UPTIME: 72:14:33</div>
-                <div>AGENTS: 847 ACTIVE</div>
-                <div>MISSIONS: 23 ONGOING</div>
-              </div>
-            </div>
-          )}
 
           {!sidebarCollapsed && (
             <div className="mt-4 p-4 bg-neutral-800 border border-neutral-700 rounded">
@@ -97,7 +85,6 @@ export default function TacticalDashboard() {
                   <span className="text-white font-bold text-sm">AG</span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-xs text-orange-500 font-medium tracking-wider">FIELD COMMANDER</div>
                   <div className="text-sm text-white font-medium truncate">Agent Ghost</div>
                   <div className="text-xs text-neutral-400 truncate">ghost.agent@tactical.ops</div>
                 </div>
