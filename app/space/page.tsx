@@ -41,13 +41,13 @@ export default function SpacePage() {
   ]
 
   const popularCommunities = [
-    { name: "BATTLEOF..", percentage: 18.45, color: "teal", trend: "up" },
-    { name: "JAINE", percentage: 15.54, color: "red", trend: "down" },
-    { name: "EUCLID", percentage: 13.45, color: "teal", trend: "up" },
-    { name: "ZIA", percentage: 10.45, color: "teal", trend: "up" },
-    { name: "GIMO", percentage: 9.05, color: "teal", trend: "up" },
-    { name: "ZERR..", percentage: 8.95, color: "red", trend: "down" },
-    { name: "OGRE..", percentage: 8.65, color: "teal", trend: "up" },
+    { name: "BATTLEOF..", percentage: 18.45, color: "green", trend: "up" },
+    { name: "JAINE", percentage: 15.54, color: "brown", trend: "down" },
+    { name: "EUCLID", percentage: 13.45, color: "green", trend: "up" },
+    { name: "ZIA", percentage: 10.45, color: "green", trend: "up" },
+    { name: "GIMO", percentage: 9.05, color: "green", trend: "up" },
+    { name: "ZERR..", percentage: 8.95, color: "brown", trend: "down" },
+    { name: "OGRE..", percentage: 8.65, color: "green", trend: "up" },
   ]
 
   const leaderboardData = [
@@ -61,12 +61,12 @@ export default function SpacePage() {
   ]
 
   const getColorClasses = (color, trend) => {
-    if (color === "teal") {
-      return "bg-gradient-to-br from-teal-500/20 to-cyan-500/20 border-teal-500/30"
-    } else if (color === "red") {
-      return "bg-gradient-to-br from-red-500/20 to-orange-500/20 border-red-500/30"
+    if (color === "green") {
+      return "bg-gradient-to-br from-teal-700 to-teal-600 border-teal-500/50"
+    } else if (color === "brown") {
+      return "bg-gradient-to-br from-red-900 to-red-800 border-red-600/50"
     }
-    return "bg-gradient-to-br from-neutral-600/20 to-neutral-500/20 border-neutral-500/30"
+    return "bg-gradient-to-br from-neutral-700 to-neutral-600 border-neutral-500/50"
   }
 
   const generateMiniChart = (trend) => {
@@ -84,12 +84,12 @@ export default function SpacePage() {
       <svg className="w-full h-12 mt-2" viewBox="0 0 100 60">
         <defs>
           <linearGradient id={`gradient-${trend}`} x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor={trend === "up" ? "#14b8a6" : "#ef4444"} stopOpacity="0.3" />
-            <stop offset="100%" stopColor={trend === "up" ? "#14b8a6" : "#ef4444"} stopOpacity="0.1" />
+            <stop offset="0%" stopColor={trend === "up" ? "#5eead4" : "#fca5a5"} stopOpacity="0.6" />
+            <stop offset="100%" stopColor={trend === "up" ? "#5eead4" : "#fca5a5"} stopOpacity="0.2" />
           </linearGradient>
         </defs>
         <path d={`${pathData} L 100 60 L 0 60 Z`} fill={`url(#gradient-${trend})`} />
-        <path d={pathData} stroke={trend === "up" ? "#14b8a6" : "#ef4444"} strokeWidth="2" fill="none" />
+        <path d={pathData} stroke={trend === "up" ? "#5eead4" : "#fca5a5"} strokeWidth="2" fill="none" />
       </svg>
     )
   }
@@ -176,7 +176,7 @@ export default function SpacePage() {
           </div>
 
           {/* Others Card */}
-          <Card className="bg-gradient-to-br from-red-500/20 to-orange-500/20 border-red-500/30">
+          <Card className="bg-gradient-to-br from-red-900 to-red-800 border-red-600/50">
             <CardContent className="p-6">
               <div className="text-center">
                 <div className="text-2xl font-bold text-white mb-2">Others</div>

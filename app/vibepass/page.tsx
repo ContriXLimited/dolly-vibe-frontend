@@ -20,8 +20,8 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
       vibePoints: "234,454",
       holders: "223,322",
       rank: "454",
-      gradient: "from-purple-400 via-purple-500 to-pink-500",
-      bgGradient: "from-purple-500/20 to-pink-500/20",
+      gradient: "from-orange-400 via-orange-500 to-red-500",
+      bgGradient: "from-neutral-900 to-neutral-800",
     },
     {
       id: 2,
@@ -30,8 +30,8 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
       vibePoints: "234,454",
       holders: "223,322",
       rank: "454",
-      gradient: "from-teal-400 via-cyan-500 to-blue-500",
-      bgGradient: "from-teal-500/20 to-blue-500/20",
+      gradient: "from-orange-500 via-amber-500 to-yellow-500",
+      bgGradient: "from-neutral-900 to-neutral-800",
     },
     {
       id: 3,
@@ -40,8 +40,8 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
       vibePoints: "234,454",
       holders: "223,322",
       rank: "454",
-      gradient: "from-pink-400 via-rose-500 to-red-500",
-      bgGradient: "from-pink-500/20 to-red-500/20",
+      gradient: "from-red-400 via-red-500 to-orange-500",
+      bgGradient: "from-neutral-900 to-neutral-800",
     },
     {
       id: 4,
@@ -50,8 +50,8 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
       vibePoints: "234,454",
       holders: "223,322",
       rank: "454",
-      gradient: "from-gray-700 via-gray-800 to-black",
-      bgGradient: "from-gray-700/20 to-black/20",
+      gradient: "from-neutral-600 via-neutral-700 to-neutral-800",
+      bgGradient: "from-neutral-900 to-neutral-800",
     },
     {
       id: 5,
@@ -60,8 +60,8 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
       vibePoints: "234,454",
       holders: "223,322",
       rank: "454",
-      gradient: "from-purple-400 via-purple-500 to-pink-500",
-      bgGradient: "from-purple-500/20 to-pink-500/20",
+      gradient: "from-orange-400 via-orange-500 to-red-500",
+      bgGradient: "from-neutral-900 to-neutral-800",
     },
     {
       id: 6,
@@ -70,8 +70,8 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
       vibePoints: "234,454",
       holders: "223,322",
       rank: "454",
-      gradient: "from-teal-400 via-cyan-500 to-blue-500",
-      bgGradient: "from-teal-500/20 to-blue-500/20",
+      gradient: "from-orange-500 via-amber-500 to-yellow-500",
+      bgGradient: "from-neutral-900 to-neutral-800",
     },
     {
       id: 7,
@@ -80,8 +80,8 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
       vibePoints: "234,454",
       holders: "223,322",
       rank: "454",
-      gradient: "from-pink-400 via-rose-500 to-red-500",
-      bgGradient: "from-pink-500/20 to-red-500/20",
+      gradient: "from-red-400 via-red-500 to-orange-500",
+      bgGradient: "from-neutral-900 to-neutral-800",
     },
     {
       id: 8,
@@ -90,8 +90,8 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
       vibePoints: "234,454",
       holders: "223,322",
       rank: "454",
-      gradient: "from-gray-700 via-gray-800 to-black",
-      bgGradient: "from-gray-700/20 to-black/20",
+      gradient: "from-neutral-600 via-neutral-700 to-neutral-800",
+      bgGradient: "from-neutral-900 to-neutral-800",
     },
   ]
 
@@ -132,7 +132,7 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
         {collections.map((collection) => (
           <Card
             key={collection.id}
-            className={`bg-gradient-to-br ${collection.bgGradient} border border-neutral-700/50 hover:border-neutral-600 transition-all duration-300 hover:scale-105 cursor-pointer overflow-hidden`}
+            className={`bg-gradient-to-br ${collection.bgGradient} border border-neutral-700 hover:border-orange-500/50 transition-all duration-300 hover:scale-105 cursor-pointer overflow-hidden`}
             onClick={handleCardClick}
           >
             <CardContent className="p-6">
