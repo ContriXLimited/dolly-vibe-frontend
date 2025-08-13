@@ -20,8 +20,8 @@ export default function SpacePage() {
     {
       title: "Projects",
       value: "39",
-      change: "+2",
-      trend: "up",
+      change: "-5",
+      trend: "down",
       icon: FolderOpen,
     },
     {
@@ -34,8 +34,8 @@ export default function SpacePage() {
     {
       title: "Total Vibes",
       value: "498K",
-      change: "+2%",
-      trend: "up",
+      change: "-8%",
+      trend: "down",
       icon: Zap,
     },
   ]
@@ -127,7 +127,11 @@ export default function SpacePage() {
                   ) : (
                     <TrendingDown className="w-4 h-4 text-red-500" />
                   )}
-                  <span className="text-sm font-medium text-teal-500 bg-teal-500/20 px-2 py-1 rounded">
+                  <span className={`text-sm font-medium px-2 py-1 rounded ${
+                    stat.trend === "up" 
+                      ? "text-teal-500 bg-teal-500/20" 
+                      : "text-red-500 bg-red-500/20"
+                  }`}>
                     {stat.change}
                   </span>
                 </div>
@@ -221,7 +225,7 @@ export default function SpacePage() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-white tracking-wider">LEADERBOARD</h2>
             <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-              <SelectTrigger className="w-20 h-8 bg-neutral-800 border-neutral-600 text-white text-xs">
+              <SelectTrigger className="w-30 h-8 bg-neutral-800 border-neutral-600 text-white text-xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-neutral-800 border-neutral-600">
