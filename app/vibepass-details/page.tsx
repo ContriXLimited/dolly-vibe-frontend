@@ -4,11 +4,12 @@ import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowRight, Crown, Medal, Award } from "lucide-react"
+import { ArrowRight, Crown, Medal, Award, ChevronDown } from "lucide-react"
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from "recharts"
 
 export default function VibePassDetailsPage() {
   const [selectedPeriod, setSelectedPeriod] = useState("daily")
+  const [expandedOpportunity, setExpandedOpportunity] = useState<number | null>(null)
 
   // Radar chart data
   const radarData = [
@@ -32,12 +33,27 @@ export default function VibePassDetailsPage() {
   ]
 
   const opportunities = [
-    "Unlock special channel in OG Discord",
-    "Access exclusive agent briefings",
-    "Premium mission assignments",
+    {
+      title: "Unlock special channel in OG Discord",
+      description: "Gain access to the exclusive OG Discord channel where top agents coordinate missions and share intel.",
+      benefits: ["Direct communication with elite agents", "Priority mission notifications", "Weekly strategy sessions"],
+      requirements: "Minimum 100,000 VibePoints required"
+    },
+    {
+      title: "Access exclusive agent briefings", 
+      description: "Receive classified briefings on upcoming operations and strategic initiatives before public release.",
+      benefits: ["48-hour early access to missions", "Detailed tactical analysis", "Agent performance metrics"],
+      requirements: "Rank within top 500 holders"
+    },
+    {
+      title: "Premium mission assignments",
+      description: "Get assigned to high-value missions with greater rewards and exclusive NFT drops.",
+      benefits: ["3x VibePoint multiplier", "Exclusive NFT airdrops", "Custom agent badge"],
+      requirements: "Complete 10 standard missions first"
+    },
   ]
 
-  const getRankIcon = (rank) => {
+  const getRankIcon = (rank: number) => {
     switch (rank) {
       case 1:
         return <Crown className="w-4 h-4 text-yellow-500" />
@@ -217,12 +233,52 @@ export default function VibePassDetailsPage() {
             </CardHeader>
             <CardContent className="space-y-3">
               {opportunities.map((opportunity, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-3 bg-neutral-800 rounded-lg hover:bg-neutral-700 transition-colors cursor-pointer"
-                >
-                  <span className="text-sm text-white">{opportunity}</span>
-                  <ArrowRight className="w-4 h-4 text-orange-500" />
+                <div key={index} className="border border-neutral-700 rounded-lg overflow-hidden">
+                  {/* Clickable header */}
+                  <div
+                    className="flex items-center justify-between p-3 bg-neutral-800 hover:bg-neutral-700 transition-colors cursor-pointer"
+                    onClick={() => setExpandedOpportunity(expandedOpportunity === index ? null : index)}
+                  >
+                    <span className="text-sm text-white font-medium">{opportunity.title}</span>
+                    <ChevronDown 
+                      className={`w-4 h-4 text-orange-500 transition-transform ${
+                        expandedOpportunity === index ? 'rotate-180' : ''
+                      }`} 
+                    />
+                  </div>
+                  
+                  {/* Expandable content */}
+                  {expandedOpportunity === index && (
+                    <div className="p-4 bg-neutral-900 border-t border-neutral-700 space-y-4">
+                      <div>
+                        <h4 className="text-xs font-medium text-neutral-400 mb-2">DESCRIPTION</h4>
+                        <p className="text-sm text-neutral-300">{opportunity.description}</p>
+                      </div>
+
+                      <div>
+                        <h4 className="text-xs font-medium text-neutral-400 mb-2">BENEFITS</h4>
+                        <div className="space-y-1">
+                          {opportunity.benefits.map((benefit, i) => (
+                            <div key={i} className="flex items-start gap-2">
+                              <span className="text-orange-500 mt-0.5 text-xs">▸</span>
+                              <span className="text-xs text-neutral-300">{benefit}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <h4 className="text-xs font-medium text-neutral-400 mb-2">REQUIREMENTS</h4>
+                        <div className="p-2 bg-neutral-800 rounded text-xs text-neutral-300">
+                          {opportunity.requirements}
+                        </div>
+                      </div>
+
+                      <button className="w-full py-2 px-4 bg-orange-500 hover:bg-orange-600 text-white rounded text-sm transition-colors font-medium">
+                        ACTIVATE
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
             </CardContent>
@@ -283,6 +339,7 @@ export default function VibePassDetailsPage() {
           </Card>
         </div>
       </div>
+
     </div>
   )
 }
