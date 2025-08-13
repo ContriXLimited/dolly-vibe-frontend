@@ -118,9 +118,8 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
         <h1 className="text-2xl font-bold text-white tracking-wider">VibePass</h1>
         <div className="flex items-center gap-2">
           <Select value={holdingFilter} onValueChange={setHoldingFilter}>
-            <SelectTrigger className="w-32 bg-neutral-800 border-neutral-600 text-white">
+            <SelectTrigger className="w-40 bg-neutral-800 border-neutral-600 text-white">
               <SelectValue placeholder="Holding" />
-              <ChevronDown className="w-4 h-4 ml-2" />
             </SelectTrigger>
             <SelectContent className="bg-neutral-800 border-neutral-600">
               <SelectItem value="all" className="text-white">
