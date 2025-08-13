@@ -16,7 +16,7 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
     {
       id: 1,
       name: "BattleOfAgents",
-      subtitle: "On/Ora...2022",
+      subtitle: "0x1a2b...cd3e",
       vibePoints: "234,454",
       holders: "223,322",
       rank: "454",
@@ -26,7 +26,7 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
     {
       id: 2,
       name: "BattleOfAgents",
-      subtitle: "On/Ora...2022",
+      subtitle: "0x4f5a...b6c7",
       vibePoints: "234,454",
       holders: "223,322",
       rank: "454",
@@ -36,7 +36,7 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
     {
       id: 3,
       name: "BattleOfAgents",
-      subtitle: "On/Ora...2022",
+      subtitle: "0x8d9e...f012",
       vibePoints: "234,454",
       holders: "223,322",
       rank: "454",
@@ -46,7 +46,7 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
     {
       id: 4,
       name: "BattleOfAgents",
-      subtitle: "On/Ora...2022",
+      subtitle: "0x3456...789a",
       vibePoints: "234,454",
       holders: "223,322",
       rank: "454",
@@ -56,7 +56,7 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
     {
       id: 5,
       name: "BattleOfAgents",
-      subtitle: "On/Ora...2022",
+      subtitle: "0xbcde...f123",
       vibePoints: "234,454",
       holders: "223,322",
       rank: "454",
@@ -66,7 +66,7 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
     {
       id: 6,
       name: "BattleOfAgents",
-      subtitle: "On/Ora...2022",
+      subtitle: "0x4567...890b",
       vibePoints: "234,454",
       holders: "223,322",
       rank: "454",
@@ -76,7 +76,7 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
     {
       id: 7,
       name: "BattleOfAgents",
-      subtitle: "On/Ora...2022",
+      subtitle: "0xcdef...2345",
       vibePoints: "234,454",
       holders: "223,322",
       rank: "454",
@@ -86,7 +86,7 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
     {
       id: 8,
       name: "BattleOfAgents",
-      subtitle: "On/Ora...2022",
+      subtitle: "0x6789...abcd",
       vibePoints: "234,454",
       holders: "223,322",
       rank: "454",
