@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ChevronDown } from "lucide-react"
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from "recharts"
 
 interface VibePassPageProps {
   onNavigateToDetails?: () => void
@@ -11,6 +12,15 @@ interface VibePassPageProps {
 
 export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps) {
   const [holdingFilter, setHoldingFilter] = useState("all")
+
+  // Generate random radar data for each collection
+  const generateRadarData = () => [
+    { skill: "Power", value: Math.floor(Math.random() * 40) + 60 },
+    { skill: "Speed", value: Math.floor(Math.random() * 40) + 50 },
+    { skill: "Skill", value: Math.floor(Math.random() * 40) + 70 },
+    { skill: "Defense", value: Math.floor(Math.random() * 40) + 55 },
+    { skill: "Magic", value: Math.floor(Math.random() * 40) + 65 },
+  ]
 
   const collections = [
     {
@@ -136,27 +146,36 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
             onClick={handleCardClick}
           >
             <CardContent className="p-6">
-              {/* 3D Orb */}
+              {/* Radar Chart */}
               <div className="flex justify-center mb-6">
-                <div className="relative w-24 h-24">
-                  {/* Main orb */}
-                  <div
-                    className={`w-full h-full rounded-full bg-gradient-to-br ${collection.gradient} shadow-2xl`}
-                    style={{
-                      boxShadow: `0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2)`,
-                    }}
-                  >
-                    {/* Highlight */}
-                    <div
-                      className="absolute top-2 left-2 w-6 h-6 rounded-full bg-white/30 blur-sm"
-                      style={{
-                        background: `radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), transparent 70%)`,
-                      }}
-                    ></div>
-                  </div>
-
-                  {/* Reflection */}
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-t from-transparent via-transparent to-white/10"></div>
+                <div className="w-40 h-28">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RadarChart data={generateRadarData()}>
+                      <PolarGrid
+                        stroke="#525252"
+                        strokeWidth={0.5}
+                        radialLines={true}
+                      />
+                      <PolarAngleAxis
+                        dataKey="skill"
+                        tick={{ fill: '#737373', fontSize: 8 }}
+                        className="text-xs"
+                      />
+                      <PolarRadiusAxis
+                        domain={[0, 100]}
+                        tick={false}
+                        axisLine={false}
+                      />
+                      <Radar
+                        name="Stats"
+                        dataKey="value"
+                        stroke="#f97316"
+                        fill="#f97316"
+                        fillOpacity={0.3}
+                        strokeWidth={2}
+                      />
+                    </RadarChart>
+                  </ResponsiveContainer>
                 </div>
               </div>
 
