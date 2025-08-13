@@ -160,10 +160,40 @@ export default function SpacePage() {
             </Select>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-            {popularCommunities.map((community, index) => (
+          {/* First row - top 3 communities (1/3 each) */}
+          <div className="grid grid-cols-3 gap-4 mb-4">
+            {popularCommunities.slice(0, 3).map((community, index) => {
+              const medalStyles = [
+                "border-yellow-500/50 shadow-[0_0_20px_rgba(250,204,21,0.4)]", // Gold
+                "border-gray-400/50 shadow-[0_0_20px_rgba(192,192,192,0.4)]", // Silver
+                "border-orange-700/50 shadow-[0_0_20px_rgba(205,127,50,0.4)]", // Bronze
+              ]
+              return (
+                <Card
+                  key={index}
+                  className={`${getColorClasses(community.color, community.trend)} ${medalStyles[index]} hover:scale-105 transition-transform cursor-pointer relative`}
+                >
+                  {/* Medal icon */}
+                  <div className="absolute top-2 right-2">
+                    {index === 0 && <span className="text-yellow-500 text-xl">🥇</span>}
+                    {index === 1 && <span className="text-gray-400 text-xl">🥈</span>}
+                    {index === 2 && <span className="text-orange-700 text-xl">🥉</span>}
+                  </div>
+                  <CardContent className="p-4">
+                    <div className="text-lg font-bold text-white mb-1">{community.name}</div>
+                    <div className="text-sm text-neutral-300 mb-2">{community.percentage}%</div>
+                    {generateMiniChart(community.trend)}
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
+
+          {/* Second row - communities 4-7 (1/4 each) */}
+          <div className="grid grid-cols-4 gap-4 mb-4">
+            {popularCommunities.slice(3, 7).map((community, index) => (
               <Card
-                key={index}
+                key={index + 3}
                 className={`${getColorClasses(community.color, community.trend)} hover:scale-105 transition-transform cursor-pointer`}
               >
                 <CardContent className="p-4">
@@ -175,7 +205,7 @@ export default function SpacePage() {
             ))}
           </div>
 
-          {/* Others Card */}
+          {/* Others Card - full width */}
           <Card className="bg-gradient-to-br from-red-900 to-red-800 border-red-600/50">
             <CardContent className="p-6">
               <div className="text-center">
