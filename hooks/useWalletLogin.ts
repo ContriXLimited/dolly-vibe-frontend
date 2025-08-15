@@ -70,8 +70,10 @@ export function useWalletLogin(): UseWalletLoginReturn {
         console.log('🔓 useWalletLogin: 钱包断开连接，清除登录状态')
         logout()
       }
-    } else if (address !== authState.walletAddress && authState.isLoggedIn) {
-      // 钱包地址变化时重新登录
+    } else if (address && authState.walletAddress && 
+               address.toLowerCase() !== authState.walletAddress.toLowerCase() && 
+               authState.isLoggedIn) {
+      // 钱包地址变化时重新登录（忽略大小写差异）
       console.log('🔄 useWalletLogin: 钱包地址变化，重新登录')
       logout()
     }
@@ -138,16 +140,17 @@ export function useWalletLogin(): UseWalletLoginReturn {
       console.log('✅ 验证成功:', loginResponse)
 
       if (loginResponse.verified) {
-        // 4. 保存认证状态
+        // 4. 保存认证状态（确保地址为小写）
+        const normalizedAddress = loginResponse.walletAddress.toLowerCase()
         setToken(loginResponse.access_token)
         if (typeof window !== 'undefined') {
-          localStorage.setItem('wallet_address', loginResponse.walletAddress)
+          localStorage.setItem('wallet_address', normalizedAddress)
           localStorage.setItem('user_data', JSON.stringify(loginResponse.user))
         }
 
         setAuthState({
           isLoggedIn: true,
-          walletAddress: loginResponse.walletAddress,
+          walletAddress: normalizedAddress,
           user: loginResponse.user,
           accessToken: loginResponse.access_token
         })

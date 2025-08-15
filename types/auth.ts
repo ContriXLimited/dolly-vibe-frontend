@@ -111,3 +111,37 @@ export interface UseOAuthReturn {
   isLoading: boolean
   error: string | null
 }
+
+// 新的用户状态查询 API 响应类型
+export interface NewUserStatusResponse {
+  vibeUserId: string
+  walletAddress: string
+  status: {
+    discord: {
+      connected: boolean
+      username: string
+      userId: string
+      verified: boolean
+      isJoined: boolean
+      connectedAt: string
+    }
+    twitter: {
+      connected: boolean
+      username: string
+      userId: string
+      verified: boolean
+      isFollowed: boolean
+      connectedAt: string
+    }
+    wallet: {
+      connected: boolean
+      walletAddress: string
+      verifiedAt: string
+    }
+    overall: {
+      allConnected: boolean
+      completedAt: string | null
+      canProceed: boolean
+    }
+  }
+}

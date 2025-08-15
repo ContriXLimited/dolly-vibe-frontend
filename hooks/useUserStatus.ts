@@ -17,7 +17,7 @@ export function useUserStatus(walletAddress: string | null): UseUserStatusReturn
     setError(null)
 
     try {
-      const status = await UserService.getUserStatus(walletAddress)
+      const status = await UserService.getUserStatusByWallet(walletAddress)
       setUserStatus(status)
     } catch (err: any) {
       console.error('Failed to fetch user status:', err)

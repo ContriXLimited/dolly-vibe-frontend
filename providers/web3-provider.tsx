@@ -8,7 +8,7 @@ import '@rainbow-me/rainbowkit/styles.css'
 
 const config = getDefaultConfig({
   appName: 'Dolly Vibe',
-  projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || 'c8fa2969f26b7ce7f9d1e9c10bb3de80', // 临时使用默认项目ID
+  projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || '1f449d25c01a7ece08ce2ffeeaaac6c8', // 临时使用默认项目ID
   chains: [mainnet, polygon, optimism, arbitrum, base],
   ssr: true,
 })
