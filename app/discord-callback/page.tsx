@@ -23,6 +23,7 @@ function DiscordCallbackContent() {
         const code = searchParams.get('code')
         const state = searchParams.get('state')
         const error = searchParams.get('error')
+        const callbackUrl = searchParams.get('callbackUrl')
 
         if (error) {
           setStatus('error')
@@ -36,10 +37,10 @@ function DiscordCallbackContent() {
           return
         }
 
-        console.log('📞 Processing Discord callback:', { code, state })
+        console.log('📞 Processing Discord callback:', { code, state, callbackUrl })
 
         // 调用后端处理回调
-        const result = await SocialService.handleDiscordCallback(code, state)
+        const result = await SocialService.handleDiscordCallback(code, state, callbackUrl || undefined)
         
         console.log('✅ Discord callback processing result:', result)
 

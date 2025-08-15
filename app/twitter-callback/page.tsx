@@ -23,6 +23,7 @@ function TwitterCallbackContent() {
         const oauth_token = searchParams.get('oauth_token')
         const oauth_verifier = searchParams.get('oauth_verifier')
         const denied = searchParams.get('denied')
+        const callbackUrl = searchParams.get('callbackUrl')
 
         if (denied) {
           setStatus('error')
@@ -36,10 +37,10 @@ function TwitterCallbackContent() {
           return
         }
 
-        console.log('📞 Processing Twitter callback:', { oauth_token, oauth_verifier })
+        console.log('📞 Processing Twitter callback:', { oauth_token, oauth_verifier, callbackUrl })
 
         // 调用后端处理回调
-        const result = await SocialService.handleTwitterCallback(oauth_token, oauth_verifier)
+        const result = await SocialService.handleTwitterCallback(oauth_token, oauth_verifier, callbackUrl || undefined)
         
         console.log('✅ Twitter callback processing result:', result)
 

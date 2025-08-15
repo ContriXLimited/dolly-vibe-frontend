@@ -54,7 +54,7 @@ export class SocialService {
   }
 
   // 处理 Discord OAuth 回调
-  static async handleDiscordCallback(code: string, state: string): Promise<{
+  static async handleDiscordCallback(code: string, state: string, callbackUrl?: string): Promise<{
     success: boolean
     discordId: string
     username: string
@@ -63,9 +63,14 @@ export class SocialService {
     message: string
     note: string
   }> {
-    console.log('🌐 API 调用: handleDiscordCallback', { code, state, url: '/auth/discord/callback' })
+    console.log('🌐 API 调用: handleDiscordCallback', { code, state, callbackUrl, url: '/auth/discord/callback' })
     
     try {
+      const params: any = { code, state }
+      if (callbackUrl) {
+        params.callbackUrl = callbackUrl
+      }
+      
       const response = await request<{data: {
         success: boolean
         discordId: string
@@ -77,7 +82,7 @@ export class SocialService {
       }}>({
         method: 'GET',
         url: '/auth/discord/callback',
-        params: { code, state }
+        params
       })
       
       console.log('📡 API 响应:', response.data)
@@ -90,7 +95,7 @@ export class SocialService {
   }
 
   // 处理 Twitter OAuth 回调
-  static async handleTwitterCallback(oauth_token: string, oauth_verifier: string): Promise<{
+  static async handleTwitterCallback(oauth_token: string, oauth_verifier: string, callbackUrl?: string): Promise<{
     success: boolean
     twitterId: string
     username: string
@@ -99,9 +104,14 @@ export class SocialService {
     message: string
     note: string
   }> {
-    console.log('🌐 API 调用: handleTwitterCallback', { oauth_token, oauth_verifier, url: '/auth/twitter/callback' })
+    console.log('🌐 API 调用: handleTwitterCallback', { oauth_token, oauth_verifier, callbackUrl, url: '/auth/twitter/callback' })
     
     try {
+      const params: any = { oauth_token, oauth_verifier }
+      if (callbackUrl) {
+        params.callbackUrl = callbackUrl
+      }
+      
       const response = await request<{data: {
         success: boolean
         twitterId: string
@@ -113,7 +123,7 @@ export class SocialService {
       }}>({
         method: 'GET',
         url: '/auth/twitter/callback',
-        params: { oauth_token, oauth_verifier }
+        params
       })
       
       console.log('📡 API 响应:', response.data)

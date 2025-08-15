@@ -25,6 +25,7 @@ function DiscordCallbackContent() {
       const code = searchParams.get('code')
       const state = searchParams.get('state')
       const error = searchParams.get('error')
+      const callbackUrl = searchParams.get('callbackUrl')
 
       if (error) {
         setStatus('error')
@@ -39,7 +40,7 @@ function DiscordCallbackContent() {
       }
 
       try {
-        const result = await SocialService.handleDiscordCallback(code, state)
+        const result = await SocialService.handleDiscordCallback(code, state, callbackUrl || undefined)
         
         if (result.success) {
           setStatus('success')

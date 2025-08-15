@@ -25,6 +25,7 @@ function TwitterCallbackContent() {
       const oauth_token = searchParams.get('oauth_token')
       const oauth_verifier = searchParams.get('oauth_verifier')
       const denied = searchParams.get('denied')
+      const callbackUrl = searchParams.get('callbackUrl')
 
       if (denied) {
         setStatus('error')
@@ -39,7 +40,7 @@ function TwitterCallbackContent() {
       }
 
       try {
-        const result = await SocialService.handleTwitterCallback(oauth_token, oauth_verifier)
+        const result = await SocialService.handleTwitterCallback(oauth_token, oauth_verifier, callbackUrl || undefined)
         
         if (result.success) {
           setStatus('success')
