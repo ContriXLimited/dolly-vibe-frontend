@@ -14,7 +14,7 @@ export default function LoginPage() {
   const { isConnected, address } = useAccount()
   const router = useRouter()
   
-  // 使用 AuthStore
+  // Use AuthStore
   const {
     walletAddress,
     isWalletConnected,
@@ -30,123 +30,93 @@ export default function LoginPage() {
     initialize
   } = useAuthStore()
   
-  // 同步钱包状态
+  // Sync wallet state
   useWalletSync()
   
   const [currentStep, setCurrentStep] = useState<'wallet' | 'verify' | 'social' | 'complete'>('wallet')
   const [isInitialized, setIsInitialized] = useState(false)
 
-  // 初始化 AuthStore
+  // Initialize AuthStore
   useEffect(() => {
-    console.log('🔧 Login Page: 初始化 AuthStore')
     initialize()
     
     const timer = setTimeout(() => {
-      console.log('✅ Login Page: 初始化完成')
       setIsInitialized(true)
     }, 100)
     return () => clearTimeout(timer)
   }, [initialize])
 
-  // 监听钱包连接状态变化
+  // Monitor wallet connection status changes
   useEffect(() => {
     if (!isInitialized) {
-      console.log('⏳ Login Page: 等待初始化完成...')
       return
     }
     
-    console.log('🔍 Login Page: 检查钱包状态', {
-      isConnected,
-      address,
-      isWalletConnected,
-      walletAddress,
-      isLoggedIn,
-      currentStep
-    })
-    
-    // 使用 address 存在作为更可靠的连接指标
+    // Use address existence as a more reliable connection indicator
     const hasWalletConnected = isConnected || isWalletConnected || !!address
     
     if (hasWalletConnected && !isLoggedIn) {
-      console.log('🔄 Login Page: 钱包已连接但未登录，跳转到验证步骤')
       setCurrentStep('verify')
     } else if (!hasWalletConnected && !isLoggedIn) {
-      console.log('🔄 Login Page: 钱包未连接，显示连接步骤')
       setCurrentStep('wallet')
     }
   }, [isInitialized, isConnected, address, isWalletConnected, walletAddress, isLoggedIn, currentStep])
 
-  // 监听登录状态变化
+  // Monitor login status changes
   useEffect(() => {
-    console.log('👤 Login Page: 登录状态变化', {
-      isLoggedIn,
-      userStatus: userStatus ? {
-        allConnected: userStatus.allConnected,
-        discordConnected: userStatus.discordConnected,
-        twitterConnected: userStatus.twitterConnected,
-        isJoined: userStatus.isJoined,
-        isFollowed: userStatus.isFollowed
-      } : null
-    })
-
     if (isLoggedIn && userStatus) {
       if (userStatus.allConnected) {
-        console.log('🎉 Login Page: 所有验证完成，显示完成页面')
         setCurrentStep('complete')
       } else {
-        console.log('🔗 Login Page: 需要完成社交平台连接')
         setCurrentStep('social')
       }
     }
   }, [isLoggedIn, userStatus])
 
-  // 处理钱包签名验证
+  // Handle wallet signature verification
   const handleWalletLogin = async () => {
     clearError()
     try {
       await login()
     } catch (err) {
-      console.error('Wallet login failed:', err)
     }
   }
 
-  // 处理 Discord 连接
+  // Handle Discord connection
   const handleDiscordConnect = async () => {
     clearError()
     try {
       await connectDiscord()
-      // 等待用户在新窗口完成授权后刷新状态
+      // Wait for user to complete authorization in new window, then refresh status
       setTimeout(() => {
         refreshUserStatus()
       }, 5000)
     } catch (err) {
-      console.error('Discord connect failed:', err)
     }
   }
 
-  // 处理 Twitter 连接
+  // Handle Twitter connection
   const handleTwitterConnect = async () => {
     clearError()
     
-    // 如果已经连接但未关注，直接跳转到 Twitter 页面
+    // If connected but not following, redirect to Twitter page
     if (userStatus?.twitterConnected && !userStatus.isFollowed) {
       window.open('https://x.com/0G_labs', '_blank')
-      // 5秒后刷新状态检查是否已关注
+      // Refresh status after 5 seconds to check if following
       setTimeout(() => {
         refreshUserStatus()
       }, 5000)
       return
     }
     
-    // 如果未连接，则进行 OAuth 授权
+    // If not connected, proceed with OAuth authorization
     try {
       await connectTwitter()
-      // 等待用户在新窗口完成授权后刷新状态
+      // Wait for user to complete authorization in new window, then refresh status
       setTimeout(() => {
         refreshUserStatus()
       }, 5000)
     } catch (err) {
-      console.error('Twitter connect failed:', err)
     }
   }
 
@@ -178,11 +148,11 @@ export default function LoginPage() {
         </CardHeader>
 
         <CardContent className="space-y-6 pb-8">
-          {/* 步骤1: 钱包连接 */}
+          {/* Step 1: Wallet Connection */}
           {currentStep === 'wallet' && (
             <div className="space-y-4">
               <div className="text-center mb-4">
-                <p className="text-neutral-300 text-sm">第 1 步：连接您的钱包</p>
+                <p className="text-neutral-300 text-sm">Step 1: Connect Your Wallet</p>
               </div>
               <div>
                 <h2 className="text-white font-medium mb-3">Connect Wallet</h2>
@@ -191,13 +161,13 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* 步骤2: 钱包签名验证 */}
+          {/* Step 2: Wallet Signature Verification */}
           {currentStep === 'verify' && (
             <div className="space-y-4">
               <div className="text-center mb-4">
-                <p className="text-neutral-300 text-sm">第 2 步：验证钱包身份</p>
+                <p className="text-neutral-300 text-sm">Step 2: Verify Wallet Identity</p>
                 <p className="text-neutral-500 text-xs mt-1">
-                  钱包地址: {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : '未连接'}
+                  Wallet Address: {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : 'Not Connected'}
                 </p>
               </div>
               
@@ -217,29 +187,29 @@ export default function LoginPage() {
                   className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-3 text-lg"
                 >
                   {isLoading ? (
-                    <><Loader2 className="w-4 h-4 animate-spin mr-2" />验证中...</>
+                    <><Loader2 className="w-4 h-4 animate-spin mr-2" />Verifying...</>
                   ) : (
-                    '签名验证钱包'
+                    'Sign to Verify Wallet'
                   )}
                 </Button>
               </div>
             </div>
           )}
 
-          {/* 步骤3: 社交平台连接 */}
+          {/* Step 3: Social Platform Connections */}
           {currentStep === 'social' && userStatus && (
             <div className="space-y-4">
               <div className="text-center mb-4">
-                <p className="text-neutral-300 text-sm">第 3 步：连接社交平台</p>
+                <p className="text-neutral-300 text-sm">Step 3: Connect Social Platforms</p>
                 <p className="text-neutral-400 text-xs mt-1">
-                  完成度: {userStatus.nextSteps.filter(step => step.completed).length}/{userStatus.nextSteps.length}
+                  Progress: {userStatus.nextSteps.filter(step => step.completed).length}/{userStatus.nextSteps.length}
                 </p>
               </div>
 
               {isLoading && (
                 <div className="text-center py-4">
                   <Loader2 className="w-6 h-6 animate-spin mx-auto text-orange-500" />
-                  <p className="text-neutral-400 text-sm mt-2">检查连接状态...</p>
+                  <p className="text-neutral-400 text-sm mt-2">Checking connection status...</p>
                 </div>
               )}
 
@@ -252,7 +222,7 @@ export default function LoginPage() {
                 </div>
               )}
 
-              {/* Discord 连接状态 */}
+              {/* Discord Connection Status */}
               <div>
                 <h2 className="text-white font-medium mb-3 flex items-center gap-2">
                   Join OG Discord
@@ -279,9 +249,9 @@ export default function LoginPage() {
                         : 'text-neutral-200'
                     }`}>
                       {userStatus.discordConnected && userStatus.isJoined
-                        ? 'Discord 已连接并加入服务器'
+                        ? 'Discord connected and joined server'
                         : userStatus.discordConnected
-                        ? 'Discord 已连接，需加入服务器'
+                        ? 'Discord connected, need to join server'
                         : 'Connect Discord Account'
                       }
                     </span>
@@ -292,7 +262,7 @@ export default function LoginPage() {
                 </button>
               </div>
 
-              {/* Twitter 连接状态 */}
+              {/* Twitter Connection Status */}
               <div>
                 <h2 className="text-white font-medium mb-3 flex items-center gap-2">
                   Follow us on X
@@ -319,9 +289,9 @@ export default function LoginPage() {
                         : 'text-neutral-200'
                     }`}>
                       {userStatus.twitterConnected && userStatus.isFollowed
-                        ? 'Twitter 已连接并关注账号'
+                        ? 'Twitter connected and following'
                         : userStatus.twitterConnected
-                        ? 'Twitter 已连接，需关注账号'
+                        ? 'Twitter connected, need to follow'
                         : 'Connect X Account'
                       }
                     </span>
@@ -332,27 +302,27 @@ export default function LoginPage() {
                 </button>
               </div>
 
-              {/* 刷新状态按钮 */}
+              {/* Refresh Status Button */}
               <div className="pt-2">
                 <Button
                   onClick={refreshUserStatus}
                   variant="outline"
                   className="w-full border-neutral-600 text-neutral-300 hover:bg-neutral-700"
                 >
-                  刷新连接状态
+                  Refresh Connection Status
                 </Button>
               </div>
             </div>
           )}
 
-          {/* 步骤4: 完成 */}
+          {/* Step 4: Complete */}
           {currentStep === 'complete' && (
             <div className="text-center space-y-4">
               <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
               <div>
-                <h2 className="text-white font-medium text-xl mb-2">认证完成！</h2>
+                <h2 className="text-white font-medium text-xl mb-2">Authentication Complete!</h2>
                 <p className="text-neutral-300 text-sm mb-4">
-                  所有验证步骤已完成，现在可以进入应用主页了
+                  All verification steps completed, you can now enter the application
                 </p>
                 <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg p-4 mb-4">
                   <p className="text-white font-semibold text-lg">Let's Vibe! 🎉</p>
@@ -361,7 +331,7 @@ export default function LoginPage() {
                   onClick={() => router.push('/')}
                   className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-3 text-lg"
                 >
-                  进入主页
+                  Enter Application
                 </Button>
               </div>
             </div>

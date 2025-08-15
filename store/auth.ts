@@ -11,7 +11,7 @@ import { UserService } from '@/services/user'
 import { setToken, removeToken, getToken } from '@/lib/request'
 import type { User, UserStatusResponse } from '@/types/auth'
 
-// 获取 wagmi config
+// Get wagmi config
 const config = getDefaultConfig({
   appName: "Dolly Vibe",
   projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || "1f449d25c01a7ece08ce2ffeeaaac6c8",
@@ -65,10 +65,7 @@ export const useAuthStore = create<AuthStore>()(
 
       // 初始化方法
       initialize: async () => {
-        console.log('🔄 AuthStore: 开始初始化')
-        
         if (typeof window === 'undefined') {
-          console.log('❌ AuthStore: 服务端环境，跳过初始化')
           return
         }
 
@@ -77,12 +74,6 @@ export const useAuthStore = create<AuthStore>()(
           const token = getToken()
           const walletAddress = localStorage.getItem('wallet_address')
           const userData = localStorage.getItem('user_data')
-
-          console.log('📦 AuthStore: 检查本地存储', {
-            hasToken: !!token,
-            walletAddress,
-            hasUserData: !!userData
-          })
 
           if (token && walletAddress && userData) {
             const user = JSON.parse(userData)
@@ -118,15 +109,6 @@ export const useAuthStore = create<AuthStore>()(
               ]
             }
 
-            console.log('✅ AuthStore: 恢复登录状态', {
-              walletAddress,
-              allConnected: userStatus.allConnected,
-              discordConnected: user.discordConnected,
-              isJoined: user.isJoined,
-              twitterConnected: user.twitterConnected,
-              isFollowed: user.isFollowed
-            })
-
             set({
               walletAddress: walletAddress.toLowerCase(),
               isWalletConnected: true,
@@ -138,13 +120,11 @@ export const useAuthStore = create<AuthStore>()(
               error: null
             })
           } else {
-            console.log('⚠️ AuthStore: 无完整的本地状态，初始化为未登录')
             set({
               isInitialized: true
             })
           }
         } catch (err) {
-          console.error('❌ AuthStore: 初始化失败', err)
           set({
             error: '初始化失败',
             isInitialized: true
@@ -159,28 +139,21 @@ export const useAuthStore = create<AuthStore>()(
           throw new Error('钱包未连接')
         }
 
-        console.log('🔐 AuthStore: 开始钱包登录', { walletAddress })
         set({ isLoading: true, error: null })
 
         try {
           // 1. 获取 nonce
           const nonceResponse = await AuthService.getNonce(walletAddress)
-          console.log('📝 AuthStore: 获取 nonce 成功', nonceResponse.nonce)
-
           // 2. 签名消息
           const signature = await signMessage(config, {
             message: nonceResponse.message
           })
-          console.log('✍️ AuthStore: 签名完成')
-
           // 3. 验证签名
           const loginResponse = await AuthService.verifyWallet({
             walletAddress,
             nonce: nonceResponse.nonce,
             signature
           })
-          console.log('✅ AuthStore: 验证成功', loginResponse)
-
           // 4. 保存登录状态
           setToken(loginResponse.access_token)
           localStorage.setItem('wallet_address', walletAddress)
@@ -226,9 +199,7 @@ export const useAuthStore = create<AuthStore>()(
             error: null
           })
 
-          console.log('🎉 AuthStore: 登录完成')
         } catch (err: any) {
-          console.error('❌ AuthStore: 登录失败', err)
           const errorMessage = err.response?.data?.message || err.message || '登录失败'
           set({
             isLoading: false,
@@ -240,8 +211,6 @@ export const useAuthStore = create<AuthStore>()(
 
       // 登出
       logout: () => {
-        console.log('👋 AuthStore: 登出')
-        
         // 清除本地存储
         removeToken()
         localStorage.removeItem('wallet_address')
@@ -261,8 +230,6 @@ export const useAuthStore = create<AuthStore>()(
 
       // 更新用户状态
       updateUserStatus: (status: UserStatusResponse) => {
-        console.log('🔄 AuthStore: 更新用户状态', status)
-        
         // 重新计算 allConnected 状态
         const allConnected = status.walletConnected && 
                             status.discordConnected && status.isJoined && 
@@ -297,14 +264,12 @@ export const useAuthStore = create<AuthStore>()(
         const { walletAddress } = get()
         if (!walletAddress) return
 
-        console.log('🔄 AuthStore: 刷新用户状态')
         set({ isLoading: true })
 
         try {
           const status = await UserService.getUserStatusByWallet(walletAddress)
           get().updateUserStatus(status)
         } catch (err: any) {
-          console.error('❌ AuthStore: 刷新用户状态失败', err)
           set({ error: err.response?.data?.message || '刷新用户状态失败' })
         } finally {
           set({ isLoading: false })
@@ -318,15 +283,12 @@ export const useAuthStore = create<AuthStore>()(
           throw new Error('钱包地址不能为空')
         }
 
-        console.log('🔗 AuthStore: 连接 Discord')
         set({ isLoading: true, error: null })
 
         try {
           const response = await SocialService.getDiscordOAuthUrl(walletAddress)
           window.open(response.oauthUrl, '_blank')
-          console.log('✅ AuthStore: Discord 授权窗口已打开')
         } catch (err: any) {
-          console.error('❌ AuthStore: Discord 连接失败', err)
           const errorMessage = err.response?.data?.message || 'Discord 授权链接获取失败'
           set({ error: errorMessage })
           throw new Error(errorMessage)
@@ -342,15 +304,12 @@ export const useAuthStore = create<AuthStore>()(
           throw new Error('钱包地址不能为空')
         }
 
-        console.log('🔗 AuthStore: 连接 Twitter')
         set({ isLoading: true, error: null })
 
         try {
           const response = await SocialService.getTwitterOAuthUrl(walletAddress)
           window.open(response.oauthUrl, '_blank')
-          console.log('✅ AuthStore: Twitter 授权窗口已打开')
         } catch (err: any) {
-          console.error('❌ AuthStore: Twitter 连接失败', err)
           const errorMessage = err.response?.data?.message || 'Twitter 授权链接获取失败'
           set({ error: errorMessage })
           throw new Error(errorMessage)
@@ -366,7 +325,6 @@ export const useAuthStore = create<AuthStore>()(
 
       // 内部方法：设置钱包连接状态
       _setWalletConnected: (address: string | null, connected: boolean) => {
-        console.log('💰 AuthStore: 钱包连接状态变化', { address, connected })
         set({
           walletAddress: address ? address.toLowerCase() : null,
           isWalletConnected: connected
