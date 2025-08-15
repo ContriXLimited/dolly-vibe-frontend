@@ -1,8 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { ChevronRight, Monitor, Settings, Shield, Target, Users, Bell, RefreshCw, Trophy, Globe } from "lucide-react"
+import { ChevronRight, Monitor, Settings, Shield, Target, Users, Trophy, Globe } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Logo } from "@/components/logo"
 import CommandCenterPage from "./command-center/page"
 import AgentNetworkPage from "./agent-network/page"
 import OperationsPage from "./operations/page"
@@ -32,8 +33,8 @@ export default function TacticalDashboard() {
           <div>
             <div className="flex items-center justify-between mb-8">
               <div className={`${sidebarCollapsed ? "hidden" : "block"}`}>
-                <h1 className="text-orange-500 font-bold text-lg tracking-wider">Dolly Vibe</h1>
-                <p className="text-neutral-500 text-xs">v2.1.7 COMMUNITY</p>
+                <Logo size="sm" className="mb-2" />
+                {/* <p className="text-neutral-500 text-xs ml-9">v2.1.7 COMMUNITY</p> */}
               </div>
               <Button
                 variant="ghost"
@@ -114,7 +115,7 @@ export default function TacticalDashboard() {
               )}
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          {/* <div className="flex items-center gap-4">
             <div className="text-xs text-neutral-500">LAST UPDATE: 05/06/2025 20:00 UTC</div>
             <Button variant="ghost" size="icon" className="text-neutral-400 hover:text-orange-500">
               <Bell className="w-4 h-4" />
@@ -122,7 +123,7 @@ export default function TacticalDashboard() {
             <Button variant="ghost" size="icon" className="text-neutral-400 hover:text-orange-500">
               <RefreshCw className="w-4 h-4" />
             </Button>
-          </div>
+          </div> */}
         </div>
 
         {/* Dashboard Content */}

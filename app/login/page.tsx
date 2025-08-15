@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { X, ChevronRight, Wallet } from "lucide-react"
+import { Logo } from "@/components/logo"
 
 export default function LoginPage() {
   const [isOpen, setIsOpen] = useState(true)
@@ -15,7 +16,7 @@ export default function LoginPage() {
   if (!isOpen) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
-        <Button 
+        <Button
           onClick={() => setIsOpen(true)}
           className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 text-lg"
         >
@@ -36,14 +37,7 @@ export default function LoginPage() {
 
       {/* Dolly VIBE Logo */}
       <div className="absolute top-8 left-8 z-10">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
-            <span className="text-white font-bold text-sm">D</span>
-          </div>
-          <div className="text-white text-xl font-bold">
-            Dolly <span className="text-orange-500">VIBE</span>
-          </div>
-        </div>
+        <Logo />
       </div>
 
       {/* Login Modal */}
@@ -103,7 +97,7 @@ export default function LoginPage() {
 
           {/* Let's Vibe Button */}
           <div className="pt-4">
-            <Button 
+            <Button
               className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-3 text-lg"
               onClick={() => {
                 // Handle login logic here
