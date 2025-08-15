@@ -13,7 +13,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://p01--dolly-vibe-backend--jlqhr9wl7sxr.code.run/:path*',
+        destination: 'https://p01--dolly-vibe-backend--jlqhr9wl7sxr.code.run/:path*',
       },
     ]
   },
