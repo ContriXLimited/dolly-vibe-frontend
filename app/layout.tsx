@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Geist_Mono as GeistMono } from "next/font/google"
 import "./globals.css"
+import { Web3Provider } from "@/providers/web3-provider"
 
 const geistMono = GeistMono({ subsets: ["latin"] })
 
@@ -18,7 +19,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <body className={`${geistMono.className} bg-black text-white antialiased`}>{children}</body>
+      <body className={`${geistMono.className} bg-black text-white antialiased`}>
+        <Web3Provider>
+          {children}
+        </Web3Provider>
+      </body>
     </html>
   )
 }

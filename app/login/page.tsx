@@ -3,8 +3,9 @@
 import { useState } from "react"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { X, ChevronRight, Wallet } from "lucide-react"
+import { X, ChevronRight } from "lucide-react"
 import { Logo } from "@/components/logo"
+import { WalletConnectButton } from "@/components/wallet-connect-button"
 
 export default function LoginPage() {
   const [isOpen, setIsOpen] = useState(true)
@@ -58,13 +59,7 @@ export default function LoginPage() {
           {/* Connect Wallet Section */}
           <div>
             <h2 className="text-white font-medium mb-3">Connect Wallet</h2>
-            <button className="w-full flex items-center justify-between px-4 py-3 bg-neutral-700 hover:bg-neutral-600 rounded-lg transition-colors group">
-              <div className="flex items-center gap-3">
-                <Wallet className="w-5 h-5 text-neutral-300" />
-                <span className="text-neutral-200">EMV Wallet</span>
-              </div>
-              <ChevronRight className="w-4 h-4 text-neutral-400 group-hover:text-white transition-colors" />
-            </button>
+            <WalletConnectButton />
           </div>
 
           {/* Join OG Discord Section */}
