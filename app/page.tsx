@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
-import { ChevronRight, Monitor, Settings, Shield, Target, Users, Trophy, Globe } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
+import { ChevronRight, Monitor, Settings, Shield, Target, Users, Trophy, Globe, LogOut, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Logo } from "@/components/logo"
 import { AuthGuard } from "@/components/auth-guard"
+import { useAuthStore } from "@/store/auth"
 import CommandCenterPage from "./command-center/page"
 import AgentNetworkPage from "./agent-network/page"
 import OperationsPage from "./operations/page"
@@ -18,6 +19,23 @@ export default function TacticalDashboard() {
   const [activeSection, setActiveSection] = useState("vibepass")
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [vibepassView, setVibepassView] = useState("collections") // "collections" or "details"
+  const [showUserMenu, setShowUserMenu] = useState(false)
+  const userMenuRef = useRef<HTMLDivElement>(null)
+  const { logout } = useAuthStore()
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setShowUserMenu(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
 
   const handleVibePassClick = () => {
     setActiveSection("vibepass")
@@ -82,16 +100,73 @@ export default function TacticalDashboard() {
 
 
           {!sidebarCollapsed && (
-            <div className="mt-4 p-4 bg-neutral-800 border border-neutral-700 rounded">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">AG</span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm text-white font-medium truncate">Agent Ghost</div>
-                  <div className="text-xs text-neutral-400 truncate">ghost.agent@tactical.ops</div>
+            <div className="mt-4 relative" ref={userMenuRef}>
+              <div 
+                className="p-4 bg-neutral-800 border border-neutral-700 rounded cursor-pointer hover:bg-neutral-750 transition-colors"
+                onClick={() => setShowUserMenu(!showUserMenu)}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">
+                      {(() => {
+                        const { user, walletAddress } = useAuthStore()
+                        if (user?.discordUsername) {
+                          return user.discordUsername.slice(0, 2).toUpperCase()
+                        }
+                        if (user?.twitterUsername) {
+                          return user.twitterUsername.slice(0, 2).toUpperCase()
+                        }
+                        if (walletAddress) {
+                          return walletAddress.slice(2, 4).toUpperCase()
+                        }
+                        return 'AG'
+                      })()}
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm text-white font-medium truncate">
+                      {(() => {
+                        const { user, walletAddress } = useAuthStore()
+                        if (user?.discordUsername) {
+                          return user.discordUsername.replace('#0', '')
+                        }
+                        if (user?.twitterUsername) {
+                          return `@${user.twitterUsername}`
+                        }
+                        if (walletAddress) {
+                          return `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`
+                        }
+                        return 'User'
+                      })()}
+                    </div>
+                    <div className="text-xs text-neutral-400 truncate mt-1">
+                      {(() => {
+                        const { walletAddress } = useAuthStore()
+                        return walletAddress 
+                          ? `${walletAddress.slice(0, 8)}...${walletAddress.slice(-6)}`
+                          : 'No wallet connected'
+                      })()}
+                    </div>
+                  </div>
+                  <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
                 </div>
               </div>
+              
+              {/* User Menu Dropdown */}
+              {showUserMenu && (
+                <div className="absolute bottom-full left-0 right-0 mb-2 bg-neutral-800 border border-neutral-700 rounded shadow-lg">
+                  <button
+                    onClick={() => {
+                      logout()
+                      setShowUserMenu(false)
+                    }}
+                    className="w-full flex items-center gap-3 p-3 text-left hover:bg-neutral-700 transition-colors text-red-400 hover:text-red-300"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span className="text-sm">Logout</span>
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>

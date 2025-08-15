@@ -20,6 +20,11 @@ export interface User {
   isFollowed: boolean
   allConnected: boolean
   status: string
+  discordId?: string
+  discordUsername?: string
+  twitterId?: string
+  twitterUsername?: string
+  completedAt?: string
 }
 
 export interface LoginResponse {

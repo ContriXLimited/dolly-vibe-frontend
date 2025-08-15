@@ -1,17 +1,18 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useAccount } from 'wagmi'
+import { useAccount, useDisconnect } from 'wagmi'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ChevronRight, CheckCircle, Loader2, AlertCircle } from "lucide-react"
+import { ChevronRight, CheckCircle, Loader2, AlertCircle, Unplug } from "lucide-react"
 import { Logo } from "@/components/logo"
 import { WalletConnectButton } from "@/components/wallet-connect-button"
 import { useAuthStore, useWalletSync } from '@/store/auth'
 
 export default function LoginPage() {
   const { isConnected, address } = useAccount()
+  const { disconnect } = useDisconnect()
   const router = useRouter()
   
   // Use AuthStore
@@ -80,6 +81,13 @@ export default function LoginPage() {
       await login()
     } catch (err) {
     }
+  }
+
+  // Handle wallet disconnect
+  const handleDisconnect = () => {
+    disconnect()
+    setCurrentStep('wallet')
+    clearError()
   }
 
   // Handle Discord connection
@@ -180,7 +188,7 @@ export default function LoginPage() {
                 </div>
               )}
               
-              <div className="text-center">
+              <div className="space-y-3">
                 <Button
                   onClick={handleWalletLogin}
                   disabled={isLoading}
@@ -191,6 +199,15 @@ export default function LoginPage() {
                   ) : (
                     'Sign to Verify Wallet'
                   )}
+                </Button>
+                
+                <Button
+                  onClick={handleDisconnect}
+                  variant="outline"
+                  className="w-full border-neutral-600 text-neutral-300 hover:bg-neutral-700 hover:border-neutral-500"
+                >
+                  <Unplug className="w-4 h-4 mr-2" />
+                  Disconnect Wallet
                 </Button>
               </div>
             </div>
@@ -324,14 +341,11 @@ export default function LoginPage() {
                 <p className="text-neutral-300 text-sm mb-4">
                   All verification steps completed, you can now enter the application
                 </p>
-                <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg p-4 mb-4">
-                  <p className="text-white font-semibold text-lg">Let's Vibe! 🎉</p>
-                </div>
                 <Button
                   onClick={() => router.push('/')}
                   className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-3 text-lg"
                 >
-                  Enter Application
+                  Let's Vibe! 🎉
                 </Button>
               </div>
             </div>
