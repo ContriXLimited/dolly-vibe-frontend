@@ -1,13 +1,13 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { CheckCircle, AlertCircle, Loader2 } from "lucide-react"
 import { Logo } from "@/components/logo"
 import { SocialService } from '@/services/social'
 
-export default function DiscordCallbackPage() {
+function DiscordCallbackContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
@@ -26,26 +26,26 @@ export default function DiscordCallbackPage() {
 
         if (error) {
           setStatus('error')
-          setMessage('用户取消了 Discord 授权')
+          setMessage('User cancelled Discord authorization')
           return
         }
 
         if (!code || !state) {
           setStatus('error')
-          setMessage('回调参数缺失')
+          setMessage('Callback parameters missing')
           return
         }
 
-        console.log('📞 处理 Discord 回调:', { code, state })
+        console.log('📞 Processing Discord callback:', { code, state })
 
         // 调用后端处理回调
         const result = await SocialService.handleDiscordCallback(code, state)
         
-        console.log('✅ Discord 回调处理结果:', result)
+        console.log('✅ Discord callback processing result:', result)
 
         if (result.success) {
           setStatus('success')
-          setMessage(result.message || 'Discord 连接成功！')
+          setMessage(result.message || 'Discord connected successfully!')
           setUserInfo({
             username: result.username,
             isInGuild: result.isInGuild
@@ -57,12 +57,12 @@ export default function DiscordCallbackPage() {
           }, 3000)
         } else {
           setStatus('error')
-          setMessage(result.message || 'Discord 连接失败')
+          setMessage(result.message || 'Discord connection failed')
         }
       } catch (err: any) {
-        console.error('Discord 回调处理失败:', err)
+        console.error('Discord callback processing failed:', err)
         setStatus('error')
-        setMessage(err.response?.data?.message || '处理 Discord 回调时发生错误')
+        setMessage(err.response?.data?.message || 'Error occurred while processing Discord callback')
       }
     }
 
@@ -88,7 +88,7 @@ export default function DiscordCallbackPage() {
         <CardHeader>
           <div className="text-center">
             <h1 className="text-xl font-semibold text-white mb-2">
-              Discord 授权结果
+              Discord Authorization Result
             </h1>
           </div>
         </CardHeader>
@@ -98,7 +98,7 @@ export default function DiscordCallbackPage() {
             {status === 'loading' && (
               <>
                 <Loader2 className="w-16 h-16 animate-spin mx-auto text-orange-500" />
-                <p className="text-neutral-300">正在处理 Discord 授权...</p>
+                <p className="text-neutral-300">Processing Discord authorization...</p>
               </>
             )}
 
@@ -106,25 +106,25 @@ export default function DiscordCallbackPage() {
               <>
                 <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
                 <div>
-                  <h2 className="text-white font-medium text-lg mb-2">连接成功！</h2>
+                  <h2 className="text-white font-medium text-lg mb-2">Connected successfully!</h2>
                   <p className="text-neutral-300 text-sm mb-4">{message}</p>
                   
                   {userInfo && (
                     <div className="bg-neutral-700 rounded-lg p-4 text-left">
                       <p className="text-white text-sm">
-                        <span className="text-neutral-400">用户名:</span> {userInfo.username}
+                        <span className="text-neutral-400">Username:</span> {userInfo.username}
                       </p>
                       <p className="text-white text-sm mt-1">
-                        <span className="text-neutral-400">服务器状态:</span>{' '}
+                        <span className="text-neutral-400">Server Status:</span>{' '}
                         <span className={userInfo.isInGuild ? 'text-green-400' : 'text-orange-400'}>
-                          {userInfo.isInGuild ? '已加入服务器' : '需要加入服务器'}
+                          {userInfo.isInGuild ? 'Joined server' : 'Need to join server'}
                         </span>
                       </p>
                     </div>
                   )}
                   
                   <p className="text-neutral-400 text-xs mt-4">
-                    3秒后自动跳转回登录页面...
+                    Redirecting to login page in 3 seconds...
                   </p>
                 </div>
               </>
@@ -134,13 +134,13 @@ export default function DiscordCallbackPage() {
               <>
                 <AlertCircle className="w-16 h-16 text-red-500 mx-auto" />
                 <div>
-                  <h2 className="text-white font-medium text-lg mb-2">连接失败</h2>
+                  <h2 className="text-white font-medium text-lg mb-2">Connection failed</h2>
                   <p className="text-red-400 text-sm mb-4">{message}</p>
                   <button
                     onClick={() => router.push('/login')}
                     className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg transition-colors"
                   >
-                    返回登录页面
+                    Return to login page
                   </button>
                 </div>
               </>
@@ -149,5 +149,24 @@ export default function DiscordCallbackPage() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="text-center">
+        <Loader2 className="w-8 h-8 text-orange-500 animate-spin mx-auto mb-4" />
+        <p className="text-neutral-300">Loading...</p>
+      </div>
+    </div>
+  )
+}
+
+export default function DiscordCallbackPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <DiscordCallbackContent />
+    </Suspense>
   )
 }

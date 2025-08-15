@@ -1,13 +1,13 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { CheckCircle, AlertCircle, Loader2 } from "lucide-react"
 import { Logo } from "@/components/logo"
 import { SocialService } from '@/services/social'
 
-export default function TwitterCallbackPage() {
+function TwitterCallbackContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
@@ -26,26 +26,26 @@ export default function TwitterCallbackPage() {
 
         if (denied) {
           setStatus('error')
-          setMessage('用户取消了 Twitter 授权')
+          setMessage('User cancelled Twitter authorization')
           return
         }
 
         if (!oauth_token || !oauth_verifier) {
           setStatus('error')
-          setMessage('回调参数缺失')
+          setMessage('Callback parameters missing')
           return
         }
 
-        console.log('📞 处理 Twitter 回调:', { oauth_token, oauth_verifier })
+        console.log('📞 Processing Twitter callback:', { oauth_token, oauth_verifier })
 
         // 调用后端处理回调
         const result = await SocialService.handleTwitterCallback(oauth_token, oauth_verifier)
         
-        console.log('✅ Twitter 回调处理结果:', result)
+        console.log('✅ Twitter callback processing result:', result)
 
         if (result.success) {
           setStatus('success')
-          setMessage(result.message || 'Twitter 连接成功！')
+          setMessage(result.message || 'Twitter connected successfully!')
           setUserInfo({
             username: result.username,
             isFollowing: result.isFollowing
@@ -57,12 +57,12 @@ export default function TwitterCallbackPage() {
           }, 3000)
         } else {
           setStatus('error')
-          setMessage(result.message || 'Twitter 连接失败')
+          setMessage(result.message || 'Twitter connection failed')
         }
       } catch (err: any) {
-        console.error('Twitter 回调处理失败:', err)
+        console.error('Twitter callback processing failed:', err)
         setStatus('error')
-        setMessage(err.response?.data?.message || '处理 Twitter 回调时发生错误')
+        setMessage(err.response?.data?.message || 'Error occurred while processing Twitter callback')
       }
     }
 
@@ -88,7 +88,7 @@ export default function TwitterCallbackPage() {
         <CardHeader>
           <div className="text-center">
             <h1 className="text-xl font-semibold text-white mb-2">
-              Twitter 授权结果
+              Twitter Authorization Result
             </h1>
           </div>
         </CardHeader>
@@ -98,7 +98,7 @@ export default function TwitterCallbackPage() {
             {status === 'loading' && (
               <>
                 <Loader2 className="w-16 h-16 animate-spin mx-auto text-orange-500" />
-                <p className="text-neutral-300">正在处理 Twitter 授权...</p>
+                <p className="text-neutral-300">Processing Twitter authorization...</p>
               </>
             )}
 
@@ -106,25 +106,25 @@ export default function TwitterCallbackPage() {
               <>
                 <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
                 <div>
-                  <h2 className="text-white font-medium text-lg mb-2">连接成功！</h2>
+                  <h2 className="text-white font-medium text-lg mb-2">Connected successfully!</h2>
                   <p className="text-neutral-300 text-sm mb-4">{message}</p>
                   
                   {userInfo && (
                     <div className="bg-neutral-700 rounded-lg p-4 text-left">
                       <p className="text-white text-sm">
-                        <span className="text-neutral-400">用户名:</span> @{userInfo.username}
+                        <span className="text-neutral-400">Username:</span> @{userInfo.username}
                       </p>
                       <p className="text-white text-sm mt-1">
-                        <span className="text-neutral-400">关注状态:</span>{' '}
+                        <span className="text-neutral-400">Follow Status:</span>{' '}
                         <span className={userInfo.isFollowing ? 'text-green-400' : 'text-orange-400'}>
-                          {userInfo.isFollowing ? '已关注账号' : '需要关注账号'}
+                          {userInfo.isFollowing ? 'Following account' : 'Need to follow account'}
                         </span>
                       </p>
                     </div>
                   )}
                   
                   <p className="text-neutral-400 text-xs mt-4">
-                    3秒后自动跳转回登录页面...
+                    Redirecting to login page in 3 seconds...
                   </p>
                 </div>
               </>
@@ -134,13 +134,13 @@ export default function TwitterCallbackPage() {
               <>
                 <AlertCircle className="w-16 h-16 text-red-500 mx-auto" />
                 <div>
-                  <h2 className="text-white font-medium text-lg mb-2">连接失败</h2>
+                  <h2 className="text-white font-medium text-lg mb-2">Connection failed</h2>
                   <p className="text-red-400 text-sm mb-4">{message}</p>
                   <button
                     onClick={() => router.push('/login')}
                     className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg transition-colors"
                   >
-                    返回登录页面
+                    Return to login page
                   </button>
                 </div>
               </>
@@ -149,5 +149,24 @@ export default function TwitterCallbackPage() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="text-center">
+        <Loader2 className="w-8 h-8 text-orange-500 animate-spin mx-auto mb-4" />
+        <p className="text-neutral-300">Loading...</p>
+      </div>
+    </div>
+  )
+}
+
+export default function TwitterCallbackPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <TwitterCallbackContent />
+    </Suspense>
   )
 }
