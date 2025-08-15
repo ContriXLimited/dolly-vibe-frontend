@@ -94,6 +94,7 @@ export interface UseWalletLoginReturn {
   isLoading: boolean
   error: string | null
   authState: AuthState
+  isInitialized: boolean
 }
 
 export interface UseUserStatusReturn {
@@ -101,6 +102,7 @@ export interface UseUserStatusReturn {
   isLoading: boolean
   error: string | null
   refetch: () => Promise<void>
+  isInitialized: boolean
 }
 
 export interface UseOAuthReturn {

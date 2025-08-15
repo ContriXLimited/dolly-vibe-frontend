@@ -4754,6 +4754,11 @@ zod@3.22.4:
   resolved "https://registry.npmmirror.com/zod/-/zod-3.22.4.tgz"
   integrity sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==
 
+zustand@^5.0.7:
+  version "5.0.7"
+  resolved "https://registry.npmmirror.com/zustand/-/zustand-5.0.7.tgz"
+  integrity sha512-Ot6uqHDW/O2VdYsKLLU8GQu8sCOM1LcoE8RwvLv9uuRT9s6SOHCKs0ZEOhxg+I1Ld+A1Q5lwx+UlKXXUoCZITg==
+
 zustand@5.0.0:
   version "5.0.0"
   resolved "https://registry.npmmirror.com/zustand/-/zustand-5.0.0.tgz"

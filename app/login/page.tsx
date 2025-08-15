@@ -8,16 +8,30 @@ import { Button } from "@/components/ui/button"
 import { X, ChevronRight, CheckCircle, Loader2, AlertCircle } from "lucide-react"
 import { Logo } from "@/components/logo"
 import { WalletConnectButton } from "@/components/wallet-connect-button"
-import { useWalletLogin } from '@/hooks/useWalletLogin'
-import { useUserStatus } from '@/hooks/useUserStatus'
-import { useOAuth } from '@/hooks/useOAuth'
+import { useAuthStore, useWalletSync } from '@/store/auth'
 
 export default function LoginPage() {
   const { isConnected, address } = useAccount()
   const router = useRouter()
-  const { login, authState, isLoading: walletLoading, error: walletError } = useWalletLogin()
-  const { userStatus, isLoading: statusLoading, refetch } = useUserStatus(authState.walletAddress)
-  const { connectDiscord, connectTwitter, isLoading: oauthLoading, error: oauthError } = useOAuth(authState.walletAddress)
+  
+  // 使用 AuthStore
+  const {
+    walletAddress,
+    isWalletConnected,
+    isLoggedIn,
+    userStatus,
+    isLoading,
+    error,
+    login,
+    connectDiscord,
+    connectTwitter,
+    refreshUserStatus,
+    clearError,
+    initialize
+  } = useAuthStore()
+  
+  // 同步钱包状态
+  useWalletSync()
   
   const [isOpen, setIsOpen] = useState(true)
   const [currentStep, setCurrentStep] = useState<'wallet' | 'verify' | 'social' | 'complete'>('wallet')
@@ -27,16 +41,17 @@ export default function LoginPage() {
     setIsOpen(false)
   }
 
-  // 初始化检查
+  // 初始化 AuthStore
   useEffect(() => {
-    console.log('🔧 Login Page: 初始化开始')
-    // 给一点时间让 wagmi 初始化
+    console.log('🔧 Login Page: 初始化 AuthStore')
+    initialize()
+    
     const timer = setTimeout(() => {
       console.log('✅ Login Page: 初始化完成')
       setIsInitialized(true)
     }, 100)
     return () => clearTimeout(timer)
-  }, [])
+  }, [initialize])
 
   // 监听钱包连接状态变化
   useEffect(() => {
@@ -48,27 +63,28 @@ export default function LoginPage() {
     console.log('🔍 Login Page: 检查钱包状态', {
       isConnected,
       address,
-      isLoggedIn: authState.isLoggedIn,
-      walletAddress: authState.walletAddress,
+      isWalletConnected,
+      walletAddress,
+      isLoggedIn,
       currentStep
     })
     
     // 使用 address 存在作为更可靠的连接指标
-    const hasWalletConnected = isConnected || !!address
+    const hasWalletConnected = isConnected || isWalletConnected || !!address
     
-    if (hasWalletConnected && !authState.isLoggedIn) {
+    if (hasWalletConnected && !isLoggedIn) {
       console.log('🔄 Login Page: 钱包已连接但未登录，跳转到验证步骤')
       setCurrentStep('verify')
-    } else if (!hasWalletConnected && !authState.isLoggedIn) {
+    } else if (!hasWalletConnected && !isLoggedIn) {
       console.log('🔄 Login Page: 钱包未连接，显示连接步骤')
       setCurrentStep('wallet')
     }
-  }, [isInitialized, isConnected, address, authState.isLoggedIn, currentStep])
+  }, [isInitialized, isConnected, address, isWalletConnected, walletAddress, isLoggedIn, currentStep])
 
   // 监听登录状态变化
   useEffect(() => {
     console.log('👤 Login Page: 登录状态变化', {
-      isLoggedIn: authState.isLoggedIn,
+      isLoggedIn,
       userStatus: userStatus ? {
         allConnected: userStatus.allConnected,
         discordConnected: userStatus.discordConnected,
@@ -78,26 +94,22 @@ export default function LoginPage() {
       } : null
     })
 
-    if (authState.isLoggedIn && userStatus) {
+    if (isLoggedIn && userStatus) {
       if (userStatus.allConnected) {
-        console.log('🎉 Login Page: 所有验证完成，跳转到完成页面')
+        console.log('🎉 Login Page: 所有验证完成，显示完成页面')
         setCurrentStep('complete')
-        // 3秒后跳转到主页
-        setTimeout(() => {
-          router.push('/')
-        }, 3000)
       } else {
         console.log('🔗 Login Page: 需要完成社交平台连接')
         setCurrentStep('social')
       }
     }
-  }, [authState.isLoggedIn, userStatus, router])
+  }, [isLoggedIn, userStatus])
 
   // 处理钱包签名验证
   const handleWalletLogin = async () => {
+    clearError()
     try {
       await login()
-      await refetch() // 获取用户状态
     } catch (err) {
       console.error('Wallet login failed:', err)
     }
@@ -105,11 +117,12 @@ export default function LoginPage() {
 
   // 处理 Discord 连接
   const handleDiscordConnect = async () => {
+    clearError()
     try {
       await connectDiscord()
       // 等待用户在新窗口完成授权后刷新状态
       setTimeout(() => {
-        refetch()
+        refreshUserStatus()
       }, 5000)
     } catch (err) {
       console.error('Discord connect failed:', err)
@@ -118,11 +131,24 @@ export default function LoginPage() {
 
   // 处理 Twitter 连接
   const handleTwitterConnect = async () => {
+    clearError()
+    
+    // 如果已经连接但未关注，直接跳转到 Twitter 页面
+    if (userStatus?.twitterConnected && !userStatus.isFollowed) {
+      window.open('https://x.com/0G_labs', '_blank')
+      // 5秒后刷新状态检查是否已关注
+      setTimeout(() => {
+        refreshUserStatus()
+      }, 5000)
+      return
+    }
+    
+    // 如果未连接，则进行 OAuth 授权
     try {
       await connectTwitter()
       // 等待用户在新窗口完成授权后刷新状态
       setTimeout(() => {
-        refetch()
+        refreshUserStatus()
       }, 5000)
     } catch (err) {
       console.error('Twitter connect failed:', err)
@@ -199,11 +225,11 @@ export default function LoginPage() {
                 </p>
               </div>
               
-              {walletError && (
+              {error && (
                 <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
                   <div className="flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 text-red-400" />
-                    <span className="text-red-400 text-sm">{walletError}</span>
+                    <span className="text-red-400 text-sm">{error}</span>
                   </div>
                 </div>
               )}
@@ -211,10 +237,10 @@ export default function LoginPage() {
               <div className="text-center">
                 <Button
                   onClick={handleWalletLogin}
-                  disabled={walletLoading}
+                  disabled={isLoading}
                   className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-3 text-lg"
                 >
-                  {walletLoading ? (
+                  {isLoading ? (
                     <><Loader2 className="w-4 h-4 animate-spin mr-2" />验证中...</>
                   ) : (
                     '签名验证钱包'
@@ -234,18 +260,18 @@ export default function LoginPage() {
                 </p>
               </div>
 
-              {statusLoading && (
+              {isLoading && (
                 <div className="text-center py-4">
                   <Loader2 className="w-6 h-6 animate-spin mx-auto text-orange-500" />
                   <p className="text-neutral-400 text-sm mt-2">检查连接状态...</p>
                 </div>
               )}
 
-              {oauthError && (
+              {error && (
                 <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
                   <div className="flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 text-red-400" />
-                    <span className="text-red-400 text-sm">{oauthError}</span>
+                    <span className="text-red-400 text-sm">{error}</span>
                   </div>
                 </div>
               )}
@@ -260,7 +286,7 @@ export default function LoginPage() {
                 </h2>
                 <button 
                   onClick={handleDiscordConnect}
-                  disabled={oauthLoading || (userStatus.discordConnected && userStatus.isJoined)}
+                  disabled={isLoading || (userStatus.discordConnected && userStatus.isJoined)}
                   className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors group ${
                     userStatus.discordConnected && userStatus.isJoined
                       ? 'bg-green-500/20 border border-green-500/30'
@@ -300,7 +326,7 @@ export default function LoginPage() {
                 </h2>
                 <button 
                   onClick={handleTwitterConnect}
-                  disabled={oauthLoading || (userStatus.twitterConnected && userStatus.isFollowed)}
+                  disabled={isLoading || (userStatus.twitterConnected && userStatus.isFollowed)}
                   className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors group ${
                     userStatus.twitterConnected && userStatus.isFollowed
                       ? 'bg-green-500/20 border border-green-500/30'
@@ -333,7 +359,7 @@ export default function LoginPage() {
               {/* 刷新状态按钮 */}
               <div className="pt-2">
                 <Button
-                  onClick={refetch}
+                  onClick={refreshUserStatus}
                   variant="outline"
                   className="w-full border-neutral-600 text-neutral-300 hover:bg-neutral-700"
                 >
@@ -350,11 +376,17 @@ export default function LoginPage() {
               <div>
                 <h2 className="text-white font-medium text-xl mb-2">认证完成！</h2>
                 <p className="text-neutral-300 text-sm mb-4">
-                  所有验证步骤已完成，正在跳转到应用主页...
+                  所有验证步骤已完成，现在可以进入应用主页了
                 </p>
-                <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg p-4">
+                <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg p-4 mb-4">
                   <p className="text-white font-semibold text-lg">Let's Vibe! 🎉</p>
                 </div>
+                <Button
+                  onClick={() => router.push('/')}
+                  className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-3 text-lg"
+                >
+                  进入主页
+                </Button>
               </div>
             </div>
           )}
