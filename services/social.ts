@@ -6,15 +6,25 @@ export class SocialService {
     oauthUrl: string
     walletAddress: string
   }> {
-    const response = await request<{
-      oauthUrl: string
-      walletAddress: string
-    }>({
-      method: 'GET',
-      url: '/auth/discord/oauth-url',
-      params: { walletAddress }
-    })
-    return response.data
+    console.log('🌐 API 调用: getDiscordOAuthUrl', { walletAddress, url: '/auth/discord/oauth-url' })
+    
+    try {
+      const response = await request<{data: {
+        oauthUrl: string
+        walletAddress: string
+      }}>({
+        method: 'GET',
+        url: '/auth/discord/oauth-url',
+        params: { walletAddress }
+      })
+      
+      console.log('📡 API 响应:', response.data)
+      // 后端返回的数据包装在 data 字段中
+      return response.data.data
+    } catch (error: any) {
+      console.error('❌ API 错误:', error.response?.data || error.message)
+      throw error
+    }
   }
 
   // 获取 Twitter OAuth URL  
@@ -22,15 +32,25 @@ export class SocialService {
     oauthUrl: string
     walletAddress: string
   }> {
-    const response = await request<{
-      oauthUrl: string
-      walletAddress: string
-    }>({
-      method: 'GET',
-      url: '/auth/twitter/oauth-url',
-      params: { walletAddress }
-    })
-    return response.data
+    console.log('🌐 API 调用: getTwitterOAuthUrl', { walletAddress, url: '/auth/twitter/oauth-url' })
+    
+    try {
+      const response = await request<{data: {
+        oauthUrl: string
+        walletAddress: string
+      }}>({
+        method: 'GET',
+        url: '/auth/twitter/oauth-url',
+        params: { walletAddress }
+      })
+      
+      console.log('📡 API 响应:', response.data)
+      // 后端返回的数据包装在 data 字段中
+      return response.data.data
+    } catch (error: any) {
+      console.error('❌ API 错误:', error.response?.data || error.message)
+      throw error
+    }
   }
 
   // 处理 Discord OAuth 回调
@@ -43,20 +63,30 @@ export class SocialService {
     message: string
     note: string
   }> {
-    const response = await request<{
-      success: boolean
-      discordId: string
-      username: string
-      isInGuild: boolean
-      walletAddress: string
-      message: string
-      note: string
-    }>({
-      method: 'GET',
-      url: '/auth/discord/callback',
-      params: { code, state }
-    })
-    return response.data
+    console.log('🌐 API 调用: handleDiscordCallback', { code, state, url: '/auth/discord/callback' })
+    
+    try {
+      const response = await request<{data: {
+        success: boolean
+        discordId: string
+        username: string
+        isInGuild: boolean
+        walletAddress: string
+        message: string
+        note: string
+      }}>({
+        method: 'GET',
+        url: '/auth/discord/callback',
+        params: { code, state }
+      })
+      
+      console.log('📡 API 响应:', response.data)
+      // 后端返回的数据包装在 data 字段中
+      return response.data.data
+    } catch (error: any) {
+      console.error('❌ API 错误:', error.response?.data || error.message)
+      throw error
+    }
   }
 
   // 处理 Twitter OAuth 回调
@@ -69,19 +99,29 @@ export class SocialService {
     message: string
     note: string
   }> {
-    const response = await request<{
-      success: boolean
-      twitterId: string
-      username: string
-      isFollowing: boolean
-      walletAddress: string
-      message: string
-      note: string
-    }>({
-      method: 'GET',
-      url: '/auth/twitter/callback',
-      params: { oauth_token, oauth_verifier }
-    })
-    return response.data
+    console.log('🌐 API 调用: handleTwitterCallback', { oauth_token, oauth_verifier, url: '/auth/twitter/callback' })
+    
+    try {
+      const response = await request<{data: {
+        success: boolean
+        twitterId: string
+        username: string
+        isFollowing: boolean
+        walletAddress: string
+        message: string
+        note: string
+      }}>({
+        method: 'GET',
+        url: '/auth/twitter/callback',
+        params: { oauth_token, oauth_verifier }
+      })
+      
+      console.log('📡 API 响应:', response.data)
+      // 后端返回的数据包装在 data 字段中
+      return response.data.data
+    } catch (error: any) {
+      console.error('❌ API 错误:', error.response?.data || error.message)
+      throw error
+    }
   }
 }
