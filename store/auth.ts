@@ -200,7 +200,7 @@ export const useAuthStore = create<AuthStore>()(
             isJoined: loginResponse.user.isJoined,
             isFollowed: loginResponse.user.isFollowed,
             allConnected: allConnected,
-            completedAt: allConnected ? loginResponse.user.completedAt : null,
+            completedAt: allConnected ? new Date().toISOString() : null,
             nextSteps: [
               {
                 platform: 'discord',

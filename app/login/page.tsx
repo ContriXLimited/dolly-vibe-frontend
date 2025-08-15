@@ -5,7 +5,7 @@ import { useAccount } from 'wagmi'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { X, ChevronRight, CheckCircle, Loader2, AlertCircle } from "lucide-react"
+import { ChevronRight, CheckCircle, Loader2, AlertCircle } from "lucide-react"
 import { Logo } from "@/components/logo"
 import { WalletConnectButton } from "@/components/wallet-connect-button"
 import { useAuthStore, useWalletSync } from '@/store/auth'
@@ -33,13 +33,8 @@ export default function LoginPage() {
   // 同步钱包状态
   useWalletSync()
   
-  const [isOpen, setIsOpen] = useState(true)
   const [currentStep, setCurrentStep] = useState<'wallet' | 'verify' | 'social' | 'complete'>('wallet')
   const [isInitialized, setIsInitialized] = useState(false)
-
-  const handleClose = () => {
-    setIsOpen(false)
-  }
 
   // 初始化 AuthStore
   useEffect(() => {
@@ -155,19 +150,6 @@ export default function LoginPage() {
     }
   }
 
-  if (!isOpen) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <Button
-          onClick={() => setIsOpen(true)}
-          className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 text-lg"
-        >
-          Login
-        </Button>
-      </div>
-    )
-  }
-
   return (
     <div className="min-h-screen bg-black flex items-center justify-center relative overflow-hidden">
       {/* Background Effects */}
@@ -185,12 +167,6 @@ export default function LoginPage() {
       {/* Login Modal */}
       <Card className="w-full max-w-md bg-neutral-800/95 border-neutral-600 backdrop-blur-sm relative z-20">
         <CardHeader className="relative">
-          <button
-            onClick={handleClose}
-            className="absolute top-4 right-4 text-neutral-400 hover:text-white transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
           <div className="text-center pt-2">
             <h1 className="text-xl font-semibold text-white mb-2">
               {currentStep === 'wallet' ? 'Connect Your Wallet' :
