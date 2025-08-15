@@ -9,6 +9,14 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://p01--dolly-vibe-backend--jlqhr9wl7sxr.code.run/:path*',
+      },
+    ]
+  },
 }
 
 export default nextConfig

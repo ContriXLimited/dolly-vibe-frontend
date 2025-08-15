@@ -4,6 +4,7 @@ import { useState } from "react"
 import { ChevronRight, Monitor, Settings, Shield, Target, Users, Trophy, Globe } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Logo } from "@/components/logo"
+import { AuthGuard } from "@/components/auth-guard"
 import CommandCenterPage from "./command-center/page"
 import AgentNetworkPage from "./agent-network/page"
 import OperationsPage from "./operations/page"
@@ -24,11 +25,12 @@ export default function TacticalDashboard() {
   }
 
   return (
-    <div className="flex h-screen">
-      {/* Sidebar */}
-      <div
-        className={`${sidebarCollapsed ? "w-16" : "w-70"} bg-neutral-900 border-r border-neutral-700 transition-all duration-300 fixed md:relative z-50 md:z-auto h-full md:h-auto ${!sidebarCollapsed ? "md:block" : ""} flex flex-col`}
-      >
+    <AuthGuard>
+      <div className="flex h-screen">
+        {/* Sidebar */}
+        <div
+          className={`${sidebarCollapsed ? "w-16" : "w-70"} bg-neutral-900 border-r border-neutral-700 transition-all duration-300 fixed md:relative z-50 md:z-auto h-full md:h-auto ${!sidebarCollapsed ? "md:block" : ""} flex flex-col`}
+        >
         <div className="p-4 flex-1 flex flex-col justify-between h-full">
           <div>
             <div className="flex items-center justify-between mb-8">
@@ -141,5 +143,6 @@ export default function TacticalDashboard() {
         </div>
       </div>
     </div>
+    </AuthGuard>
   )
 }

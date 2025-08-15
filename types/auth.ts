@@ -1,0 +1,113 @@
+export interface NonceResponse {
+  nonce: string
+  message: string
+  expiresAt: string
+}
+
+export interface WalletVerifyRequest {
+  walletAddress: string
+  nonce: string
+  signature: string
+}
+
+export interface User {
+  id: string
+  walletAddress: string
+  discordConnected: boolean
+  twitterConnected: boolean
+  walletConnected: boolean
+  isJoined: boolean
+  isFollowed: boolean
+  allConnected: boolean
+  status: string
+}
+
+export interface LoginResponse {
+  verified: boolean
+  walletAddress: string
+  access_token: string
+  user: User
+}
+
+export interface NextStep {
+  platform: 'discord' | 'twitter'
+  action: string
+  description: string
+  completed: boolean
+}
+
+export interface UserStatusResponse {
+  walletAddress: string
+  discordConnected: boolean
+  twitterConnected: boolean
+  walletConnected: boolean
+  isJoined: boolean
+  isFollowed: boolean
+  allConnected: boolean
+  completedAt: string | null
+  nextSteps: NextStep[]
+}
+
+export interface OAuthUrlResponse {
+  oauthUrl: string
+  walletAddress: string
+}
+
+export interface DiscordCallbackResponse {
+  success: boolean
+  discordId: string
+  username: string
+  isInGuild: boolean
+  walletAddress: string
+  message: string
+  note: string
+}
+
+export interface TwitterCallbackResponse {
+  success: boolean
+  twitterId: string
+  username: string
+  isFollowing: boolean
+  walletAddress: string
+  message: string
+  note: string
+}
+
+export interface DiscordStatusResponse {
+  connected: boolean
+  username: string
+  userId: string
+  verified: boolean
+  connectedAt: string
+}
+
+export interface AuthState {
+  isLoggedIn: boolean
+  walletAddress: string | null
+  user: User | null
+  accessToken: string | null
+}
+
+export interface UseWalletLoginReturn {
+  login: () => Promise<void>
+  logout: () => void
+  isLoading: boolean
+  error: string | null
+  authState: AuthState
+}
+
+export interface UseUserStatusReturn {
+  userStatus: UserStatusResponse | null
+  isLoading: boolean
+  error: string | null
+  refetch: () => Promise<void>
+}
+
+export interface UseOAuthReturn {
+  getDiscordOAuthUrl: () => Promise<string>
+  getTwitterOAuthUrl: () => Promise<string>
+  connectDiscord: () => Promise<void>
+  connectTwitter: () => Promise<void>
+  isLoading: boolean
+  error: string | null
+}
