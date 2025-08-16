@@ -1,23 +1,13 @@
 import React from 'react'
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import { useAccount } from 'wagmi'
-import { signMessage } from '@wagmi/core'
-import { getDefaultConfig } from '@rainbow-me/rainbowkit'
-import { mainnet, polygon, optimism, arbitrum, base } from 'wagmi/chains'
+import { useAccount, useSignMessage } from 'wagmi'
 import { AuthService } from '@/services/auth'
 import { SocialService } from '@/services/social'
 import { UserService } from '@/services/user'
 import { setToken, removeToken, getToken } from '@/lib/request'
 import type { User, UserStatusResponse } from '@/types/auth'
 
-// Get wagmi config
-const config = getDefaultConfig({
-  appName: "Dolly Vibe",
-  projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || "1f449d25c01a7ece08ce2ffeeaaac6c8",
-  chains: [mainnet, polygon, optimism, arbitrum, base],
-  ssr: true,
-})
 
 interface AuthStore {
   // 状态
@@ -35,7 +25,7 @@ interface AuthStore {
   
   // 操作方法
   initialize: () => Promise<void>
-  login: () => Promise<void>
+  login: (signMessageFn: (args: { message: string }) => Promise<string>) => Promise<void>
   logout: () => void
   updateUserStatus: (status: UserStatusResponse) => void
   refreshUserStatus: () => Promise<void>
@@ -133,7 +123,7 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       // 钱包登录
-      login: async () => {
+      login: async (signMessageFn: (args: { message: string }) => Promise<string>) => {
         const { walletAddress } = get()
         if (!walletAddress) {
           throw new Error('钱包未连接')
@@ -145,7 +135,7 @@ export const useAuthStore = create<AuthStore>()(
           // 1. 获取 nonce
           const nonceResponse = await AuthService.getNonce(walletAddress)
           // 2. 签名消息
-          const signature = await signMessage(config, {
+          const signature = await signMessageFn({
             message: nonceResponse.message
           })
           // 3. 验证签名

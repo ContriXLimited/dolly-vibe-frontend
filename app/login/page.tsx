@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useAccount, useDisconnect } from 'wagmi'
+import { useAccount, useDisconnect, useSignMessage } from 'wagmi'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -13,6 +13,7 @@ import { useAuthStore, useWalletSync } from '@/store/auth'
 export default function LoginPage() {
   const { isConnected, address } = useAccount()
   const { disconnect } = useDisconnect()
+  const { signMessageAsync } = useSignMessage()
   const router = useRouter()
   
   // Use AuthStore
@@ -78,8 +79,9 @@ export default function LoginPage() {
   const handleWalletLogin = async () => {
     clearError()
     try {
-      await login()
+      await login(signMessageAsync)
     } catch (err) {
+      console.error('Login error:', err)
     }
   }
 
