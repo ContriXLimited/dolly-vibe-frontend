@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import { ChevronDown } from "lucide-react"
+import { ArrowDown, Sparkles } from "lucide-react"
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from "recharts"
 import Image from "next/image"
 
@@ -24,49 +24,31 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
     { skill: "Magic", value: Math.floor(Math.random() * 40) + 65 },
   ]
 
-  // User owned VibePasses
-  const ownedPasses = [
-    {
-      id: 1,
-      name: "BattleOfAgents",
-      subtitle: "0x1a2b...cd3e",
-      vibePoints: "234,454",
-      holders: "223,322",
-      rank: "454",
-      gradient: "from-orange-400 via-orange-500 to-red-500",
-      bgGradient: "from-neutral-900 to-neutral-800",
-    },
-    {
-      id: 2,
-      name: "BattleOfAgents",
-      subtitle: "0x4f5a...b6c7",
-      vibePoints: "234,454",
-      holders: "223,322",
-      rank: "454",
-      gradient: "from-orange-500 via-amber-500 to-yellow-500",
-      bgGradient: "from-neutral-900 to-neutral-800",
-    },
-    {
-      id: 3,
-      name: "BattleOfAgents",
-      subtitle: "0x8d9e...f012",
-      vibePoints: "234,454",
-      holders: "223,322",
-      rank: "454",
-      gradient: "from-red-400 via-red-500 to-orange-500",
-      bgGradient: "from-neutral-900 to-neutral-800",
-    },
-    {
-      id: 4,
-      name: "BattleOfAgents",
-      subtitle: "0x3456...789a",
-      vibePoints: "234,454",
-      holders: "223,322",
-      rank: "454",
-      gradient: "from-neutral-600 via-neutral-700 to-neutral-800",
-      bgGradient: "from-neutral-900 to-neutral-800",
-    },
-  ]
+  // User owned VibePasses - empty by default to show empty state
+  const ownedPasses: Array<{
+    id: number
+    name: string
+    subtitle: string
+    vibePoints: string
+    holders: string
+    rank: string
+    gradient: string
+    bgGradient: string
+  }> = []
+  
+  // Uncomment to show passes
+  // const ownedPasses = [
+  //   {
+  //     id: 1,
+  //     name: "BattleOfAgents",
+  //     subtitle: "0x1a2b...cd3e",
+  //     vibePoints: "234,454",
+  //     holders: "223,322",
+  //     rank: "454",
+  //     gradient: "from-orange-400 via-orange-500 to-red-500",
+  //     bgGradient: "from-neutral-900 to-neutral-800",
+  //   },
+  // ]
 
   // Mintable projects
   const mintableProjects = [
@@ -114,82 +96,102 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
           </div>
         </div>
 
-        {/* Owned Passes Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {ownedPasses.map((pass) => (
-            <Card
-              key={pass.id}
-              className={`bg-gradient-to-br ${pass.bgGradient} border border-neutral-700 hover:border-orange-500/50 transition-all duration-300 hover:scale-105 cursor-pointer overflow-hidden`}
-              onClick={handleCardClick}
-            >
-              <CardContent className="p-6">
-                {/* Radar Chart */}
-                <div className="flex justify-center mb-6">
-                  <div className="w-40 h-28">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <RadarChart data={generateRadarData()}>
-                        <PolarGrid
-                          stroke="#525252"
-                          strokeWidth={0.5}
-                          radialLines={true}
-                        />
-                        <PolarAngleAxis
-                          dataKey="skill"
-                          tick={{ fill: '#737373', fontSize: 8 }}
-                          className="text-xs"
-                        />
-                        <PolarRadiusAxis
-                          domain={[0, 100]}
-                          tick={false}
-                          axisLine={false}
-                        />
-                        <Radar
-                          name="Stats"
-                          dataKey="value"
-                          stroke="#f97316"
-                          fill="#f97316"
-                          fillOpacity={0.3}
-                          strokeWidth={2}
-                        />
-                      </RadarChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="text-center space-y-3">
-                  <div>
-                    <h3 className="text-lg font-bold text-white mb-1">{pass.name}</h3>
-                    <p className="text-sm text-neutral-400">{pass.subtitle}</p>
-                  </div>
-
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="w-2 h-2 bg-white rounded-full"></div>
-                      <span className="text-white">
-                        VibePoints: <span className="font-mono">{pass.vibePoints}</span>
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                      <span className="text-white">
-                        Holders: <span className="font-mono">{pass.holders}</span>
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="w-2 h-2 bg-neutral-400 rounded-full"></div>
-                      <span className="text-white">
-                        Rank: <span className="font-mono">{pass.rank}</span>
-                      </span>
+        {/* Owned Passes Grid or Empty State */}
+        {ownedPasses.length === 0 ? (
+          // Empty State
+          <div className="relative">
+            <div className="border-2 border-dashed border-neutral-600 rounded-lg p-12 flex flex-col items-center justify-center space-y-4 bg-neutral-900/50">
+              <Sparkles className="w-12 h-12 text-neutral-500" />
+              <div className="text-center space-y-2">
+                <h3 className="text-lg font-semibold text-white">No VibePasses Yet</h3>
+                <p className="text-sm text-neutral-400 max-w-sm">
+                  Start your collection by minting your first VibePass from the available projects below
+                </p>
+              </div>
+              <div className="flex flex-col items-center gap-2 mt-4">
+                <ArrowDown className="w-6 h-6 text-orange-500 animate-bounce" />
+                <span className="text-xs text-orange-500 font-medium">Mint your first pass below</span>
+              </div>
+            </div>
+          </div>
+        ) : (
+          // Passes Grid
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {ownedPasses.map((pass) => (
+              <Card
+                key={pass.id}
+                className={`bg-gradient-to-br ${pass.bgGradient} border border-neutral-700 hover:border-orange-500/50 transition-all duration-300 hover:scale-105 cursor-pointer overflow-hidden`}
+                onClick={handleCardClick}
+              >
+                <CardContent className="p-6">
+                  {/* Radar Chart */}
+                  <div className="flex justify-center mb-6">
+                    <div className="w-40 h-28">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <RadarChart data={generateRadarData()}>
+                          <PolarGrid
+                            stroke="#525252"
+                            strokeWidth={0.5}
+                            radialLines={true}
+                          />
+                          <PolarAngleAxis
+                            dataKey="skill"
+                            tick={{ fill: '#737373', fontSize: 8 }}
+                            className="text-xs"
+                          />
+                          <PolarRadiusAxis
+                            domain={[0, 100]}
+                            tick={false}
+                            axisLine={false}
+                          />
+                          <Radar
+                            name="Stats"
+                            dataKey="value"
+                            stroke="#f97316"
+                            fill="#f97316"
+                            fillOpacity={0.3}
+                            strokeWidth={2}
+                          />
+                        </RadarChart>
+                      </ResponsiveContainer>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+
+                  {/* Content */}
+                  <div className="text-center space-y-3">
+                    <div>
+                      <h3 className="text-lg font-bold text-white mb-1">{pass.name}</h3>
+                      <p className="text-sm text-neutral-400">{pass.subtitle}</p>
+                    </div>
+
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                        <span className="text-white">
+                          VibePoints: <span className="font-mono">{pass.vibePoints}</span>
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                        <span className="text-white">
+                          Holders: <span className="font-mono">{pass.holders}</span>
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="w-2 h-2 bg-neutral-400 rounded-full"></div>
+                        <span className="text-white">
+                          Rank: <span className="font-mono">{pass.rank}</span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Divider */}
