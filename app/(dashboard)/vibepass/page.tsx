@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
@@ -11,11 +12,8 @@ import { VibePassService, UserVibePass } from "@/services/vibepass"
 import { MintModal } from "@/components/mint-modal"
 import { toast } from "sonner"
 
-interface VibePassPageProps {
-  onNavigateToDetails?: (vibePassId: string) => void
-}
-
-export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps) {
+export default function VibePassPage() {
+  const router = useRouter()
   const [holdingFilter, setHoldingFilter] = useState("all")
   const [ownedPasses, setOwnedPasses] = useState<UserVibePass[]>([])
   const [loading, setLoading] = useState(true)
@@ -116,9 +114,7 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
   }
 
   const handleCardClick = (vibePassId: string) => {
-    if (onNavigateToDetails) {
-      onNavigateToDetails(vibePassId)
-    }
+    router.push(`/vibepass/${vibePassId}`)
   }
 
   // Handle unminted card click

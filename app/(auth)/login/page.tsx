@@ -344,7 +344,7 @@ export default function LoginPage() {
                   All verification steps completed, you can now enter the application
                 </p>
                 <Button
-                  onClick={() => router.push('/')}
+                  onClick={() => router.push('/vibepass')}
                   className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-3 text-lg"
                 >
                   Let's Vibe! 🎉

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useParams } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -8,11 +9,9 @@ import { ArrowRight, Crown, Medal, Award, ChevronDown } from "lucide-react"
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from "recharts"
 import { VibePassService, UserVibePass, LeaderboardEntry } from "@/services/vibepass"
 
-interface VibePassDetailsPageProps {
-  vibePassId: string
-}
-
-export default function VibePassDetailsPage({ vibePassId }: VibePassDetailsPageProps) {
+export default function VibePassDetailsPage() {
+  const params = useParams()
+  const vibePassId = params.id as string
   const [selectedPeriod, setSelectedPeriod] = useState("all")
   const [expandedOpportunity, setExpandedOpportunity] = useState<number | null>(null)
   const [vibePass, setVibePass] = useState<UserVibePass | null>(null)
