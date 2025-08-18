@@ -77,6 +77,29 @@ export interface MintINFTResponse {
   timestamp: string;
 }
 
+export interface GetMintParamsResponse {
+  data: {
+    message: string;
+    data: {
+      contractAddress: string;
+      methodName: string;
+      params: any[];
+      abi: any[];
+      to: string;
+      data: string;
+      metadata: {
+        rootHash: string;
+        sealedKey: string;
+        proof: string;
+        dataDescriptions: string[];
+      };
+    };
+  };
+  message: string;
+  statusCode: number;
+  timestamp: string;
+}
+
 export interface JoinProjectRequest {}
 
 export interface JoinProjectResponse {
@@ -171,7 +194,38 @@ export class VibePassService {
     }
   }
 
-  // 铸造 INFT
+  // 获取铸造参数 (新的前端铸造流程)
+  static async getMintParams(
+    vibePassId: string,
+    walletAddress: string,
+    rootHash: string
+  ): Promise<{contractAddress: string, methodName: string, params: any[], abi: any[], to: string, data: string, metadata: any}> {
+    console.log("🌐 API 调用: getMintParams", {
+      vibePassId,
+      walletAddress,
+      rootHash,
+      url: `/vibe-passes/${vibePassId}/get-mint-params`,
+    });
+
+    try {
+      const response = await request<GetMintParamsResponse>({
+        method: "GET",
+        url: `/vibe-passes/${vibePassId}/get-mint-params`,
+        params: {
+          walletAddress,
+          rootHash
+        }
+      });
+
+      console.log("📡 API 响应:", response.data);
+      return response.data.data.data;
+    } catch (error: any) {
+      console.error("❌ API 错误:", error.response?.data || error.message);
+      throw error;
+    }
+  }
+
+  // 铸造 INFT (旧的后端铸造流程 - 已弃用)
   static async mintINFT(
     vibePassId: string,
     data: MintINFTRequest
