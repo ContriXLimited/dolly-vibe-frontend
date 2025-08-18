@@ -65,7 +65,8 @@ app/
 services/
 ├── auth.ts                    # Wallet authentication API calls
 ├── social.ts                  # Discord/Twitter OAuth API calls
-└── user.ts                    # User status API calls
+├── user.ts                    # User status API calls
+└── vibepass.ts                # VibePass/NFT minting API calls
 
 store/
 └── auth.ts                    # Zustand authentication store
@@ -110,9 +111,32 @@ components/
 
 ### Web3 Integration Details
 
-**Wallet Support**: Configured for multiple chains (mainnet, polygon, optimism, arbitrum, base)
-**RainbowKit Theme**: Custom dark theme matching application design
+**Primary Network**: 0G Galileo Testnet (Chain ID: 16601)
+- RPC: `https://blue-wild-spring.0g-galileo.quiknode.pro/d5adfe5ccaff7e2dc5b4a9501c5c34141c62ceec/`
+- Explorer: `https://chainscan-galileo.0g.ai/`
+
+**Wallet Support**: RainbowKit with custom 0G testnet configuration
+**RainbowKit Theme**: Custom dark theme matching application design  
 **Wallet State**: Synchronized between wagmi hooks and Zustand store via `useWalletSync()`
+
+### NFT Minting Architecture
+
+**Three-Step Frontend Mint Process**:
+1. **Upload Metadata** → 0G Storage (gets `rootHash` + `sealedKey`)
+2. **Get Mint Parameters** → Backend API returns contract address, ABI, function params
+3. **Execute Transaction** → Frontend calls smart contract directly using wagmi
+
+**Key Components**:
+- `services/vibepass.ts`: VibePass API service with mint-related methods
+- `components/mint-modal.tsx`: Multi-step mint UI with transaction monitoring
+- Contract interaction uses wagmi's `useWriteContract` with 3 block confirmations
+- Post-mint server notification via `confirmMint` API
+
+**Critical Mint Flow Requirements**:
+- Users must be on 0G Galileo Testnet (validates network in UI)
+- Wallet signature required for metadata upload
+- Frontend handles all blockchain interactions (not backend)
+- Server confirmation API called after successful on-chain mint
 
 ### Environment Configuration
 
@@ -140,3 +164,22 @@ components/
 - Wrap `useSearchParams()` in Suspense boundaries
 - Extract and pass `callbackUrl` parameter when present
 - Provide clear error messaging and retry options
+
+**When working with NFT minting**:
+- Always validate user is on 0G Galileo Testnet before mint operations
+- Use `MintModal` component for consistent 3-step mint UI
+- Handle both wallet transaction errors and server notification failures
+- Wait for 3 block confirmations before calling `confirmMint` API
+- Maintain transaction state through wagmi hooks (`useWriteContract`, `useWaitForTransactionReceipt`)
+
+### Code Quality Standards
+
+**Language Consistency**:
+- All comments and logging must be in English
+- Console logs use format: "🌐 API Call:", "📡 API Response:", "❌ API Error:"
+- Avoid Chinese characters in code, comments, or logs
+
+**API Response Patterns**:
+- Backend responses are nested: `response.data.data` (for actual data)
+- All service methods include comprehensive error handling
+- Use centralized `request.ts` client for consistent JWT token management
