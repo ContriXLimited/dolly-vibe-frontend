@@ -6,17 +6,19 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ArrowRight, Crown, Medal, Award, ChevronDown } from "lucide-react"
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from "recharts"
-import { VibePassService, UserVibePass } from "@/services/vibepass"
+import { VibePassService, UserVibePass, LeaderboardEntry } from "@/services/vibepass"
 
 interface VibePassDetailsPageProps {
   vibePassId: string
 }
 
 export default function VibePassDetailsPage({ vibePassId }: VibePassDetailsPageProps) {
-  const [selectedPeriod, setSelectedPeriod] = useState("daily")
+  const [selectedPeriod, setSelectedPeriod] = useState("all")
   const [expandedOpportunity, setExpandedOpportunity] = useState<number | null>(null)
   const [vibePass, setVibePass] = useState<UserVibePass | null>(null)
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
   const [loading, setLoading] = useState(true)
+  const [leaderboardLoading, setLeaderboardLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   // Fetch VibePass data on mount
@@ -27,6 +29,11 @@ export default function VibePassDetailsPage({ vibePassId }: VibePassDetailsPageP
         setError(null)
         const data = await VibePassService.getVibePassById(vibePassId)
         setVibePass(data)
+        
+        // Fetch leaderboard data for the project
+        if (data.vibeProjectId) {
+          await fetchLeaderboard(data.vibeProjectId, selectedPeriod)
+        }
       } catch (err: any) {
         setError(err.message || 'Failed to fetch VibePass details')
         console.error('Error fetching VibePass:', err)
@@ -39,6 +46,28 @@ export default function VibePassDetailsPage({ vibePassId }: VibePassDetailsPageP
       fetchVibePass()
     }
   }, [vibePassId])
+
+  // Fetch leaderboard data
+  const fetchLeaderboard = async (vibeProjectId: string, timeWindow: string) => {
+    try {
+      setLeaderboardLoading(true)
+      const data = await VibePassService.getLeaderboard(vibeProjectId, timeWindow)
+      setLeaderboard(data)
+    } catch (err: any) {
+      console.error('Error fetching leaderboard:', err)
+      // Don't set error state for leaderboard failures, just log them
+    } finally {
+      setLeaderboardLoading(false)
+    }
+  }
+
+  // Handle period change
+  const handlePeriodChange = async (newPeriod: string) => {
+    setSelectedPeriod(newPeriod)
+    if (vibePass?.vibeProjectId) {
+      await fetchLeaderboard(vibePass.vibeProjectId, newPeriod)
+    }
+  }
 
   // Parse params string to get attributes
   const parsePassAttributes = (params: string) => {
@@ -80,16 +109,6 @@ export default function VibePassDetailsPage({ vibePassId }: VibePassDetailsPageP
     { skill: "Civility", value: 0 },
   ]
 
-  const leaderboardData = [
-    { rank: 1, name: "Jackie4853", referral: 460000, points: 190082, trend: "up" },
-    { rank: 2, name: "Whiskey236", referral: 440000, points: 170082, trend: "up" },
-    { rank: 3, name: "Summer", referral: 350000, points: 155082, trend: "up" },
-    { rank: 4, name: "JXlong", referral: 330240, points: 153082, trend: "down" },
-    { rank: 5, name: "GuruMusk", referral: 150000, points: 124082, trend: "up" },
-    { rank: 6, name: "Hardman", referral: 340000, points: 116082, trend: "up" },
-    { rank: 7, name: "Asakar", referral: 330240, points: 113082, trend: "down" },
-    { rank: 8, name: "Arster", referral: 330240, points: 113082, trend: "down" },
-  ]
 
   const opportunities = [
     {
@@ -398,11 +417,14 @@ export default function VibePassDetailsPage({ vibePassId }: VibePassDetailsPageP
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg font-bold text-white tracking-wider">LEADERBOARD</CardTitle>
-                <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
+                <Select value={selectedPeriod} onValueChange={handlePeriodChange}>
                   <SelectTrigger className="w-20 h-8 bg-neutral-800 border-neutral-600 text-white text-xs">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-neutral-800 border-neutral-600">
+                    <SelectItem value="all" className="text-white">
+                      All
+                    </SelectItem>
                     <SelectItem value="daily" className="text-white">
                       Daily
                     </SelectItem>
@@ -422,22 +444,36 @@ export default function VibePassDetailsPage({ vibePassId }: VibePassDetailsPageP
                 <div className="grid grid-cols-12 gap-2 text-xs text-neutral-400 font-medium pb-2 border-b border-neutral-700">
                   <div className="col-span-1">#</div>
                   <div className="col-span-4">Name</div>
-                  <div className="col-span-3">Referral</div>
-                  <div className="col-span-4">Points</div>
+                  <div className="col-span-3">Score</div>
+                  <div className="col-span-4">Change</div>
                 </div>
 
+                {/* Loading state */}
+                {leaderboardLoading && (
+                  <div className="text-center py-8">
+                    <div className="text-neutral-400 text-sm">Loading leaderboard...</div>
+                  </div>
+                )}
+
+                {/* Empty state */}
+                {!leaderboardLoading && leaderboard.length === 0 && (
+                  <div className="text-center py-8">
+                    <div className="text-neutral-400 text-sm">No leaderboard data available</div>
+                  </div>
+                )}
+
                 {/* Leaderboard Entries */}
-                {leaderboardData.map((entry) => (
+                {!leaderboardLoading && leaderboard.map((entry) => (
                   <div
-                    key={entry.rank}
+                    key={entry.id}
                     className="grid grid-cols-12 gap-2 text-xs py-2 hover:bg-neutral-800 rounded transition-colors"
                   >
                     <div className="col-span-1 flex items-center">{getRankIcon(entry.rank)}</div>
-                    <div className="col-span-4 text-white font-medium truncate">{entry.name}</div>
-                    <div className="col-span-3 text-orange-500 font-mono">{entry.referral.toLocaleString()}</div>
+                    <div className="col-span-4 text-white font-medium truncate">{entry.userName}</div>
+                    <div className="col-span-3 text-orange-500 font-mono">{entry.score}</div>
                     <div className="col-span-4 flex items-center gap-1">
-                      <span className="text-white font-mono">{entry.points.toLocaleString()}</span>
-                      <div className={`w-1 h-1 rounded-full ${entry.trend === "up" ? "bg-white" : "bg-red-500"}`}></div>
+                      <span className="text-white font-mono">+{entry.yesterdayChange}</span>
+                      <div className={`w-1 h-1 rounded-full ${entry.yesterdayChange >= 0 ? "bg-green-500" : "bg-red-500"}`}></div>
                     </div>
                   </div>
                 ))}

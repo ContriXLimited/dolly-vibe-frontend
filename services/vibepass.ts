@@ -93,6 +93,38 @@ export interface GetVibePassByIdResponse {
   timestamp: string;
 }
 
+export interface LeaderboardEntry {
+  id: string;
+  vibeUserId: string;
+  userId: string;
+  params: number[];
+  tags: string[];
+  tokenId: string;
+  createdAt: string;
+  rank: number;
+  score: number;
+  yesterdayChange: number;
+  userName: string;
+}
+
+export interface LeaderboardResponse {
+  data: {
+    message: string;
+    data: LeaderboardEntry[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+    timeWindow: string;
+    vibeProjectId: string;
+  };
+  message: string;
+  statusCode: number;
+  timestamp: string;
+}
+
 export class VibePassService {
   // 获取用户拥有的VibePasses
   static async getMyVibePasses(): Promise<UserVibePass[]> {
@@ -192,6 +224,29 @@ export class VibePassService {
       const response = await request<GetVibePassByIdResponse>({
         method: "GET",
         url: `/vibe-passes/${id}`,
+      });
+
+      console.log("📡 API 响应:", response.data);
+      return response.data.data.data;
+    } catch (error: any) {
+      console.error("❌ API 错误:", error.response?.data || error.message);
+      throw error;
+    }
+  }
+
+  // 获取项目排行榜
+  static async getLeaderboard(vibeProjectId: string, timeWindow: string = 'all'): Promise<LeaderboardEntry[]> {
+    console.log("🌐 API 调用: getLeaderboard", { 
+      vibeProjectId, 
+      timeWindow,
+      url: `/leaderboard/${vibeProjectId}` 
+    });
+
+    try {
+      const response = await request<LeaderboardResponse>({
+        method: "GET",
+        url: `/leaderboard/${vibeProjectId}`,
+        params: { timeWindow }
       });
 
       console.log("📡 API 响应:", response.data);
