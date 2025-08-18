@@ -121,6 +121,7 @@ export function MintModal({ isOpen, onClose, vibePass, onSuccess }: MintModalPro
       throw new Error("Network validation failed or wallet not connected")
     }
 
+    console.log('🔄 Setting step 1 as in_progress...')
     updateStepStatus(1, 'in_progress')
     setCurrentStep(1)
     
@@ -233,21 +234,28 @@ export function MintModal({ isOpen, onClose, vibePass, onSuccess }: MintModalPro
         config: error.config
       })
       
-      // Show appropriate error message
+      // Show appropriate error message based on current step
       if (currentStep === 1) {
+        // Upload metadata failed
         updateStepStatus(1, 'failed')
         toast.error("Metadata upload failed", {
           description: error.response?.data?.message || error.message || "Failed to upload to 0G Storage"
         })
       } else if (currentStep === 2) {
+        // Mint INFT failed
         updateStepStatus(2, 'failed')
         toast.error("Minting failed", {
           description: error.response?.data?.message || error.message || "Failed to mint INFT"
         })
       } else {
-        // Handle errors that occur before steps start (e.g., network validation, signature)
+        // Error occurred before any step started (step 0) - likely during signature or upload
+        // Since we're in the upload phase, mark step 1 as failed
+        if (currentStep === 0) {
+          setCurrentStep(1) // Set to step 1 so UI shows the right context
+          updateStepStatus(1, 'failed')
+        }
         toast.error("Process failed", {
-          description: error.response?.data?.message || error.message || "An unexpected error occurred"
+          description: error.response?.data?.message || error.message || "Failed to start the minting process"
         })
       }
     } finally {

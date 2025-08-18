@@ -9,6 +9,7 @@ import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Responsi
 import Image from "next/image"
 import { VibePassService, UserVibePass } from "@/services/vibepass"
 import { MintModal } from "@/components/mint-modal"
+import { toast } from "sonner"
 
 interface VibePassPageProps {
   onNavigateToDetails?: () => void
@@ -21,6 +22,7 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
   const [error, setError] = useState<string | null>(null)
   const [isMintModalOpen, setIsMintModalOpen] = useState(false)
   const [selectedVibePass, setSelectedVibePass] = useState<UserVibePass | null>(null)
+  const [isJoiningProject, setIsJoiningProject] = useState(false)
 
 
   // Fetch user's VibePasses on component mount
@@ -80,7 +82,12 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
 
   // Handle join project
   const handleJoinProject = async (projectId: string) => {
+    if (isJoiningProject) return // Prevent multiple calls
+    
     try {
+      setIsJoiningProject(true)
+      setError(null)
+      
       // Call the join project API using service
       await VibePassService.joinProject({})
 
@@ -88,6 +95,8 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
       await fetchMyVibePasses()
     } catch (err: any) {
       setError(err.message || 'Failed to join project')
+    } finally {
+      setIsJoiningProject(false)
     }
   }
 
@@ -110,6 +119,22 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
     if (onNavigateToDetails) {
       onNavigateToDetails()
     }
+  }
+
+  // Handle unminted card click
+  const handleUnmintedCardClick = () => {
+    toast.info("Mint your INFT first!", {
+      description: "Please use the 'Mint' button in the Available to Mint section below to create your INFT.",
+      action: {
+        label: "Scroll to Mint",
+        onClick: () => {
+          const mintSection = document.querySelector('[data-mint-section]')
+          if (mintSection) {
+            mintSection.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          }
+        }
+      }
+    })
   }
 
   return (
@@ -181,8 +206,12 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
               return (
                 <Card
                   key={pass.id}
-                  className="bg-gradient-to-br from-neutral-900 to-neutral-800 border border-neutral-700 hover:border-orange-500/50 transition-all duration-300 hover:scale-105 cursor-pointer overflow-hidden"
-                  onClick={handleCardClick}
+                  className={`bg-gradient-to-br from-neutral-900 to-neutral-800 border border-neutral-700 transition-all duration-300 overflow-hidden ${
+                    pass.tokenId 
+                      ? "hover:border-orange-500/50 hover:scale-105 cursor-pointer" 
+                      : "cursor-pointer opacity-75 hover:opacity-90"
+                  }`}
+                  onClick={pass.tokenId ? handleCardClick : handleUnmintedCardClick}
                 >
                   <CardContent className="p-6">
                     {/* Radar Chart */}
@@ -269,7 +298,7 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
       <div className="border-t border-neutral-700"></div>
 
       {/* Available to Mint Section */}
-      <div className="space-y-6">
+      <div className="space-y-6" data-mint-section>
         <h2 className="text-2xl font-bold text-white tracking-wider">Available to Mint</h2>
 
         {/* Mintable Projects Grid */}
@@ -336,8 +365,9 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
                             e.stopPropagation()
                             handleJoinProject(project.id)
                           }}
+                          disabled={isJoiningProject}
                         >
-                          Join Project
+                          {isJoiningProject ? "Joining..." : "Join Project"}
                         </Button>
                       )
                     }
