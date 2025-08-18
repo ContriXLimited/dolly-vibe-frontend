@@ -1,12 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { ArrowDown, Sparkles } from "lucide-react"
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from "recharts"
 import Image from "next/image"
+import { VibePassService, UserVibePass } from "@/services/vibepass"
 
 interface VibePassPageProps {
   onNavigateToDetails?: () => void
@@ -14,41 +15,29 @@ interface VibePassPageProps {
 
 export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps) {
   const [holdingFilter, setHoldingFilter] = useState("all")
+  const [ownedPasses, setOwnedPasses] = useState<UserVibePass[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  // Generate random radar data for each collection
-  const generateRadarData = () => [
-    { skill: "Power", value: Math.floor(Math.random() * 40) + 60 },
-    { skill: "Speed", value: Math.floor(Math.random() * 40) + 50 },
-    { skill: "Skill", value: Math.floor(Math.random() * 40) + 70 },
-    { skill: "Defense", value: Math.floor(Math.random() * 40) + 55 },
-    { skill: "Magic", value: Math.floor(Math.random() * 40) + 65 },
-  ]
 
-  // User owned VibePasses - empty by default to show empty state
-  const ownedPasses: Array<{
-    id: number
-    name: string
-    subtitle: string
-    vibePoints: string
-    holders: string
-    rank: string
-    gradient: string
-    bgGradient: string
-  }> = []
-  
-  // Uncomment to show passes
-  // const ownedPasses = [
-  //   {
-  //     id: 1,
-  //     name: "BattleOfAgents",
-  //     subtitle: "0x1a2b...cd3e",
-  //     vibePoints: "234,454",
-  //     holders: "223,322",
-  //     rank: "454",
-  //     gradient: "from-orange-400 via-orange-500 to-red-500",
-  //     bgGradient: "from-neutral-900 to-neutral-800",
-  //   },
-  // ]
+  // Fetch user's VibePasses on component mount
+  useEffect(() => {
+    fetchMyVibePasses()
+  }, [])
+
+  const fetchMyVibePasses = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const passes = await VibePassService.getMyVibePasses()
+      setOwnedPasses(passes)
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch VibePasses')
+      console.error('Error fetching VibePasses:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   // Mintable projects
   const mintableProjects = [
@@ -62,6 +51,64 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
       logo: "/placeholder-logo.svg",
     },
   ]
+
+
+  // Parse params string to get attributes
+  const parsePassAttributes = (params: string) => {
+    try {
+      const values = JSON.parse(params) as number[]
+      return {
+        engagement: values[0] || 0,
+        relevance: values[1] || 0,
+        expertise: values[2] || 0,
+        interaction: values[3] || 0,
+        civility: values[4] || 0,
+      }
+    } catch {
+      return {
+        engagement: 0,
+        relevance: 0,
+        expertise: 0,
+        interaction: 0,
+        civility: 0,
+      }
+    }
+  }
+
+  // Handle join project
+  const handleJoinProject = async (projectId: number) => {
+    try {
+      // Call the join project API
+      const response = await fetch('/api/vibe-passes/join', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ projectId }),
+      })
+      
+      if (!response.ok) {
+        throw new Error('Failed to join project')
+      }
+      
+      // Refresh the owned passes
+      await fetchMyVibePasses()
+    } catch (err: any) {
+      setError(err.message || 'Failed to join project')
+    }
+  }
+
+  // Handle mint pass
+  const handleMintPass = async (projectId: number) => {
+    try {
+      // Call the mint API (to be implemented)
+      console.log('Minting pass for project:', projectId)
+      // For now, just refresh the passes
+      await fetchMyVibePasses()
+    } catch (err: any) {
+      setError(err.message || 'Failed to mint pass')
+    }
+  }
 
   const handleCardClick = () => {
     if (onNavigateToDetails) {
@@ -96,8 +143,16 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
           </div>
         </div>
 
-        {/* Owned Passes Grid or Empty State */}
-        {ownedPasses.length === 0 ? (
+        {/* Loading State */}
+        {loading ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="text-white">Loading your VibePasses...</div>
+          </div>
+        ) : error ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="text-red-500">Error: {error}</div>
+          </div>
+        ) : ownedPasses.length === 0 ? (
           // Empty State
           <div className="relative">
             <div className="border-2 border-dashed border-neutral-600 rounded-lg p-12 flex flex-col items-center justify-center space-y-4 bg-neutral-900/50">
@@ -117,79 +172,99 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
         ) : (
           // Passes Grid
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {ownedPasses.map((pass) => (
-              <Card
-                key={pass.id}
-                className={`bg-gradient-to-br ${pass.bgGradient} border border-neutral-700 hover:border-orange-500/50 transition-all duration-300 hover:scale-105 cursor-pointer overflow-hidden`}
-                onClick={handleCardClick}
-              >
-                <CardContent className="p-6">
-                  {/* Radar Chart */}
-                  <div className="flex justify-center mb-6">
-                    <div className="w-40 h-28">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <RadarChart data={generateRadarData()}>
-                          <PolarGrid
-                            stroke="#525252"
-                            strokeWidth={0.5}
-                            radialLines={true}
-                          />
-                          <PolarAngleAxis
-                            dataKey="skill"
-                            tick={{ fill: '#737373', fontSize: 8 }}
-                            className="text-xs"
-                          />
-                          <PolarRadiusAxis
-                            domain={[0, 100]}
-                            tick={false}
-                            axisLine={false}
-                          />
-                          <Radar
-                            name="Stats"
-                            dataKey="value"
-                            stroke="#f97316"
-                            fill="#f97316"
-                            fillOpacity={0.3}
-                            strokeWidth={2}
-                          />
-                        </RadarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </div>
-
-                  {/* Content */}
-                  <div className="text-center space-y-3">
-                    <div>
-                      <h3 className="text-lg font-bold text-white mb-1">{pass.name}</h3>
-                      <p className="text-sm text-neutral-400">{pass.subtitle}</p>
-                    </div>
-
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center justify-center gap-2">
-                        <div className="w-2 h-2 bg-white rounded-full"></div>
-                        <span className="text-white">
-                          VibePoints: <span className="font-mono">{pass.vibePoints}</span>
-                        </span>
-                      </div>
-
-                      <div className="flex items-center justify-center gap-2">
-                        <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                        <span className="text-white">
-                          Holders: <span className="font-mono">{pass.holders}</span>
-                        </span>
-                      </div>
-
-                      <div className="flex items-center justify-center gap-2">
-                        <div className="w-2 h-2 bg-neutral-400 rounded-full"></div>
-                        <span className="text-white">
-                          Rank: <span className="font-mono">{pass.rank}</span>
-                        </span>
+            {ownedPasses.map((pass) => {
+              const attributes = parsePassAttributes(pass.params)
+              const radarData = [
+                { skill: "Engagement", value: attributes.engagement },
+                { skill: "Relevance", value: attributes.relevance },
+                { skill: "Expertise", value: attributes.expertise },
+                { skill: "Interaction", value: attributes.interaction },
+                { skill: "Civility", value: attributes.civility },
+              ]
+              
+              return (
+                <Card
+                  key={pass.id}
+                  className="bg-gradient-to-br from-neutral-900 to-neutral-800 border border-neutral-700 hover:border-orange-500/50 transition-all duration-300 hover:scale-105 cursor-pointer overflow-hidden"
+                  onClick={handleCardClick}
+                >
+                  <CardContent className="p-6">
+                    {/* Radar Chart */}
+                    <div className="flex justify-center mb-6">
+                      <div className="w-40 h-28">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <RadarChart data={radarData}>
+                            <PolarGrid
+                              stroke="#525252"
+                              strokeWidth={0.5}
+                              radialLines={true}
+                            />
+                            <PolarAngleAxis
+                              dataKey="skill"
+                              tick={{ fill: '#737373', fontSize: 8 }}
+                              className="text-xs"
+                            />
+                            <PolarRadiusAxis
+                              domain={[0, 100]}
+                              tick={false}
+                              axisLine={false}
+                            />
+                            <Radar
+                              name="Stats"
+                              dataKey="value"
+                              stroke="#f97316"
+                              fill="#f97316"
+                              fillOpacity={0.3}
+                              strokeWidth={2}
+                            />
+                          </RadarChart>
+                        </ResponsiveContainer>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+
+                    {/* Content */}
+                    <div className="text-center space-y-3">
+                      <div>
+                        <h3 className="text-lg font-bold text-white mb-1">VibePass</h3>
+                        <p className="text-sm text-neutral-400">{pass.vibeProjectId.slice(0, 8)}...{pass.vibeProjectId.slice(-8)}</p>
+                      </div>
+
+                      <div className="space-y-2 text-sm">
+                        <div className="flex items-center justify-center gap-2">
+                          <div className="w-2 h-2 bg-white rounded-full"></div>
+                          <span className="text-white">
+                            Score: <span className="font-mono">{pass.score}</span>
+                          </span>
+                        </div>
+
+                        <div className="flex items-center justify-center gap-2">
+                          <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                          <span className="text-white">
+                            Messages: <span className="font-mono">{pass.msgCount}</span>
+                          </span>
+                        </div>
+
+                        <div className="flex items-center justify-center gap-2">
+                          <div className="w-2 h-2 bg-neutral-400 rounded-full"></div>
+                          <span className="text-white">
+                            Status: <span className="font-mono">{pass.status}</span>
+                          </span>
+                        </div>
+
+                        {pass.tokenId && (
+                          <div className="flex items-center justify-center gap-2">
+                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <span className="text-white">
+                              Token: <span className="font-mono">#{pass.tokenId}</span>
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })}
           </div>
         )}
       </div>
@@ -229,16 +304,48 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
                     <p className="text-sm text-neutral-400">{project.description}</p>
                   </div>
 
-                  {/* Mint Button */}
-                  <Button
-                    className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      // Mint functionality to be implemented
-                    }}
-                  >
-                    Mint Pass
-                  </Button>
+                  {/* Dynamic Button */}
+                  {(() => {
+                    // Check if user has a vibepass (any vibepass means they've joined projects)
+                    const hasAnyPass = ownedPasses.length > 0
+                    // Check if user has a minted pass (tokenId exists)
+                    const hasMintedPass = ownedPasses.some(pass => pass.tokenId !== null)
+                    
+                    if (hasMintedPass) {
+                      return (
+                        <Button
+                          className="w-full bg-neutral-600 text-neutral-400 font-bold cursor-not-allowed"
+                          disabled
+                        >
+                          Already Minted
+                        </Button>
+                      )
+                    } else if (hasAnyPass) {
+                      return (
+                        <Button
+                          className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleMintPass(project.id)
+                          }}
+                        >
+                          Mint
+                        </Button>
+                      )
+                    } else {
+                      return (
+                        <Button
+                          className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleJoinProject(project.id)
+                          }}
+                        >
+                          Join Project
+                        </Button>
+                      )
+                    }
+                  })()}
                 </div>
               </CardContent>
             </Card>
