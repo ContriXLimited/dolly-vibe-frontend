@@ -28,13 +28,13 @@ export default function VibePassDetailsPage({ vibePassId }: VibePassDetailsPageP
   const openBlockchainExplorer = (type: 'contract' | 'transaction', value: string) => {
     const baseUrl = "https://etherscan.io"
     let url = ""
-    
+
     if (type === 'contract') {
       url = `${baseUrl}/address/${value}`
     } else if (type === 'transaction') {
       url = `${baseUrl}/tx/${value}`
     }
-    
+
     if (url) {
       window.open(url, '_blank', 'noopener,noreferrer')
     }
@@ -48,7 +48,7 @@ export default function VibePassDetailsPage({ vibePassId }: VibePassDetailsPageP
         setError(null)
         const data = await VibePassService.getVibePassById(vibePassId)
         setVibePass(data)
-        
+
         // Fetch leaderboard data for the project
         if (data.vibeProjectId) {
           await fetchLeaderboard(data.vibeProjectId, selectedPeriod)
@@ -110,6 +110,17 @@ export default function VibePassDetailsPage({ vibePassId }: VibePassDetailsPageP
     }
   }
 
+  // Parse tags string to get array of tags
+  const parseTags = (tags: string | null): string[] => {
+    if (!tags) return []
+    try {
+      const parsed = JSON.parse(tags)
+      return Array.isArray(parsed) ? parsed : []
+    } catch {
+      return []
+    }
+  }
+
   // Generate radar chart data from vibePass params
   const radarData = vibePass ? (() => {
     const attributes = parsePassAttributes(vibePass.params)
@@ -137,7 +148,7 @@ export default function VibePassDetailsPage({ vibePassId }: VibePassDetailsPageP
       requirements: "Minimum 100,000 VibePoints required"
     },
     {
-      title: "Access exclusive agent briefings", 
+      title: "Access exclusive agent briefings",
       description: "Receive classified briefings on upcoming operations and strategic initiatives before public release.",
       benefits: ["48-hour early access to missions", "Detailed tactical analysis", "Agent performance metrics"],
       requirements: "Rank within top 500 holders"
@@ -243,7 +254,7 @@ export default function VibePassDetailsPage({ vibePassId }: VibePassDetailsPageP
                       </RadarChart>
                     </ResponsiveContainer>
                   </div>
-                  
+
                   {/* BattleOfAgents Stats Card */}
                   <div className="p-4 bg-black rounded-lg border border-neutral-800">
                     <h3 className="text-white font-bold text-base mb-3">VibePass Details</h3>
@@ -305,7 +316,7 @@ export default function VibePassDetailsPage({ vibePassId }: VibePassDetailsPageP
                     <div className="space-y-3">
                       <div>
                         <div className="text-xs text-neutral-400">Contract Address</div>
-                        <div 
+                        <div
                           className="text-sm text-orange-500 font-mono cursor-pointer hover:text-orange-400 transition-colors underline"
                           onClick={() => openBlockchainExplorer('contract', CONTRACT_ADDRESS)}
                           title="Click to view on Etherscan"
@@ -325,7 +336,7 @@ export default function VibePassDetailsPage({ vibePassId }: VibePassDetailsPageP
                   {vibePass.mintTxHash && (
                     <div>
                       <div className="text-xs text-neutral-400 mb-1">Mint Transaction</div>
-                      <div 
+                      <div
                         className="text-sm text-orange-500 font-mono cursor-pointer hover:text-orange-400 transition-colors underline"
                         onClick={() => openBlockchainExplorer('transaction', vibePass.mintTxHash!)}
                         title="Click to view on Etherscan"
@@ -335,45 +346,14 @@ export default function VibePassDetailsPage({ vibePassId }: VibePassDetailsPageP
                     </div>
                   )}
 
-                  <div className="flex gap-2">
-                    <Badge className="bg-neutral-800 text-neutral-300 text-xs">VibePass</Badge>
-                    <Badge className="bg-neutral-800 text-neutral-300 text-xs">{vibePass.status}</Badge>
-                    {vibePass.tokenId && (
-                      <Badge className="bg-orange-800 text-orange-300 text-xs">Minted</Badge>
-                    )}
+                  <div className="flex flex-wrap gap-2">
+                    {/* Dynamic tags from API */}
+                    {parseTags(vibePass.tags).map((tag, index) => (
+                      <Badge key={index} className="bg-neutral-700 text-orange-400 text-xs border border-orange-500/30">
+                        {tag}
+                      </Badge>
+                    ))}
                   </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* VibePass Overview Card */}
-          <Card className="bg-neutral-900 border-neutral-700">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg font-bold text-white tracking-wider">VIBEPASS OVERVIEW</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-3 gap-6">
-                <div className="text-center">
-                  <div className="flex items-center justify-center gap-1 mb-1">
-                    <div className="w-2 h-2 bg-white rounded-full"></div>
-                    <span className="text-xs text-neutral-400">Score:</span>
-                  </div>
-                  <div className="text-xl font-bold text-white font-mono">{vibePass.score}</div>
-                </div>
-                <div className="text-center">
-                  <div className="flex items-center justify-center gap-1 mb-1">
-                    <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                    <span className="text-xs text-neutral-400">Messages:</span>
-                  </div>
-                  <div className="text-xl font-bold text-white font-mono">{vibePass.msgCount}</div>
-                </div>
-                <div className="text-center">
-                  <div className="flex items-center justify-center gap-1 mb-1">
-                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                    <span className="text-xs text-neutral-400">Invites:</span>
-                  </div>
-                  <div className="text-xl font-bold text-white font-mono">{vibePass.inviteCount}</div>
                 </div>
               </div>
             </CardContent>
@@ -393,13 +373,12 @@ export default function VibePassDetailsPage({ vibePassId }: VibePassDetailsPageP
                     onClick={() => setExpandedOpportunity(expandedOpportunity === index ? null : index)}
                   >
                     <span className="text-sm text-white font-medium">{opportunity.title}</span>
-                    <ChevronDown 
-                      className={`w-4 h-4 text-orange-500 transition-transform ${
-                        expandedOpportunity === index ? 'rotate-180' : ''
-                      }`} 
+                    <ChevronDown
+                      className={`w-4 h-4 text-orange-500 transition-transform ${expandedOpportunity === index ? 'rotate-180' : ''
+                        }`}
                     />
                   </div>
-                  
+
                   {/* Expandable content */}
                   {expandedOpportunity === index && (
                     <div className="p-4 bg-neutral-900 border-t border-neutral-700 space-y-4">
