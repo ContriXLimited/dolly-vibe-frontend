@@ -14,10 +14,12 @@ const zeroGGalileoTestnet = {
   },
   rpcUrls: {
     default: {
-      http: ['https://evmrpc-testnet.0g.ai/'],
+      http: ['https://blue-wild-spring.0g-galileo.quiknode.pro/d5adfe5ccaff7e2dc5b4a9501c5c34141c62ceec/'],
+      webSocket: ['wss://blue-wild-spring.0g-galileo.quiknode.pro/d5adfe5ccaff7e2dc5b4a9501c5c34141c62ceec/'],
     },
     public: {
-      http: ['https://evmrpc-testnet.0g.ai/'],
+      http: ['https://blue-wild-spring.0g-galileo.quiknode.pro/d5adfe5ccaff7e2dc5b4a9501c5c34141c62ceec/'],
+      webSocket: ['wss://blue-wild-spring.0g-galileo.quiknode.pro/d5adfe5ccaff7e2dc5b4a9501c5c34141c62ceec/'],
     },
   },
   blockExplorers: {

@@ -5,6 +5,7 @@ import { ChevronRight, Monitor, Settings, Shield, Target, Users, Trophy, Globe, 
 import { Button } from "@/components/ui/button"
 import { Logo } from "@/components/logo"
 import { AuthGuard } from "@/components/auth-guard"
+import { NetworkSwitchButton } from "@/components/network-switch-button"
 import { useAuthStore } from "@/store/auth"
 import CommandCenterPage from "./command-center/page"
 import AgentNetworkPage from "./agent-network/page"
@@ -96,6 +97,13 @@ export default function TacticalDashboard() {
                 </button>
               ))}
             </nav>
+            
+            {/* Network Switch Button */}
+            {!sidebarCollapsed && (
+              <div className="mt-4 pt-4 border-t border-neutral-700">
+                <NetworkSwitchButton />
+              </div>
+            )}
           </div>
 
 
