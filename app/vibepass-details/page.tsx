@@ -21,6 +21,25 @@ export default function VibePassDetailsPage({ vibePassId }: VibePassDetailsPageP
   const [leaderboardLoading, setLeaderboardLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // 合约地址常量
+  const CONTRACT_ADDRESS = "0x1B1594813C197a9dFD163d76C6EcA9F829e5a4fa"
+
+  // 打开区块链浏览器
+  const openBlockchainExplorer = (type: 'contract' | 'transaction', value: string) => {
+    const baseUrl = "https://etherscan.io"
+    let url = ""
+    
+    if (type === 'contract') {
+      url = `${baseUrl}/address/${value}`
+    } else if (type === 'transaction') {
+      url = `${baseUrl}/tx/${value}`
+    }
+    
+    if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer')
+    }
+  }
+
   // Fetch VibePass data on mount
   useEffect(() => {
     const fetchVibePass = async () => {
@@ -285,9 +304,13 @@ export default function VibePassDetailsPage({ vibePassId }: VibePassDetailsPageP
                     </div>
                     <div className="space-y-3">
                       <div>
-                        <div className="text-xs text-neutral-400">Project ID</div>
-                        <div className="text-sm text-white font-mono">
-                          {vibePass.vibeProjectId.slice(0, 8)}...{vibePass.vibeProjectId.slice(-8)}
+                        <div className="text-xs text-neutral-400">Contract Address</div>
+                        <div 
+                          className="text-sm text-orange-500 font-mono cursor-pointer hover:text-orange-400 transition-colors underline"
+                          onClick={() => openBlockchainExplorer('contract', CONTRACT_ADDRESS)}
+                          title="Click to view on Etherscan"
+                        >
+                          {CONTRACT_ADDRESS.slice(0, 8)}...{CONTRACT_ADDRESS.slice(-8)}
                         </div>
                       </div>
                       <div>
@@ -302,7 +325,11 @@ export default function VibePassDetailsPage({ vibePassId }: VibePassDetailsPageP
                   {vibePass.mintTxHash && (
                     <div>
                       <div className="text-xs text-neutral-400 mb-1">Mint Transaction</div>
-                      <div className="text-sm text-white font-mono">
+                      <div 
+                        className="text-sm text-orange-500 font-mono cursor-pointer hover:text-orange-400 transition-colors underline"
+                        onClick={() => openBlockchainExplorer('transaction', vibePass.mintTxHash!)}
+                        title="Click to view on Etherscan"
+                      >
                         {vibePass.mintTxHash.slice(0, 10)}...{vibePass.mintTxHash.slice(-10)}
                       </div>
                     </div>
