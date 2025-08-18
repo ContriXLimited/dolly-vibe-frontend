@@ -52,13 +52,7 @@ export function MintModal({ isOpen, onClose, vibePass, onSuccess }: MintModalPro
     },
     {
       id: 2,
-      title: "Get Mint Parameters",
-      description: "Retrieving contract parameters from backend",
-      status: 'pending'
-    },
-    {
-      id: 3,
-      title: "Execute Mint Transaction",
+      title: "Mint Intelligent NFT",
       description: "Creating your unique INFT on the blockchain",
       status: 'pending'
     }
@@ -88,7 +82,7 @@ export function MintModal({ isOpen, onClose, vibePass, onSuccess }: MintModalPro
           })
           console.log('✅ Server notified successfully')
           
-          updateStepStatus(3, 'completed')
+          updateStepStatus(2, 'completed')
           setMintResult({
             mintTxHash: hash,
             mintedAt: new Date().toISOString()
@@ -101,7 +95,7 @@ export function MintModal({ isOpen, onClose, vibePass, onSuccess }: MintModalPro
         } catch (error: any) {
           console.error('❌ Failed to notify server:', error)
           // Still mark as completed since the mint was successful on-chain
-          updateStepStatus(3, 'completed')
+          updateStepStatus(2, 'completed')
           setMintResult({
             mintTxHash: hash,
             mintedAt: new Date().toISOString()
@@ -125,7 +119,7 @@ export function MintModal({ isOpen, onClose, vibePass, onSuccess }: MintModalPro
     if (contractError) {
       console.error('❌ Contract execution failed:', contractError)
       
-      updateStepStatus(3, 'failed')
+      updateStepStatus(2, 'failed')
       toast.error("Transaction failed", {
         description: contractError.message || "Failed to execute mint transaction"
       })
@@ -221,8 +215,8 @@ export function MintModal({ isOpen, onClose, vibePass, onSuccess }: MintModalPro
     return metadataResult
   }
 
-  // Step 2: Get Mint Parameters (internal function)
-  const getMintParameters = async (metadataResult: UploadResult) => {
+  // Step 2: Mint INFT (includes getting parameters + executing transaction)
+  const mintINFTWithParams = async (metadataResult: UploadResult) => {
     if (!validateNetwork() || !address) {
       throw new Error("Network validation failed or wallet not connected")
     }
@@ -234,28 +228,16 @@ export function MintModal({ isOpen, onClose, vibePass, onSuccess }: MintModalPro
     updateStepStatus(2, 'in_progress')
     setCurrentStep(2)
     
-    toast.info("Getting mint parameters from backend...")
+    toast.info("Preparing mint transaction...")
     
+    // Get mint parameters (hidden from user)
+    console.log('🔍 Getting mint parameters...')
     const mintParams = await VibePassService.getMintParams(vibePass.id, address, metadataResult.rootHash)
-    
+    console.log('✅ Mint parameters retrieved:', mintParams)
     setMintParams(mintParams)
-    updateStepStatus(2, 'completed')
-    toast.success("Mint parameters retrieved successfully!")
     
-    return mintParams
-  }
-
-  // Step 3: Execute Mint Transaction (internal function) 
-  const executeMintTransaction = async (mintParams: {contractAddress: string, methodName: string, params: any[], abi: any[], to: string, data: string, metadata: any}) => {
-    if (!validateNetwork() || !address) {
-      throw new Error("Network validation failed or wallet not connected")
-    }
-
-    updateStepStatus(3, 'in_progress')
-    setCurrentStep(3)
-    
+    // Execute mint transaction
     toast.info("Executing mint transaction...")
-    
     console.log('🚀 Calling writeContract with params:', {
       address: mintParams.contractAddress,
       abi: mintParams.abi,
@@ -276,7 +258,7 @@ export function MintModal({ isOpen, onClose, vibePass, onSuccess }: MintModalPro
     // Note: We'll handle the success in the useEffect that monitors transaction status
   }
 
-  // Main function: Start full minting process (upload + get params + mint)
+  // Main function: Start full minting process (upload + mint)
   const startMinting = async () => {
     if (!validateNetwork() || !address) return
 
@@ -295,16 +277,10 @@ export function MintModal({ isOpen, onClose, vibePass, onSuccess }: MintModalPro
       const metadataResult = await uploadMetadata(nonce, signature)
       console.log('✅ Upload completed:', metadataResult)
       
-      // Step 2: Get mint parameters
-      console.log('🔍 Getting mint parameters...')
+      // Step 2: Mint INFT (includes getting params + executing transaction)
+      console.log('🪙 Starting mint process...')
       setCurrentStep(2)
-      const mintParams = await getMintParameters(metadataResult)
-      console.log('✅ Mint parameters retrieved:', mintParams)
-      
-      // Step 3: Execute mint transaction
-      console.log('🪙 Starting mint transaction...')
-      setCurrentStep(3)
-      await executeMintTransaction(mintParams)
+      await mintINFTWithParams(metadataResult)
       console.log('✅ Mint transaction initiated!')
       
       // Note: Transaction completion is handled by useEffect hooks
@@ -327,20 +303,13 @@ export function MintModal({ isOpen, onClose, vibePass, onSuccess }: MintModalPro
           description: error.response?.data?.message || error.message || "Failed to upload to 0G Storage"
         })
       } else if (currentStep === 2) {
-        // Get mint parameters failed
+        // Mint process failed (could be getting params or executing transaction)
         updateStepStatus(2, 'failed')
-        toast.error("Failed to get mint parameters", {
-          description: error.response?.data?.message || error.message || "Failed to retrieve contract parameters"
-        })
-      } else if (currentStep === 3) {
-        // Execute mint transaction failed
-        updateStepStatus(3, 'failed')
-        toast.error("Transaction initiation failed", {
-          description: error.response?.data?.message || error.message || "Failed to initiate mint transaction"
+        toast.error("Minting failed", {
+          description: error.response?.data?.message || error.message || "Failed to mint INFT"
         })
       } else {
-        // Error occurred before any step started (step 0) - likely during signature or upload
-        // Since we're in the upload phase, mark step 1 as failed
+        // Error occurred before any step started (step 0) - likely during signature
         if (currentStep === 0) {
           setCurrentStep(1) // Set to step 1 so UI shows the right context
           updateStepStatus(1, 'failed')
@@ -425,7 +394,7 @@ export function MintModal({ isOpen, onClose, vibePass, onSuccess }: MintModalPro
                   {step.title}
                 </h3>
                 <p className="text-sm text-neutral-400 mt-1">
-                  {step.id === 3 && isConfirming ? "Waiting for 3 block confirmations..." : step.description}
+                  {step.id === 2 && isConfirming ? "Waiting for 3 block confirmations..." : step.description}
                 </p>
               </div>
             </div>
@@ -483,7 +452,7 @@ export function MintModal({ isOpen, onClose, vibePass, onSuccess }: MintModalPro
               </Button>
               
               {/* Main Mint Button */}
-              {(steps[0].status === 'failed' || steps[1].status === 'failed' || steps[2].status === 'failed') ? (
+              {(steps[0].status === 'failed' || steps[1].status === 'failed') ? (
                 <Button
                   onClick={resetAndRestart}
                   disabled={isProcessing || isContractPending || isConfirming}
@@ -499,7 +468,7 @@ export function MintModal({ isOpen, onClose, vibePass, onSuccess }: MintModalPro
                 >
                   {isProcessing || isContractPending || isConfirming ? (
                     currentStep === 1 ? "Uploading..." : 
-                    currentStep === 2 ? "Getting Parameters..." : 
+                    currentStep === 2 ? "Minting..." : 
                     isContractPending ? "Confirm Transaction..." :
                     isConfirming ? "Confirming..." :
                     "Processing..."
