@@ -40,6 +40,7 @@ export function MintModal({ isOpen, onClose, vibePass, onSuccess }: MintModalPro
   const { writeContract, data: hash, error: contractError, isPending: isContractPending } = useWriteContract()
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
     hash,
+    confirmations: 3, // 等待3个区块确认
   })
   
   const [steps, setSteps] = useState<MintStep[]>([
@@ -73,24 +74,51 @@ export function MintModal({ isOpen, onClose, vibePass, onSuccess }: MintModalPro
 
   // Monitor transaction confirmation
   useEffect(() => {
-    if (isConfirmed && hash) {
+    if (isConfirmed && hash && mintParams && uploadResult) {
       console.log('🎉 Transaction confirmed:', hash)
       
-      updateStepStatus(3, 'completed')
-      // Note: We could extract tokenId from transaction receipt if needed
-      setMintResult({
-        mintTxHash: hash,
-        mintedAt: new Date().toISOString()
-      })
-      setIsCompleted(true)
+      // Call confirmMint API to notify server
+      const notifyServer = async () => {
+        try {
+          console.log('📡 Notifying server about successful mint...')
+          await VibePassService.confirmMint(vibePass.id, {
+            txHash: hash,
+            rootHash: mintParams.metadata.rootHash,
+            sealedKey: mintParams.metadata.sealedKey
+          })
+          console.log('✅ Server notified successfully')
+          
+          updateStepStatus(3, 'completed')
+          setMintResult({
+            mintTxHash: hash,
+            mintedAt: new Date().toISOString()
+          })
+          setIsCompleted(true)
+          
+          toast.success("🎉 INFT minted successfully!", {
+            description: "Your intelligent NFT is now on the blockchain!"
+          })
+        } catch (error: any) {
+          console.error('❌ Failed to notify server:', error)
+          // Still mark as completed since the mint was successful on-chain
+          updateStepStatus(3, 'completed')
+          setMintResult({
+            mintTxHash: hash,
+            mintedAt: new Date().toISOString()
+          })
+          setIsCompleted(true)
+          
+          toast.success("🎉 INFT minted successfully!", {
+            description: "Your NFT is on-chain, but server notification failed"
+          })
+        } finally {
+          setIsProcessing(false)
+        }
+      }
       
-      toast.success("🎉 INFT minted successfully!", {
-        description: "Your intelligent NFT is now on the blockchain!"
-      })
-      
-      setIsProcessing(false)
+      notifyServer()
     }
-  }, [isConfirmed, hash])
+  }, [isConfirmed, hash, mintParams, uploadResult, vibePass.id])
 
   // Monitor transaction errors
   useEffect(() => {
@@ -397,7 +425,7 @@ export function MintModal({ isOpen, onClose, vibePass, onSuccess }: MintModalPro
                   {step.title}
                 </h3>
                 <p className="text-sm text-neutral-400 mt-1">
-                  {step.id === 3 && isConfirming ? "Waiting for transaction confirmation..." : step.description}
+                  {step.id === 3 && isConfirming ? "Waiting for 3 block confirmations..." : step.description}
                 </p>
               </div>
             </div>

@@ -100,6 +100,22 @@ export interface GetMintParamsResponse {
   timestamp: string;
 }
 
+export interface ConfirmMintRequest {
+  txHash: string;
+  rootHash: string;
+  sealedKey: string;
+}
+
+export interface ConfirmMintResponse {
+  data: {
+    message: string;
+    data: UserVibePass;
+  };
+  message: string;
+  statusCode: number;
+  timestamp: string;
+}
+
 export interface JoinProjectRequest {}
 
 export interface JoinProjectResponse {
@@ -215,6 +231,32 @@ export class VibePassService {
           walletAddress,
           rootHash
         }
+      });
+
+      console.log("📡 API 响应:", response.data);
+      return response.data.data.data;
+    } catch (error: any) {
+      console.error("❌ API 错误:", error.response?.data || error.message);
+      throw error;
+    }
+  }
+
+  // 确认铸造成功 (通知服务器)
+  static async confirmMint(
+    vibePassId: string,
+    data: ConfirmMintRequest
+  ): Promise<UserVibePass> {
+    console.log("🌐 API 调用: confirmMint", {
+      vibePassId,
+      data,
+      url: `/vibe-passes/${vibePassId}/confirm-mint`,
+    });
+
+    try {
+      const response = await request<ConfirmMintResponse>({
+        method: "POST",
+        url: `/vibe-passes/${vibePassId}/confirm-mint`,
+        data
       });
 
       console.log("📡 API 响应:", response.data);
