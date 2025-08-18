@@ -51,7 +51,7 @@ export default function VibePassPage() {
       totalSupply: "10,000",
       minted: "3,245",
       price: "0.05 ETH",
-      logo: "/placeholder-logo.svg",
+      logo: "/0g.png",
     },
   ]
 
@@ -68,7 +68,7 @@ export default function VibePassPage() {
   }
 
   // Handle join project
-  const handleJoinProject = async (projectId: string) => {
+  const handleJoinProject = async () => {
     if (isJoiningProject) return // Prevent multiple calls
     
     try {
@@ -348,7 +348,7 @@ export default function VibePassPage() {
                           className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold"
                           onClick={(e) => {
                             e.stopPropagation()
-                            handleJoinProject(project.id)
+                            handleJoinProject()
                           }}
                           disabled={isJoiningProject}
                         >
