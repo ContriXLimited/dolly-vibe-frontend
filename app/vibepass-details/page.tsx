@@ -24,9 +24,9 @@ export default function VibePassDetailsPage({ vibePassId }: VibePassDetailsPageP
   // 合约地址常量
   const CONTRACT_ADDRESS = "0x1B1594813C197a9dFD163d76C6EcA9F829e5a4fa"
 
-  // 打开区块链浏览器
+  // 打开区块链浏览器 - 0G测试网
   const openBlockchainExplorer = (type: 'contract' | 'transaction', value: string) => {
-    const baseUrl = "https://etherscan.io"
+    const baseUrl = "https://chainscan-newton.0g.ai"
     let url = ""
 
     if (type === 'contract') {
@@ -319,7 +319,7 @@ export default function VibePassDetailsPage({ vibePassId }: VibePassDetailsPageP
                         <div
                           className="text-sm text-orange-500 font-mono cursor-pointer hover:text-orange-400 transition-colors underline"
                           onClick={() => openBlockchainExplorer('contract', CONTRACT_ADDRESS)}
-                          title="Click to view on Etherscan"
+                          title="Click to view on 0G Explorer"
                         >
                           {CONTRACT_ADDRESS.slice(0, 8)}...{CONTRACT_ADDRESS.slice(-8)}
                         </div>
@@ -339,7 +339,7 @@ export default function VibePassDetailsPage({ vibePassId }: VibePassDetailsPageP
                       <div
                         className="text-sm text-orange-500 font-mono cursor-pointer hover:text-orange-400 transition-colors underline"
                         onClick={() => openBlockchainExplorer('transaction', vibePass.mintTxHash!)}
-                        title="Click to view on Etherscan"
+                        title="Click to view on 0G Explorer"
                       >
                         {vibePass.mintTxHash.slice(0, 10)}...{vibePass.mintTxHash.slice(-10)}
                       </div>
