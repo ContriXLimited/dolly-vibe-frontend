@@ -9,6 +9,10 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  experimental: {
+    // Help with route group builds
+    optimizePackageImports: ['@radix-ui/react-icons'],
+  },
   async rewrites() {
     return [
       {
