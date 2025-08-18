@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Geist_Mono as GeistMono } from "next/font/google"
 import "./globals.css"
 import { Web3Provider } from "@/providers/web3-provider"
+import { Toaster } from "sonner"
 
 const geistMono = GeistMono({ subsets: ["latin"] })
 
@@ -23,6 +24,7 @@ export default function RootLayout({
         <Web3Provider>
           {children}
         </Web3Provider>
+        <Toaster theme="dark" />
       </body>
     </html>
   )

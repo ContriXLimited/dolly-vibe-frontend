@@ -8,6 +8,7 @@ import { ArrowDown, Sparkles } from "lucide-react"
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from "recharts"
 import Image from "next/image"
 import { VibePassService, UserVibePass } from "@/services/vibepass"
+import { MintModal } from "@/components/mint-modal"
 
 interface VibePassPageProps {
   onNavigateToDetails?: () => void
@@ -18,6 +19,8 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
   const [ownedPasses, setOwnedPasses] = useState<UserVibePass[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isMintModalOpen, setIsMintModalOpen] = useState(false)
+  const [selectedVibePass, setSelectedVibePass] = useState<UserVibePass | null>(null)
 
 
   // Fetch user's VibePasses on component mount
@@ -42,7 +45,7 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
   // Mintable projects
   const mintableProjects = [
     {
-      id: 1,
+      id: 'zb65xnx71crjpftbzuliuqha',
       name: "0G",
       description: "Zero Gravity Protocol",
       totalSupply: "10,000",
@@ -76,21 +79,11 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
   }
 
   // Handle join project
-  const handleJoinProject = async (projectId: number) => {
+  const handleJoinProject = async (projectId: string) => {
     try {
-      // Call the join project API
-      const response = await fetch('/api/vibe-passes/join', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ projectId }),
-      })
-      
-      if (!response.ok) {
-        throw new Error('Failed to join project')
-      }
-      
+      // Call the join project API using service
+      await VibePassService.joinProject({})
+
       // Refresh the owned passes
       await fetchMyVibePasses()
     } catch (err: any) {
@@ -99,15 +92,18 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
   }
 
   // Handle mint pass
-  const handleMintPass = async (projectId: number) => {
-    try {
-      // Call the mint API (to be implemented)
-      console.log('Minting pass for project:', projectId)
-      // For now, just refresh the passes
-      await fetchMyVibePasses()
-    } catch (err: any) {
-      setError(err.message || 'Failed to mint pass')
+  const handleMintPass = async () => {
+    // Find the first owned pass to mint (since user has passes but no minted tokens)
+    if (ownedPasses.length > 0) {
+      const passToMint = ownedPasses.find(pass => !pass.tokenId) || ownedPasses[0]
+      setSelectedVibePass(passToMint)
+      setIsMintModalOpen(true)
     }
+  }
+
+  // Handle mint success
+  const handleMintSuccess = () => {
+    fetchMyVibePasses() // Refresh the passes
   }
 
   const handleCardClick = () => {
@@ -181,7 +177,7 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
                 { skill: "Interaction", value: attributes.interaction },
                 { skill: "Civility", value: attributes.civility },
               ]
-              
+
               return (
                 <Card
                   key={pass.id}
@@ -310,7 +306,7 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
                     const hasAnyPass = ownedPasses.length > 0
                     // Check if user has a minted pass (tokenId exists)
                     const hasMintedPass = ownedPasses.some(pass => pass.tokenId !== null)
-                    
+
                     if (hasMintedPass) {
                       return (
                         <Button
@@ -326,7 +322,7 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
                           className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold"
                           onClick={(e) => {
                             e.stopPropagation()
-                            handleMintPass(project.id)
+                            handleMintPass()
                           }}
                         >
                           Mint
@@ -352,6 +348,19 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
           ))}
         </div>
       </div>
+
+      {/* Mint Modal */}
+      {selectedVibePass && (
+        <MintModal
+          isOpen={isMintModalOpen}
+          onClose={() => {
+            setIsMintModalOpen(false)
+            setSelectedVibePass(null)
+          }}
+          vibePass={selectedVibePass}
+          onSuccess={handleMintSuccess}
+        />
+      )}
     </div>
   )
 }

@@ -1,51 +1,176 @@
-import { request } from '@/lib/request'
+import { request } from "@/lib/request";
 
 export interface UserVibePass {
-  id: string
-  vibeUserId: string
-  vibeProjectId: string
-  userId: string
-  msgCount: number
-  inviteCount: number
-  score: string
-  params: string // JSON string like "[0,0,0,0,0]" representing [power, speed, skill, defense, magic]
-  tags: string | null
-  sealedKey: string | null
-  rootHash: string | null
-  tokenId: string | null
-  mintTxHash: string | null
-  status: string
-  createdAt: string
-  updatedAt: string
-  mintedAt: string | null
+  id: string;
+  vibeUserId: string;
+  vibeProjectId: string;
+  userId: string;
+  msgCount: number;
+  inviteCount: number;
+  score: string;
+  params: string; // JSON string like "[0,0,0,0,0]" representing [power, speed, skill, defense, magic]
+  tags: string | null;
+  sealedKey: string | null;
+  rootHash: string | null;
+  tokenId: string | null;
+  mintTxHash: string | null;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  mintedAt: string | null;
 }
 
 export interface MyVibePassesResponse {
   data: {
-    message: string
-    data: UserVibePass[]
-  }
-  message: string
-  statusCode: number
-  timestamp: string
+    message: string;
+    data: UserVibePass[];
+  };
+  message: string;
+  statusCode: number;
+  timestamp: string;
+}
+
+export interface UploadMetadataRequest {
+  walletAddress: string;
+  nonce: string;
+  signature: string;
+  tokenMetadata: {
+    name: string;
+    description: string;
+    attributes: any[];
+  };
+}
+
+export interface UploadMetadataResponse {
+  data: {
+    message: string;
+    data: {
+      rootHash: string;
+      sealedKey: string;
+    };
+  };
+  message: string;
+  statusCode: number;
+  timestamp: string;
+}
+
+export interface MintINFTRequest {
+  walletAddress: string;
+  rootHash: string;
+  sealedKey?: string; // Optional since it's stored in DB
+  nonce: string;
+  signature: string;
+  tokenMetadata: {
+    name: string;
+    description: string;
+    attributes: any[];
+  };
+}
+
+export interface MintINFTResponse {
+  data: {
+    message: string;
+    data: UserVibePass;
+  };
+  message: string;
+  statusCode: number;
+  timestamp: string;
+}
+
+export interface JoinProjectRequest {}
+
+export interface JoinProjectResponse {
+  data: UserVibePass;
 }
 
 export class VibePassService {
   // 获取用户拥有的VibePasses
   static async getMyVibePasses(): Promise<UserVibePass[]> {
-    console.log('🌐 API 调用: getMyVibePasses', { url: '/vibe-passes/my' })
-    
+    console.log("🌐 API 调用: getMyVibePasses", { url: "/vibe-passes/my" });
+
     try {
       const response = await request<MyVibePassesResponse>({
-        method: 'GET',
-        url: '/vibe-passes/my',
-      })
-      
-      console.log('📡 API 响应:', response.data)
-      return response.data.data.data
+        method: "GET",
+        url: "/vibe-passes/my",
+      });
+
+      console.log("📡 API 响应:", response.data);
+      return response.data.data.data;
     } catch (error: any) {
-      console.error('❌ API 错误:', error.response?.data || error.message)
-      throw error
+      console.error("❌ API 错误:", error.response?.data || error.message);
+      throw error;
+    }
+  }
+
+  // 上传元数据到 0G Storage
+  static async uploadMetadata(
+    vibePassId: string,
+    data: UploadMetadataRequest
+  ): Promise<{rootHash: string, sealedKey: string}> {
+    console.log("🌐 API 调用: uploadMetadata", {
+      vibePassId,
+      url: `/vibe-passes/${vibePassId}/upload-metadata`,
+    });
+
+    try {
+      const response = await request<UploadMetadataResponse>({
+        method: "POST",
+        url: `/vibe-passes/${vibePassId}/upload-metadata`,
+        data,
+        timeout: 0, // 移除超时限制，因为0G Storage上传可能需要较长时间
+      });
+
+      console.log("📡 API 响应:", response.data);
+      // 根据实际返回格式：response.data.data.data
+      return response.data.data.data;
+    } catch (error: any) {
+      console.error("❌ API 错误:", error.response?.data || error.message);
+      throw error;
+    }
+  }
+
+  // 铸造 INFT
+  static async mintINFT(
+    vibePassId: string,
+    data: MintINFTRequest
+  ): Promise<UserVibePass> {
+    console.log("🌐 API 调用: mintINFT", {
+      vibePassId,
+      url: `/vibe-passes/${vibePassId}/mint-with-metadata`,
+    });
+
+    try {
+      const response = await request<MintINFTResponse>({
+        method: "POST",
+        url: `/vibe-passes/${vibePassId}/mint-with-metadata`,
+        data,
+        timeout: 0, // 移除超时限制，因为区块链交易可能需要较长时间
+      });
+
+      console.log("📡 API 响应:", response.data);
+      return response.data.data.data;
+    } catch (error: any) {
+      console.error("❌ API 错误:", error.response?.data || error.message);
+      throw error;
+    }
+  }
+
+  // 加入项目
+  static async joinProject(data: JoinProjectRequest): Promise<UserVibePass> {
+    console.log("🌐 API 调用: joinProject", { data, url: "/vibe-passes/join" });
+
+    try {
+      const response = await request<JoinProjectResponse>({
+        method: "POST",
+        url: "/vibe-passes/join",
+        data,
+      });
+
+      console.log("📡 API 响应:", response.data);
+      return response.data.data;
+    } catch (error: any) {
+      console.error("❌ API 错误:", error.response?.data || error.message);
+      throw error;
     }
   }
 }
