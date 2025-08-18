@@ -1,24 +1,83 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ArrowRight, Crown, Medal, Award, ChevronDown } from "lucide-react"
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from "recharts"
+import { VibePassService, UserVibePass } from "@/services/vibepass"
 
-export default function VibePassDetailsPage() {
+interface VibePassDetailsPageProps {
+  vibePassId: string
+}
+
+export default function VibePassDetailsPage({ vibePassId }: VibePassDetailsPageProps) {
   const [selectedPeriod, setSelectedPeriod] = useState("daily")
   const [expandedOpportunity, setExpandedOpportunity] = useState<number | null>(null)
+  const [vibePass, setVibePass] = useState<UserVibePass | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  // Radar chart data
-  const radarData = [
-    { skill: "Engagement", value: 85 },
-    { skill: "Activity", value: 70 },
-    { skill: "Influence", value: 90 },
-    { skill: "Consistency", value: 75 },
-    { skill: "Growth", value: 80 },
-    { skill: "Community", value: 65 },
+  // Fetch VibePass data on mount
+  useEffect(() => {
+    const fetchVibePass = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const data = await VibePassService.getVibePassById(vibePassId)
+        setVibePass(data)
+      } catch (err: any) {
+        setError(err.message || 'Failed to fetch VibePass details')
+        console.error('Error fetching VibePass:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (vibePassId) {
+      fetchVibePass()
+    }
+  }, [vibePassId])
+
+  // Parse params string to get attributes
+  const parsePassAttributes = (params: string) => {
+    try {
+      const values = JSON.parse(params) as number[]
+      return {
+        engagement: values[0] || 0,
+        relevance: values[1] || 0,
+        expertise: values[2] || 0,
+        interaction: values[3] || 0,
+        civility: values[4] || 0,
+      }
+    } catch {
+      return {
+        engagement: 0,
+        relevance: 0,
+        expertise: 0,
+        interaction: 0,
+        civility: 0,
+      }
+    }
+  }
+
+  // Generate radar chart data from vibePass params
+  const radarData = vibePass ? (() => {
+    const attributes = parsePassAttributes(vibePass.params)
+    return [
+      { skill: "Engagement", value: attributes.engagement },
+      { skill: "Relevance", value: attributes.relevance },
+      { skill: "Expertise", value: attributes.expertise },
+      { skill: "Interaction", value: attributes.interaction },
+      { skill: "Civility", value: attributes.civility },
+    ]
+  })() : [
+    { skill: "Engagement", value: 0 },
+    { skill: "Relevance", value: 0 },
+    { skill: "Expertise", value: 0 },
+    { skill: "Interaction", value: 0 },
+    { skill: "Civility", value: 0 },
   ]
 
   const leaderboardData = [
@@ -64,6 +123,33 @@ export default function VibePassDetailsPage() {
       default:
         return <span className="text-neutral-400 font-mono text-sm">{rank}</span>
     }
+  }
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="p-6 flex items-center justify-center h-96">
+        <div className="text-white text-lg">Loading VibePass details...</div>
+      </div>
+    )
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="p-6 flex items-center justify-center h-96">
+        <div className="text-red-500 text-lg">Error: {error}</div>
+      </div>
+    )
+  }
+
+  // Show empty state if no vibePass data
+  if (!vibePass) {
+    return (
+      <div className="p-6 flex items-center justify-center h-96">
+        <div className="text-neutral-400 text-lg">No VibePass data found</div>
+      </div>
+    )
   }
 
   return (
@@ -122,29 +208,38 @@ export default function VibePassDetailsPage() {
                   
                   {/* BattleOfAgents Stats Card */}
                   <div className="p-4 bg-black rounded-lg border border-neutral-800">
-                    <h3 className="text-white font-bold text-base mb-3">BattleOfAgents</h3>
+                    <h3 className="text-white font-bold text-base mb-3">VibePass Details</h3>
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <span className="text-cyan-400">💎</span>
-                          <span className="text-neutral-400 text-sm">VibePoints:</span>
+                          <span className="text-neutral-400 text-sm">Score:</span>
                         </div>
-                        <span className="text-white font-mono text-sm">234,454</span>
+                        <span className="text-white font-mono text-sm">{vibePass.score}</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <span className="text-yellow-500">👥</span>
-                          <span className="text-neutral-400 text-sm">Holders:</span>
+                          <span className="text-yellow-500">💬</span>
+                          <span className="text-neutral-400 text-sm">Messages:</span>
                         </div>
-                        <span className="text-white font-mono text-sm">223,322</span>
+                        <span className="text-white font-mono text-sm">{vibePass.msgCount}</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <span className="text-neutral-400">🏆</span>
-                          <span className="text-neutral-400 text-sm">Rank:</span>
+                          <span className="text-neutral-400">🎯</span>
+                          <span className="text-neutral-400 text-sm">Invites:</span>
                         </div>
-                        <span className="text-white font-mono text-sm">454</span>
+                        <span className="text-white font-mono text-sm">{vibePass.inviteCount}</span>
                       </div>
+                      {vibePass.tokenId && (
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="text-green-500">🏷️</span>
+                            <span className="text-neutral-400 text-sm">Token ID:</span>
+                          </div>
+                          <span className="text-white font-mono text-sm">#{vibePass.tokenId}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -152,75 +247,87 @@ export default function VibePassDetailsPage() {
                 {/* Right Column - Description and Details */}
                 <div className="space-y-4">
                   <p className="text-sm text-neutral-300">
-                    Battle of Agents INFT represents the power of the BOA discord's Vibe event.{" "}
-                    <span className="text-orange-500 underline cursor-pointer">Know more about this event.</span>
+                    VibePass INFT represents your engagement and activity in the community.{" "}
+                    <span className="text-orange-500 underline cursor-pointer">Learn more about scoring.</span>
                   </p>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-3">
                       <div>
-                        <div className="text-xs text-neutral-400">Mega 24h</div>
-                        <div className="text-sm text-white font-mono">22</div>
+                        <div className="text-xs text-neutral-400">Status</div>
+                        <div className="text-sm text-white font-mono">{vibePass.status}</div>
                       </div>
                       <div>
-                        <div className="text-xs text-neutral-400">Referral Score</div>
-                        <div className="text-sm text-white font-mono">5,520</div>
+                        <div className="text-xs text-neutral-400">Created</div>
+                        <div className="text-sm text-white font-mono">
+                          {new Date(vibePass.createdAt).toLocaleDateString()}
+                        </div>
                       </div>
                     </div>
                     <div className="space-y-3">
                       <div>
-                        <div className="text-xs text-neutral-400">Engagement Score</div>
-                        <div className="text-sm text-white font-mono">22,344</div>
+                        <div className="text-xs text-neutral-400">Project ID</div>
+                        <div className="text-sm text-white font-mono">
+                          {vibePass.vibeProjectId.slice(0, 8)}...{vibePass.vibeProjectId.slice(-8)}
+                        </div>
                       </div>
                       <div>
-                        <div className="text-xs text-neutral-400">Merkle Root</div>
-                        <div className="text-sm text-white font-mono">0x0f0...2d22</div>
+                        <div className="text-xs text-neutral-400">Root Hash</div>
+                        <div className="text-sm text-white font-mono">
+                          {vibePass.rootHash ? `${vibePass.rootHash.slice(0, 8)}...${vibePass.rootHash.slice(-8)}` : 'N/A'}
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  <div>
-                    <div className="text-xs text-neutral-400 mb-1">Grindstone GID</div>
-                    <div className="text-sm text-white font-mono">score.json/proofs.json</div>
-                  </div>
+                  {vibePass.mintTxHash && (
+                    <div>
+                      <div className="text-xs text-neutral-400 mb-1">Mint Transaction</div>
+                      <div className="text-sm text-white font-mono">
+                        {vibePass.mintTxHash.slice(0, 10)}...{vibePass.mintTxHash.slice(-10)}
+                      </div>
+                    </div>
+                  )}
 
                   <div className="flex gap-2">
-                    <Badge className="bg-neutral-800 text-neutral-300 text-xs">Doji</Badge>
-                    <Badge className="bg-neutral-800 text-neutral-300 text-xs">Agents</Badge>
-                    <Badge className="bg-neutral-800 text-neutral-300 text-xs">BOA</Badge>
+                    <Badge className="bg-neutral-800 text-neutral-300 text-xs">VibePass</Badge>
+                    <Badge className="bg-neutral-800 text-neutral-300 text-xs">{vibePass.status}</Badge>
+                    {vibePass.tokenId && (
+                      <Badge className="bg-orange-800 text-orange-300 text-xs">Minted</Badge>
+                    )}
                   </div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* BattleOfAgents Card */}
+          {/* VibePass Overview Card */}
           <Card className="bg-neutral-900 border-neutral-700">
             <CardHeader className="pb-3">
-              <CardTitle className="text-lg font-bold text-white tracking-wider">BATTLEOFAGENTS</CardTitle>
+              <CardTitle className="text-lg font-bold text-white tracking-wider">VIBEPASS OVERVIEW</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-3 gap-6">
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-1 mb-1">
                     <div className="w-2 h-2 bg-white rounded-full"></div>
-                    <span className="text-xs text-neutral-400">VibePoints:</span>
+                    <span className="text-xs text-neutral-400">Score:</span>
                   </div>
-                  <div className="text-xl font-bold text-white font-mono">234,454</div>
+                  <div className="text-xl font-bold text-white font-mono">{vibePass.score}</div>
                 </div>
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-1 mb-1">
                     <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                    <span className="text-xs text-neutral-400">Referrals:</span>
+                    <span className="text-xs text-neutral-400">Messages:</span>
                   </div>
-                  <div className="text-xl font-bold text-white font-mono">293,392</div>
+                  <div className="text-xl font-bold text-white font-mono">{vibePass.msgCount}</div>
                 </div>
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-1 mb-1">
                     <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                    <span className="text-xs text-neutral-400">Rank:</span>
+                    <span className="text-xs text-neutral-400">Invites:</span>
                   </div>
-                  <div className="text-xl font-bold text-white font-mono">454</div>
+                  <div className="text-xl font-bold text-white font-mono">{vibePass.inviteCount}</div>
                 </div>
               </div>
             </CardContent>

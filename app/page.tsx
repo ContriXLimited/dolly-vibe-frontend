@@ -20,6 +20,7 @@ export default function TacticalDashboard() {
   const [activeSection, setActiveSection] = useState("vibepass")
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [vibepassView, setVibepassView] = useState("collections") // "collections" or "details"
+  const [selectedVibePassId, setSelectedVibePassId] = useState<string | null>(null)
   const [showUserMenu, setShowUserMenu] = useState(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
   const { logout } = useAuthStore()
@@ -41,6 +42,12 @@ export default function TacticalDashboard() {
   const handleVibePassClick = () => {
     setActiveSection("vibepass")
     setVibepassView("collections") // Always start with collections view
+    setSelectedVibePassId(null) // Reset selected vibepass
+  }
+
+  const handleNavigateToDetails = (vibePassId: string) => {
+    setSelectedVibePassId(vibePassId)
+    setVibepassView("details")
   }
 
   return (
@@ -218,9 +225,11 @@ export default function TacticalDashboard() {
           {activeSection === "operations" && <OperationsPage />}
           {activeSection === "intelligence" && <IntelligencePage />} */}
           {activeSection === "vibepass" && vibepassView === "collections" && (
-            <VibePassPage onNavigateToDetails={() => setVibepassView("details")} />
+            <VibePassPage onNavigateToDetails={handleNavigateToDetails} />
           )}
-          {activeSection === "vibepass" && vibepassView === "details" && <VibePassDetailsPage />}
+          {activeSection === "vibepass" && vibepassView === "details" && selectedVibePassId && (
+            <VibePassDetailsPage vibePassId={selectedVibePassId} />
+          )}
           {/* {activeSection === "systems" && <SystemsPage />} */}
           {activeSection === "space" && <SpacePage />}
         </div>

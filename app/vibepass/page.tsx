@@ -12,7 +12,7 @@ import { MintModal } from "@/components/mint-modal"
 import { toast } from "sonner"
 
 interface VibePassPageProps {
-  onNavigateToDetails?: () => void
+  onNavigateToDetails?: (vibePassId: string) => void
 }
 
 export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps) {
@@ -115,9 +115,9 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
     fetchMyVibePasses() // Refresh the passes
   }
 
-  const handleCardClick = () => {
+  const handleCardClick = (vibePassId: string) => {
     if (onNavigateToDetails) {
-      onNavigateToDetails()
+      onNavigateToDetails(vibePassId)
     }
   }
 
@@ -211,7 +211,7 @@ export default function VibePassPage({ onNavigateToDetails }: VibePassPageProps)
                       ? "hover:border-orange-500/50 hover:scale-105 cursor-pointer" 
                       : "cursor-pointer opacity-75 hover:opacity-90"
                   }`}
-                  onClick={pass.tokenId ? handleCardClick : handleUnmintedCardClick}
+                  onClick={pass.tokenId ? () => handleCardClick(pass.id) : handleUnmintedCardClick}
                 >
                   <CardContent className="p-6">
                     {/* Radar Chart */}

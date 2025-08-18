@@ -83,6 +83,16 @@ export interface JoinProjectResponse {
   data: UserVibePass;
 }
 
+export interface GetVibePassByIdResponse {
+  data: {
+    message: string;
+    data: UserVibePass;
+  };
+  message: string;
+  statusCode: number;
+  timestamp: string;
+}
+
 export class VibePassService {
   // 获取用户拥有的VibePasses
   static async getMyVibePasses(): Promise<UserVibePass[]> {
@@ -168,6 +178,24 @@ export class VibePassService {
 
       console.log("📡 API 响应:", response.data);
       return response.data.data;
+    } catch (error: any) {
+      console.error("❌ API 错误:", error.response?.data || error.message);
+      throw error;
+    }
+  }
+
+  // 根据ID获取单个VibePass详情
+  static async getVibePassById(id: string): Promise<UserVibePass> {
+    console.log("🌐 API 调用: getVibePassById", { id, url: `/vibe-passes/${id}` });
+
+    try {
+      const response = await request<GetVibePassByIdResponse>({
+        method: "GET",
+        url: `/vibe-passes/${id}`,
+      });
+
+      console.log("📡 API 响应:", response.data);
+      return response.data.data.data;
     } catch (error: any) {
       console.error("❌ API 错误:", error.response?.data || error.message);
       throw error;
