@@ -165,9 +165,9 @@ export interface LeaderboardResponse {
 }
 
 export class VibePassService {
-  // 获取用户拥有的VibePasses
+  // Get user's VibePasses
   static async getMyVibePasses(): Promise<UserVibePass[]> {
-    console.log("🌐 API 调用: getMyVibePasses", { url: "/vibe-passes/my" });
+    console.log("🌐 API Call: getMyVibePasses", { url: "/vibe-passes/my" });
 
     try {
       const response = await request<MyVibePassesResponse>({
@@ -175,20 +175,20 @@ export class VibePassService {
         url: "/vibe-passes/my",
       });
 
-      console.log("📡 API 响应:", response.data);
+      console.log("📡 API Response:", response.data);
       return response.data.data.data;
     } catch (error: any) {
-      console.error("❌ API 错误:", error.response?.data || error.message);
+      console.error("❌ API Error:", error.response?.data || error.message);
       throw error;
     }
   }
 
-  // 上传元数据到 0G Storage
+  // Upload metadata to 0G Storage
   static async uploadMetadata(
     vibePassId: string,
     data: UploadMetadataRequest
   ): Promise<{rootHash: string, sealedKey: string}> {
-    console.log("🌐 API 调用: uploadMetadata", {
+    console.log("🌐 API Call: uploadMetadata", {
       vibePassId,
       url: `/vibe-passes/${vibePassId}/upload-metadata`,
     });
@@ -198,25 +198,25 @@ export class VibePassService {
         method: "POST",
         url: `/vibe-passes/${vibePassId}/upload-metadata`,
         data,
-        timeout: 0, // 移除超时限制，因为0G Storage上传可能需要较长时间
+        timeout: 0, // Remove timeout limit for 0G Storage upload
       });
 
-      console.log("📡 API 响应:", response.data);
-      // 根据实际返回格式：response.data.data.data
+      console.log("📡 API Response:", response.data);
+      // Based on actual response format: response.data.data.data
       return response.data.data.data;
     } catch (error: any) {
-      console.error("❌ API 错误:", error.response?.data || error.message);
+      console.error("❌ API Error:", error.response?.data || error.message);
       throw error;
     }
   }
 
-  // 获取铸造参数 (新的前端铸造流程)
+  // Get mint parameters (new frontend mint flow)
   static async getMintParams(
     vibePassId: string,
     walletAddress: string,
     rootHash: string
   ): Promise<{contractAddress: string, methodName: string, params: any[], abi: any[], to: string, data: string, metadata: any}> {
-    console.log("🌐 API 调用: getMintParams", {
+    console.log("🌐 API Call: getMintParams", {
       vibePassId,
       walletAddress,
       rootHash,
@@ -233,20 +233,20 @@ export class VibePassService {
         }
       });
 
-      console.log("📡 API 响应:", response.data);
+      console.log("📡 API Response:", response.data);
       return response.data.data.data;
     } catch (error: any) {
-      console.error("❌ API 错误:", error.response?.data || error.message);
+      console.error("❌ API Error:", error.response?.data || error.message);
       throw error;
     }
   }
 
-  // 确认铸造成功 (通知服务器)
+  // Confirm mint success (notify server)
   static async confirmMint(
     vibePassId: string,
     data: ConfirmMintRequest
   ): Promise<UserVibePass> {
-    console.log("🌐 API 调用: confirmMint", {
+    console.log("🌐 API Call: confirmMint", {
       vibePassId,
       data,
       url: `/vibe-passes/${vibePassId}/confirm-mint`,
@@ -259,20 +259,20 @@ export class VibePassService {
         data
       });
 
-      console.log("📡 API 响应:", response.data);
+      console.log("📡 API Response:", response.data);
       return response.data.data.data;
     } catch (error: any) {
-      console.error("❌ API 错误:", error.response?.data || error.message);
+      console.error("❌ API Error:", error.response?.data || error.message);
       throw error;
     }
   }
 
-  // 铸造 INFT (旧的后端铸造流程 - 已弃用)
+  // Mint INFT (deprecated backend mint flow)
   static async mintINFT(
     vibePassId: string,
     data: MintINFTRequest
   ): Promise<UserVibePass> {
-    console.log("🌐 API 调用: mintINFT", {
+    console.log("🌐 API Call: mintINFT", {
       vibePassId,
       url: `/vibe-passes/${vibePassId}/mint-with-metadata`,
     });
@@ -282,20 +282,20 @@ export class VibePassService {
         method: "POST",
         url: `/vibe-passes/${vibePassId}/mint-with-metadata`,
         data,
-        timeout: 0, // 移除超时限制，因为区块链交易可能需要较长时间
+        timeout: 0, // Remove timeout limit for blockchain transactions
       });
 
-      console.log("📡 API 响应:", response.data);
+      console.log("📡 API Response:", response.data);
       return response.data.data.data;
     } catch (error: any) {
-      console.error("❌ API 错误:", error.response?.data || error.message);
+      console.error("❌ API Error:", error.response?.data || error.message);
       throw error;
     }
   }
 
-  // 加入项目
+  // Join project
   static async joinProject(data: JoinProjectRequest): Promise<UserVibePass> {
-    console.log("🌐 API 调用: joinProject", { data, url: "/vibe-passes/join" });
+    console.log("🌐 API Call: joinProject", { data, url: "/vibe-passes/join" });
 
     try {
       const response = await request<JoinProjectResponse>({
@@ -304,17 +304,17 @@ export class VibePassService {
         data,
       });
 
-      console.log("📡 API 响应:", response.data);
+      console.log("📡 API Response:", response.data);
       return response.data.data;
     } catch (error: any) {
-      console.error("❌ API 错误:", error.response?.data || error.message);
+      console.error("❌ API Error:", error.response?.data || error.message);
       throw error;
     }
   }
 
-  // 根据ID获取单个VibePass详情
+  // Get VibePass details by ID
   static async getVibePassById(id: string): Promise<UserVibePass> {
-    console.log("🌐 API 调用: getVibePassById", { id, url: `/vibe-passes/${id}` });
+    console.log("🌐 API Call: getVibePassById", { id, url: `/vibe-passes/${id}` });
 
     try {
       const response = await request<GetVibePassByIdResponse>({
@@ -322,17 +322,17 @@ export class VibePassService {
         url: `/vibe-passes/${id}`,
       });
 
-      console.log("📡 API 响应:", response.data);
+      console.log("📡 API Response:", response.data);
       return response.data.data.data;
     } catch (error: any) {
-      console.error("❌ API 错误:", error.response?.data || error.message);
+      console.error("❌ API Error:", error.response?.data || error.message);
       throw error;
     }
   }
 
-  // 获取项目排行榜
+  // Get project leaderboard
   static async getLeaderboard(vibeProjectId: string, timeWindow: string = 'all'): Promise<LeaderboardEntry[]> {
-    console.log("🌐 API 调用: getLeaderboard", { 
+    console.log("🌐 API Call: getLeaderboard", { 
       vibeProjectId, 
       timeWindow,
       url: `/leaderboard/${vibeProjectId}` 
@@ -345,10 +345,10 @@ export class VibePassService {
         params: { timeWindow }
       });
 
-      console.log("📡 API 响应:", response.data);
+      console.log("📡 API Response:", response.data);
       return response.data.data.data;
     } catch (error: any) {
-      console.error("❌ API 错误:", error.response?.data || error.message);
+      console.error("❌ API Error:", error.response?.data || error.message);
       throw error;
     }
   }

@@ -40,7 +40,7 @@ export function MintModal({ isOpen, onClose, vibePass, onSuccess }: MintModalPro
   const { writeContract, data: hash, error: contractError, isPending: isContractPending } = useWriteContract()
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
     hash,
-    confirmations: 3, // 等待3个区块确认
+    confirmations: 3, // Wait for 3 block confirmations
   })
   
   const [steps, setSteps] = useState<MintStep[]>([
