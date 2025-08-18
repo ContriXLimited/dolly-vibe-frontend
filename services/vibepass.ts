@@ -8,8 +8,8 @@ export interface UserVibePass {
   msgCount: number;
   inviteCount: number;
   score: string;
-  params: string; // JSON string like "[0,0,0,0,0]" representing [power, speed, skill, defense, magic]
-  tags: string | null;
+  params: number[]; // Array of numbers [power, speed, skill, defense, magic]
+  tags: string[]; // Array of tag strings
   sealedKey: string | null;
   rootHash: string | null;
   tokenId: string | null;

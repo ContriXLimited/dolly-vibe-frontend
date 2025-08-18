@@ -87,37 +87,20 @@ export default function VibePassDetailsPage() {
     }
   }
 
-  // Parse params string to get attributes
-  const parsePassAttributes = (params: string) => {
-    try {
-      const values = JSON.parse(params) as number[]
-      return {
-        engagement: values[0] || 0,
-        relevance: values[1] || 0,
-        expertise: values[2] || 0,
-        interaction: values[3] || 0,
-        civility: values[4] || 0,
-      }
-    } catch {
-      return {
-        engagement: 0,
-        relevance: 0,
-        expertise: 0,
-        interaction: 0,
-        civility: 0,
-      }
+  // Parse params array to get attributes
+  const parsePassAttributes = (params: number[]) => {
+    return {
+      engagement: params[0] || 0,
+      relevance: params[1] || 0,
+      expertise: params[2] || 0,
+      interaction: params[3] || 0,
+      civility: params[4] || 0,
     }
   }
 
-  // Parse tags string to get array of tags
-  const parseTags = (tags: string | null): string[] => {
-    if (!tags) return []
-    try {
-      const parsed = JSON.parse(tags)
-      return Array.isArray(parsed) ? parsed : []
-    } catch {
-      return []
-    }
+  // Parse tags array (already an array in the new API)
+  const parseTags = (tags: string[]): string[] => {
+    return tags || []
   }
 
   // Generate radar chart data from vibePass params
