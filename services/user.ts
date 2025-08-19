@@ -2,9 +2,9 @@ import { request } from '@/lib/request'
 import type { UserStatusResponse, NewUserStatusResponse } from '@/types/auth'
 
 export class UserService {
-  // 获取用户状态（新API）
+  // Get user status (new API)
   static async getUserStatusByWallet(walletAddress: string): Promise<UserStatusResponse> {
-    console.log('🌐 API 调用: getUserStatusByWallet', { walletAddress, url: '/auth/user/status-by-wallet' })
+    console.log('🌐 API Call: getUserStatusByWallet', { walletAddress, url: '/auth/user/status-by-wallet' })
     
     try {
       const response = await request<{data: NewUserStatusResponse}>({
@@ -13,10 +13,10 @@ export class UserService {
         params: { walletAddress }
       })
       
-      console.log('📡 API 响应:', response.data)
+      console.log('📡 API Response:', response.data)
       const newFormat = response.data.data
       
-      console.log('🔍 解析后的数据:', {
+      console.log('🔍 Parsed data:', {
         vibeUserId: newFormat.vibeUserId,
         walletAddress: newFormat.walletAddress,
         walletConnected: newFormat.status.wallet.connected,
@@ -26,7 +26,7 @@ export class UserService {
         canProceed: newFormat.status.overall.canProceed
       })
       
-      // 将新格式转换为现有格式以保持兼容性
+      // Convert new format to existing format for compatibility
       const compatibleFormat: UserStatusResponse = {
         walletAddress: newFormat.walletAddress,
         discordConnected: newFormat.status.discord.connected,
@@ -40,26 +40,26 @@ export class UserService {
           {
             platform: 'discord',
             action: 'join_guild',
-            description: '加入 Discord 服务器',
+            description: 'Join Discord server',
             completed: newFormat.status.discord.connected && newFormat.status.discord.isJoined
           },
           {
             platform: 'twitter',
             action: 'follow_account',
-            description: '关注 Twitter 账号',
+            description: 'Follow Twitter account',
             completed: newFormat.status.twitter.connected && newFormat.status.twitter.isFollowed
           }
         ]
       }
       
-      console.log('✅ 转换后的兼容格式:', compatibleFormat)
+      console.log('✅ Converted compatible format:', compatibleFormat)
       return compatibleFormat
     } catch (error: any) {
-      console.error('❌ API 错误:', error.response?.data || error.message)
+      console.error('❌ API Error:', error.response?.data || error.message)
       throw error
     }
   }
-  // 检查 Discord 连接状态
+  // Check Discord connection status
   static async getDiscordStatus(discordId: string): Promise<{
     connected: boolean
     username: string

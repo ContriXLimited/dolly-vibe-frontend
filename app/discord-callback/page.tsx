@@ -39,7 +39,7 @@ function DiscordCallbackContent() {
 
         console.log('📞 Processing Discord callback:', { code, state, callbackUrl })
 
-        // 调用后端处理回调
+        // Call backend to handle callback
         const result = await SocialService.handleDiscordCallback(code, state, callbackUrl || undefined)
         
         console.log('✅ Discord callback processing result:', result)
@@ -52,7 +52,7 @@ function DiscordCallbackContent() {
             isInGuild: result.isInGuild
           })
           
-          // 3秒后跳转回登录页面
+          // Redirect to login page after 3 seconds
           setTimeout(() => {
             router.push('/login')
           }, 3000)

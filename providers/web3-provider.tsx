@@ -35,7 +35,7 @@ import '@rainbow-me/rainbowkit/styles.css'
 
 const config = getDefaultConfig({
   appName: 'Dolly Vibe',
-  projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || '1f449d25c01a7ece08ce2ffeeaaac6c8', // 临时使用默认项目ID
+  projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || '1f449d25c01a7ece08ce2ffeeaaac6c8', // Temporary default project ID
   chains: [zeroGGalileoTestnet],
   ssr: true,
 })

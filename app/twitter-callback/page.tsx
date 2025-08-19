@@ -39,7 +39,7 @@ function TwitterCallbackContent() {
 
         console.log('📞 Processing Twitter callback:', { oauth_token, oauth_verifier, callbackUrl })
 
-        // 调用后端处理回调
+        // Call backend to handle callback
         const result = await SocialService.handleTwitterCallback(oauth_token, oauth_verifier, callbackUrl || undefined)
         
         console.log('✅ Twitter callback processing result:', result)
@@ -52,7 +52,7 @@ function TwitterCallbackContent() {
             isFollowing: result.isFollowing
           })
           
-          // 3秒后跳转回登录页面
+          // Redirect to login page after 3 seconds
           setTimeout(() => {
             router.push('/login')
           }, 3000)

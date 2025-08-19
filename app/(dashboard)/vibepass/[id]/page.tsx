@@ -20,10 +20,10 @@ export default function VibePassDetailsPage() {
   const [leaderboardLoading, setLeaderboardLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // 合约地址常量
+  // Contract address constant
   const CONTRACT_ADDRESS = "0x1B1594813C197a9dFD163d76C6EcA9F829e5a4fa"
 
-  // 打开区块链浏览器 - 0G测试网
+  // Open blockchain explorer - 0G testnet
   const openBlockchainExplorer = (type: 'contract' | 'transaction', value: string) => {
     const baseUrl = "https://chainscan-newton.0g.ai"
     let url = ""

@@ -6,9 +6,9 @@ import type {
 } from '@/types/auth'
 
 export class AuthService {
-  // 获取签名 nonce
+  // Get signing nonce
   static async getNonce(walletAddress: string): Promise<NonceResponse> {
-    console.log('🌐 API 调用: getNonce', { walletAddress, url: '/auth/wallet/nonce' })
+    console.log('🌐 API Call: getNonce', { walletAddress, url: '/auth/wallet/nonce' })
     
     try {
       const response = await request<{data: NonceResponse}>({
@@ -17,18 +17,18 @@ export class AuthService {
         params: { walletAddress }
       })
       
-      console.log('📡 API 响应:', response.data)
-      // 后端返回的数据包装在 data 字段中
+      console.log('📡 API Response:', response.data)
+      // Backend data wrapped in data field
       return response.data.data
     } catch (error: any) {
-      console.error('❌ API 错误:', error.response?.data || error.message)
+      console.error('❌ API Error:', error.response?.data || error.message)
       throw error
     }
   }
 
-  // 验证钱包签名并登录
+  // Verify wallet signature and login
   static async verifyWallet(data: WalletVerifyRequest): Promise<LoginResponse> {
-    console.log('🌐 API 调用: verifyWallet', { url: '/auth/wallet/verify', data })
+    console.log('🌐 API Call: verifyWallet', { url: '/auth/wallet/verify', data })
     
     try {
       const response = await request<{data: LoginResponse}>({
@@ -37,16 +37,16 @@ export class AuthService {
         data
       })
       
-      console.log('📡 API 响应:', response.data)
-      // 后端返回的数据包装在 data 字段中
+      console.log('📡 API Response:', response.data)
+      // Backend data wrapped in data field
       return response.data.data
     } catch (error: any) {
-      console.error('❌ API 错误:', error.response?.data || error.message)
+      console.error('❌ API Error:', error.response?.data || error.message)
       throw error
     }
   }
 
-  // 获取 Discord OAuth URL
+  // Get Discord OAuth URL
   static async getDiscordOAuthUrl(walletAddress: string): Promise<{ oauthUrl: string; walletAddress: string }> {
     const response = await request<{ oauthUrl: string; walletAddress: string }>({
       method: 'GET',
@@ -56,7 +56,7 @@ export class AuthService {
     return response.data
   }
 
-  // 获取 Twitter OAuth URL  
+  // Get Twitter OAuth URL  
   static async getTwitterOAuthUrl(walletAddress: string): Promise<{ oauthUrl: string; walletAddress: string }> {
     const response = await request<{ oauthUrl: string; walletAddress: string }>({
       method: 'GET',
@@ -66,7 +66,7 @@ export class AuthService {
     return response.data
   }
 
-  // 处理 Discord OAuth 回调
+  // Handle Discord OAuth callback
   static async handleDiscordCallback(code: string, state: string): Promise<{
     success: boolean
     discordId: string
@@ -92,7 +92,7 @@ export class AuthService {
     return response.data
   }
 
-  // 处理 Twitter OAuth 回调
+  // Handle Twitter OAuth callback
   static async handleTwitterCallback(oauth_token: string, oauth_verifier: string): Promise<{
     success: boolean
     twitterId: string

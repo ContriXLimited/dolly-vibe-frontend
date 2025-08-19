@@ -119,7 +119,7 @@ export interface UseOAuthReturn {
   error: string | null
 }
 
-// 新的用户状态查询 API 响应类型
+// New user status query API response type
 export interface NewUserStatusResponse {
   vibeUserId: string
   walletAddress: string

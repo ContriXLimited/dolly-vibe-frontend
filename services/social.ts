@@ -1,12 +1,12 @@
 import { request } from '@/lib/request'
 
 export class SocialService {
-  // 获取 Discord OAuth URL
+  // Get Discord OAuth URL
   static async getDiscordOAuthUrl(walletAddress: string): Promise<{
     oauthUrl: string
     walletAddress: string
   }> {
-    console.log('🌐 API 调用: getDiscordOAuthUrl', { walletAddress, url: '/auth/discord/oauth-url' })
+    console.log('🌐 API Call: getDiscordOAuthUrl', { walletAddress, url: '/auth/discord/oauth-url' })
     
     try {
       const response = await request<{data: {
@@ -18,21 +18,21 @@ export class SocialService {
         params: { walletAddress }
       })
       
-      console.log('📡 API 响应:', response.data)
-      // 后端返回的数据包装在 data 字段中
+      console.log('📡 API Response:', response.data)
+      // Backend response wrapped in data field
       return response.data.data
     } catch (error: any) {
-      console.error('❌ API 错误:', error.response?.data || error.message)
+      console.error('❌ API Error:', error.response?.data || error.message)
       throw error
     }
   }
 
-  // 获取 Twitter OAuth URL  
+  // Get Twitter OAuth URL  
   static async getTwitterOAuthUrl(walletAddress: string): Promise<{
     oauthUrl: string
     walletAddress: string
   }> {
-    console.log('🌐 API 调用: getTwitterOAuthUrl', { walletAddress, url: '/auth/twitter/oauth-url' })
+    console.log('🌐 API Call: getTwitterOAuthUrl', { walletAddress, url: '/auth/twitter/oauth-url' })
     
     try {
       const response = await request<{data: {
@@ -44,16 +44,16 @@ export class SocialService {
         params: { walletAddress }
       })
       
-      console.log('📡 API 响应:', response.data)
-      // 后端返回的数据包装在 data 字段中
+      console.log('📡 API Response:', response.data)
+      // Backend response wrapped in data field
       return response.data.data
     } catch (error: any) {
-      console.error('❌ API 错误:', error.response?.data || error.message)
+      console.error('❌ API Error:', error.response?.data || error.message)
       throw error
     }
   }
 
-  // 处理 Discord OAuth 回调
+  // Handle Discord OAuth callback
   static async handleDiscordCallback(code: string, state: string, callbackUrl?: string): Promise<{
     success: boolean
     discordId: string
@@ -63,7 +63,7 @@ export class SocialService {
     message: string
     note: string
   }> {
-    console.log('🌐 API 调用: handleDiscordCallback', { code, state, callbackUrl, url: '/auth/discord/callback' })
+    console.log('🌐 API Call: handleDiscordCallback', { code, state, callbackUrl, url: '/auth/discord/callback' })
     
     try {
       const params: any = { code, state }
@@ -85,16 +85,16 @@ export class SocialService {
         params
       })
       
-      console.log('📡 API 响应:', response.data)
-      // 后端返回的数据包装在 data 字段中
+      console.log('📡 API Response:', response.data)
+      // Backend response wrapped in data field
       return response.data.data
     } catch (error: any) {
-      console.error('❌ API 错误:', error.response?.data || error.message)
+      console.error('❌ API Error:', error.response?.data || error.message)
       throw error
     }
   }
 
-  // 处理 Twitter OAuth 回调
+  // Handle Twitter OAuth callback
   static async handleTwitterCallback(oauth_token: string, oauth_verifier: string, callbackUrl?: string): Promise<{
     success: boolean
     twitterId: string
@@ -104,7 +104,7 @@ export class SocialService {
     message: string
     note: string
   }> {
-    console.log('🌐 API 调用: handleTwitterCallback', { oauth_token, oauth_verifier, callbackUrl, url: '/auth/twitter/callback' })
+    console.log('🌐 API Call: handleTwitterCallback', { oauth_token, oauth_verifier, callbackUrl, url: '/auth/twitter/callback' })
     
     try {
       const params: any = { oauth_token, oauth_verifier }
@@ -126,11 +126,11 @@ export class SocialService {
         params
       })
       
-      console.log('📡 API 响应:', response.data)
-      // 后端返回的数据包装在 data 字段中
+      console.log('📡 API Response:', response.data)
+      // Backend response wrapped in data field
       return response.data.data
     } catch (error: any) {
-      console.error('❌ API 错误:', error.response?.data || error.message)
+      console.error('❌ API Error:', error.response?.data || error.message)
       throw error
     }
   }

@@ -11,7 +11,7 @@ import { Logo } from '@/components/logo'
 function TwitterCallbackContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
-  
+
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
   const [message, setMessage] = useState('')
   const [details, setDetails] = useState<{
@@ -41,7 +41,7 @@ function TwitterCallbackContent() {
 
       try {
         const result = await SocialService.handleTwitterCallback(oauth_token, oauth_verifier, callbackUrl || undefined)
-        
+
         if (result.success) {
           setStatus('success')
           setMessage(result.message)
@@ -51,7 +51,6 @@ function TwitterCallbackContent() {
             walletAddress: result.walletAddress
           })
 
-          // 3秒后关闭窗口
           setTimeout(() => {
             window.close()
           }, 3000)
@@ -110,7 +109,7 @@ function TwitterCallbackContent() {
               <div className="space-y-2">
                 <p className="text-green-400 font-medium">Twitter connected successfully!</p>
                 <p className="text-neutral-300 text-sm">{message}</p>
-                
+
                 {details.username && (
                   <div className="bg-neutral-700/50 rounded-lg p-3 space-y-2">
                     <p className="text-neutral-200 text-sm">
@@ -125,7 +124,7 @@ function TwitterCallbackContent() {
                     </p>
                   </div>
                 )}
-                
+
                 <p className="text-neutral-400 text-xs">Window will close automatically in 3 seconds</p>
               </div>
             </div>
@@ -138,7 +137,7 @@ function TwitterCallbackContent() {
                 <p className="text-red-400 font-medium">Twitter connection failed</p>
                 <p className="text-neutral-300 text-sm">{message}</p>
               </div>
-              
+
               <div className="flex gap-2">
                 <Button
                   onClick={handleRetry}

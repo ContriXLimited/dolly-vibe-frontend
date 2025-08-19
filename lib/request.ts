@@ -64,7 +64,7 @@ api.interceptors.response.use(
   (error) => {
     // Check if the error is a 401 Unauthorized
     if (error.response?.status === 401) {
-      console.log('🚨 Request.ts: 检测到 401 错误', {
+      console.log('🚨 Request.ts: Detected 401 error', {
         url: error.config?.url,
         method: error.config?.method,
         currentPath: typeof window !== "undefined" ? window.location.pathname : 'unknown',
@@ -78,13 +78,13 @@ api.interceptors.response.use(
          window.location.pathname.startsWith("/auth/") ||
          error.config?.url?.includes("/auth/"));
       
-      console.log('🔍 Request.ts: 检查是否为认证页面', {
+      console.log('🔍 Request.ts: Checking if auth page', {
         isAuthPage,
         pathname: typeof window !== "undefined" ? window.location.pathname : 'unknown'
       })
       
       if (!isAuthPage) {
-        console.log('🔄 Request.ts: 清除存储并跳转登录页')
+        console.log('🔄 Request.ts: Clear storage and redirect to login')
         
         // Clear all storage
         if (typeof window !== "undefined") {
@@ -97,7 +97,7 @@ api.interceptors.response.use(
           window.location.href = "/login";
         }
       } else {
-        console.log('⏭️ Request.ts: 在认证页面，跳过自动跳转')
+        console.log('⏭️ Request.ts: On auth page, skip auto redirect')
       }
     }
 

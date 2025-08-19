@@ -10,7 +10,7 @@ import type { User, UserStatusResponse } from '@/types/auth'
 
 
 interface AuthStore {
-  // 状态
+  // State
   walletAddress: string | null
   isWalletConnected: boolean
   isLoggedIn: boolean
@@ -18,12 +18,12 @@ interface AuthStore {
   user: User | null
   userStatus: UserStatusResponse | null
   
-  // 加载状态
+  // Loading state
   isInitialized: boolean
   isLoading: boolean
   error: string | null
   
-  // 操作方法
+  // Action methods
   initialize: () => Promise<void>
   login: (signMessageFn: (args: { message: string }) => Promise<string>) => Promise<void>
   logout: () => void
@@ -33,7 +33,7 @@ interface AuthStore {
   connectTwitter: () => Promise<void>
   clearError: () => void
   
-  // 内部方法
+  // Internal methods
   _setWalletConnected: (address: string | null, connected: boolean) => void
   _setLoading: (loading: boolean) => void
   _setError: (error: string | null) => void
@@ -42,7 +42,7 @@ interface AuthStore {
 export const useAuthStore = create<AuthStore>()(
   persist(
     (set, get) => ({
-      // 初始状态
+      // Initial state
       walletAddress: null,
       isWalletConnected: false,
       isLoggedIn: false,
@@ -53,14 +53,14 @@ export const useAuthStore = create<AuthStore>()(
       isLoading: false,
       error: null,
 
-      // 初始化方法
+      // Initialize method
       initialize: async () => {
         if (typeof window === 'undefined') {
           return
         }
 
         try {
-          // 从 localStorage 恢复状态
+          // Restore state from localStorage
           const token = getToken()
           const walletAddress = localStorage.getItem('wallet_address')
           const userData = localStorage.getItem('user_data')
@@ -68,12 +68,12 @@ export const useAuthStore = create<AuthStore>()(
           if (token && walletAddress && userData) {
             const user = JSON.parse(userData)
             
-            // 重新计算 allConnected 状态
+            // Recalculate allConnected status
             const allConnected = user.walletConnected && 
                                 user.discordConnected && user.isJoined && 
                                 user.twitterConnected && user.isFollowed
 
-            // 构造 UserStatusResponse
+            // Construct UserStatusResponse
             const userStatus: UserStatusResponse = {
               walletAddress: user.walletAddress,
               discordConnected: user.discordConnected,
@@ -87,13 +87,13 @@ export const useAuthStore = create<AuthStore>()(
                 {
                   platform: 'discord',
                   action: 'join_guild',
-                  description: '加入 Discord 服务器',
+                  description: 'Join Discord Server',
                   completed: user.discordConnected && user.isJoined
                 },
                 {
                   platform: 'twitter',
                   action: 'follow_account',
-                  description: '关注 Twitter 账号',
+                  description: 'Follow Twitter Account',
                   completed: user.twitterConnected && user.isFollowed
                 }
               ]
@@ -116,45 +116,45 @@ export const useAuthStore = create<AuthStore>()(
           }
         } catch (err) {
           set({
-            error: '初始化失败',
+            error: 'Initialization failed',
             isInitialized: true
           })
         }
       },
 
-      // 钱包登录
+      // Wallet login
       login: async (signMessageFn: (args: { message: string }) => Promise<string>) => {
         const { walletAddress } = get()
         if (!walletAddress) {
-          throw new Error('钱包未连接')
+          throw new Error('Wallet not connected')
         }
 
         set({ isLoading: true, error: null })
 
         try {
-          // 1. 获取 nonce
+          // 1. Get nonce
           const nonceResponse = await AuthService.getNonce(walletAddress)
-          // 2. 签名消息
+          // 2. Sign message
           const signature = await signMessageFn({
             message: nonceResponse.message
           })
-          // 3. 验证签名
+          // 3. Verify signature
           const loginResponse = await AuthService.verifyWallet({
             walletAddress,
             nonce: nonceResponse.nonce,
             signature
           })
-          // 4. 保存登录状态
+          // 4. Save login state
           setToken(loginResponse.access_token)
           localStorage.setItem('wallet_address', walletAddress)
           localStorage.setItem('user_data', JSON.stringify(loginResponse.user))
 
-          // 5. 重新计算 allConnected 状态
+          // 5. Recalculate allConnected status
           const allConnected = loginResponse.user.walletConnected && 
                               loginResponse.user.discordConnected && loginResponse.user.isJoined && 
                               loginResponse.user.twitterConnected && loginResponse.user.isFollowed
 
-          // 6. 构造 UserStatusResponse
+          // 6. Construct UserStatusResponse
           const userStatus: UserStatusResponse = {
             walletAddress: loginResponse.user.walletAddress,
             discordConnected: loginResponse.user.discordConnected,
@@ -168,13 +168,13 @@ export const useAuthStore = create<AuthStore>()(
               {
                 platform: 'discord',
                 action: 'join_guild',
-                description: '加入 Discord 服务器',
+                description: 'Join Discord Server',
                 completed: loginResponse.user.discordConnected && loginResponse.user.isJoined
               },
               {
                 platform: 'twitter',
                 action: 'follow_account',
-                description: '关注 Twitter 账号',
+                description: 'Follow Twitter Account',
                 completed: loginResponse.user.twitterConnected && loginResponse.user.isFollowed
               }
             ]
@@ -190,7 +190,7 @@ export const useAuthStore = create<AuthStore>()(
           })
 
         } catch (err: any) {
-          const errorMessage = err.response?.data?.message || err.message || '登录失败'
+          const errorMessage = err.response?.data?.message || err.message || 'Login failed'
           set({
             isLoading: false,
             error: errorMessage
@@ -199,14 +199,14 @@ export const useAuthStore = create<AuthStore>()(
         }
       },
 
-      // 登出
+      // Logout
       logout: () => {
-        // 清除本地存储
+        // Clear local storage
         removeToken()
         localStorage.removeItem('wallet_address')
         localStorage.removeItem('user_data')
 
-        // 重置状态
+        // Reset state
         set({
           walletAddress: null,
           isWalletConnected: false,
@@ -218,9 +218,9 @@ export const useAuthStore = create<AuthStore>()(
         })
       },
 
-      // 更新用户状态
+      // Update user status
       updateUserStatus: (status: UserStatusResponse) => {
-        // 重新计算 allConnected 状态
+        // Recalculate allConnected status
         const allConnected = status.walletConnected && 
                             status.discordConnected && status.isJoined && 
                             status.twitterConnected && status.isFollowed
@@ -233,7 +233,7 @@ export const useAuthStore = create<AuthStore>()(
 
         set({ userStatus: updatedStatus })
 
-        // 同时更新 localStorage 中的用户数据
+        // Update user data in localStorage
         if (get().user) {
           const updatedUser = {
             ...get().user!,
@@ -249,7 +249,7 @@ export const useAuthStore = create<AuthStore>()(
         }
       },
 
-      // 刷新用户状态
+      // Refresh user status
       refreshUserStatus: async () => {
         const { walletAddress } = get()
         if (!walletAddress) return
@@ -260,17 +260,17 @@ export const useAuthStore = create<AuthStore>()(
           const status = await UserService.getUserStatusByWallet(walletAddress)
           get().updateUserStatus(status)
         } catch (err: any) {
-          set({ error: err.response?.data?.message || '刷新用户状态失败' })
+          set({ error: err.response?.data?.message || 'Failed to refresh user status' })
         } finally {
           set({ isLoading: false })
         }
       },
 
-      // 连接 Discord
+      // Connect Discord
       connectDiscord: async () => {
         const { walletAddress } = get()
         if (!walletAddress) {
-          throw new Error('钱包地址不能为空')
+          throw new Error('Wallet address cannot be empty')
         }
 
         set({ isLoading: true, error: null })
@@ -279,7 +279,7 @@ export const useAuthStore = create<AuthStore>()(
           const response = await SocialService.getDiscordOAuthUrl(walletAddress)
           window.open(response.oauthUrl, '_blank')
         } catch (err: any) {
-          const errorMessage = err.response?.data?.message || 'Discord 授权链接获取失败'
+          const errorMessage = err.response?.data?.message || 'Failed to get Discord OAuth URL'
           set({ error: errorMessage })
           throw new Error(errorMessage)
         } finally {
@@ -287,11 +287,11 @@ export const useAuthStore = create<AuthStore>()(
         }
       },
 
-      // 连接 Twitter
+      // Connect Twitter
       connectTwitter: async () => {
         const { walletAddress } = get()
         if (!walletAddress) {
-          throw new Error('钱包地址不能为空')
+          throw new Error('Wallet address cannot be empty')
         }
 
         set({ isLoading: true, error: null })
@@ -300,7 +300,7 @@ export const useAuthStore = create<AuthStore>()(
           const response = await SocialService.getTwitterOAuthUrl(walletAddress)
           window.open(response.oauthUrl, '_blank')
         } catch (err: any) {
-          const errorMessage = err.response?.data?.message || 'Twitter 授权链接获取失败'
+          const errorMessage = err.response?.data?.message || 'Failed to get Twitter OAuth URL'
           set({ error: errorMessage })
           throw new Error(errorMessage)
         } finally {
@@ -308,12 +308,12 @@ export const useAuthStore = create<AuthStore>()(
         }
       },
 
-      // 清除错误
+      // Clear error
       clearError: () => {
         set({ error: null })
       },
 
-      // 内部方法：设置钱包连接状态
+      // Internal method: set wallet connection status
       _setWalletConnected: (address: string | null, connected: boolean) => {
         set({
           walletAddress: address ? address.toLowerCase() : null,
@@ -321,12 +321,12 @@ export const useAuthStore = create<AuthStore>()(
         })
       },
 
-      // 内部方法：设置加载状态
+      // Internal method: set loading state
       _setLoading: (loading: boolean) => {
         set({ isLoading: loading })
       },
 
-      // 内部方法：设置错误
+      // Internal method: set error
       _setError: (error: string | null) => {
         set({ error })
       }
@@ -334,7 +334,7 @@ export const useAuthStore = create<AuthStore>()(
     {
       name: 'auth-store',
       storage: createJSONStorage(() => localStorage),
-      // 只持久化这些字段
+      // Only persist these fields
       partialize: (state) => ({
         walletAddress: state.walletAddress,
         isWalletConnected: state.isWalletConnected,
@@ -347,12 +347,12 @@ export const useAuthStore = create<AuthStore>()(
   )
 )
 
-// 钱包连接状态同步 hook
+// Wallet connection state sync hook
 export const useWalletSync = () => {
   const { address, isConnected } = useAccount()
   const { _setWalletConnected } = useAuthStore()
 
-  // 同步钱包连接状态到 store
+  // Sync wallet connection state to store
   React.useEffect(() => {
     _setWalletConnected(address || null, isConnected)
   }, [address, isConnected, _setWalletConnected])

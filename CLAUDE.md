@@ -175,9 +175,15 @@ components/
 ### Code Quality Standards
 
 **Language Consistency**:
-- All comments and logging must be in English
-- Console logs use format: "🌐 API Call:", "📡 API Response:", "❌ API Error:"
-- Avoid Chinese characters in code, comments, or logs
+- **CRITICAL**: All comments, logging, error messages, and user-facing text must be in English only
+- **NO Chinese characters** are allowed in any user-visible areas including:
+  - Code comments and documentation
+  - Console logs and debug messages
+  - Error messages and user feedback
+  - API response logging
+  - Variable names and function names
+- Console logs use standardized format: "🌐 API Call:", "📡 API Response:", "❌ API Error:"
+- This ensures international accessibility and consistent developer experience
 
 **API Response Patterns**:
 - Backend responses are nested: `response.data.data` (for actual data)
