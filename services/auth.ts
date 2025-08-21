@@ -46,15 +46,6 @@ export class AuthService {
     }
   }
 
-  // Get Discord OAuth URL
-  static async getDiscordOAuthUrl(walletAddress: string): Promise<{ oauthUrl: string; walletAddress: string }> {
-    const response = await request<{ oauthUrl: string; walletAddress: string }>({
-      method: 'GET',
-      url: '/auth/discord/oauth-url',
-      params: { walletAddress }
-    })
-    return response.data
-  }
 
   // Get Twitter OAuth URL  
   static async getTwitterOAuthUrl(walletAddress: string): Promise<{ oauthUrl: string; walletAddress: string }> {

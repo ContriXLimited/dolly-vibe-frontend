@@ -276,7 +276,8 @@ export const useAuthStore = create<AuthStore>()(
         set({ isLoading: true, error: null })
 
         try {
-          const response = await SocialService.getDiscordOAuthUrl(walletAddress)
+          const callbackUrl = `${window.location.protocol}//${window.location.host}/discord-callback`
+          const response = await SocialService.getDiscordOAuthUrl(walletAddress, callbackUrl)
           window.open(response.oauthUrl, '_blank')
         } catch (err: any) {
           const errorMessage = err.response?.data?.message || 'Failed to get Discord OAuth URL'

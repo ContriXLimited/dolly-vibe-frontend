@@ -26,7 +26,6 @@ export default function LoginPage() {
     error,
     login,
     connectDiscord,
-    connectTwitter,
     refreshUserStatus,
     clearError,
     initialize
@@ -105,30 +104,6 @@ export default function LoginPage() {
     }
   }
 
-  // Handle Twitter connection
-  const handleTwitterConnect = async () => {
-    clearError()
-    
-    // If connected but not following, redirect to Twitter page
-    if (userStatus?.twitterConnected && !userStatus.isFollowed) {
-      window.open('https://x.com/0G_labs', '_blank')
-      // Refresh status after 5 seconds to check if following
-      setTimeout(() => {
-        refreshUserStatus()
-      }, 5000)
-      return
-    }
-    
-    // If not connected, proceed with OAuth authorization
-    try {
-      await connectTwitter()
-      // Wait for user to complete authorization in new window, then refresh status
-      setTimeout(() => {
-        refreshUserStatus()
-      }, 5000)
-    } catch (err) {
-    }
-  }
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center relative overflow-hidden">
@@ -221,7 +196,7 @@ export default function LoginPage() {
               <div className="text-center mb-4">
                 <p className="text-neutral-300 text-sm">Step 3: Connect Social Platforms</p>
                 <p className="text-neutral-400 text-xs mt-1">
-                  Progress: {userStatus.nextSteps.filter(step => step.completed).length}/{userStatus.nextSteps.length}
+                  Progress: {userStatus.nextSteps.filter(step => step.platform === 'discord' && step.completed).length}/1
                 </p>
               </div>
 
@@ -281,45 +256,6 @@ export default function LoginPage() {
                 </button>
               </div>
 
-              {/* Twitter Connection Status */}
-              <div>
-                <h2 className="text-white font-medium mb-3 flex items-center gap-2">
-                  Follow us on X
-                  {userStatus.twitterConnected && userStatus.isFollowed && (
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                  )}
-                </h2>
-                <button 
-                  onClick={handleTwitterConnect}
-                  disabled={isLoading || (userStatus.twitterConnected && userStatus.isFollowed)}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors group ${
-                    userStatus.twitterConnected && userStatus.isFollowed
-                      ? 'bg-green-500/20 border border-green-500/30'
-                      : 'bg-neutral-700 hover:bg-neutral-600'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-5 h-5 bg-black rounded flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">X</span>
-                    </div>
-                    <span className={`${
-                      userStatus.twitterConnected && userStatus.isFollowed 
-                        ? 'text-green-300' 
-                        : 'text-neutral-200'
-                    }`}>
-                      {userStatus.twitterConnected && userStatus.isFollowed
-                        ? 'Twitter connected and following'
-                        : userStatus.twitterConnected
-                        ? 'Twitter connected, need to follow'
-                        : 'Connect X Account'
-                      }
-                    </span>
-                  </div>
-                  {!(userStatus.twitterConnected && userStatus.isFollowed) && (
-                    <ChevronRight className="w-4 h-4 text-neutral-400 group-hover:text-white transition-colors" />
-                  )}
-                </button>
-              </div>
 
               {/* Refresh Status Button */}
               <div className="pt-2">

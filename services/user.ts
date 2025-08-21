@@ -3,14 +3,14 @@ import type { UserStatusResponse, NewUserStatusResponse } from '@/types/auth'
 
 export class UserService {
   // Get user status (new API)
-  static async getUserStatusByWallet(walletAddress: string): Promise<UserStatusResponse> {
+  static async getUserStatusByWallet(walletAddress: string, enableDiscordCheck: boolean = true, enableTwitterCheck: boolean = false): Promise<UserStatusResponse> {
     console.log('🌐 API Call: getUserStatusByWallet', { walletAddress, url: '/auth/user/status-by-wallet' })
     
     try {
       const response = await request<{data: NewUserStatusResponse}>({
         method: 'GET',
         url: '/auth/user/status-by-wallet',
-        params: { walletAddress }
+        params: { walletAddress, enableDiscordCheck, enableTwitterCheck }
       })
       
       console.log('📡 API Response:', response.data)

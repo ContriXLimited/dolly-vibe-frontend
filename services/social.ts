@@ -2,11 +2,11 @@ import { request } from '@/lib/request'
 
 export class SocialService {
   // Get Discord OAuth URL
-  static async getDiscordOAuthUrl(walletAddress: string): Promise<{
+  static async getDiscordOAuthUrl(walletAddress: string, callbackUrl: string): Promise<{
     oauthUrl: string
     walletAddress: string
   }> {
-    console.log('🌐 API Call: getDiscordOAuthUrl', { walletAddress, url: '/auth/discord/oauth-url' })
+    console.log('🌐 API Call: getDiscordOAuthUrl', { walletAddress, callbackUrl, url: '/auth/discord/oauth-url' })
     
     try {
       const response = await request<{data: {
@@ -15,7 +15,7 @@ export class SocialService {
       }}>({
         method: 'GET',
         url: '/auth/discord/oauth-url',
-        params: { walletAddress }
+        params: { walletAddress, callbackUrl }
       })
       
       console.log('📡 API Response:', response.data)
