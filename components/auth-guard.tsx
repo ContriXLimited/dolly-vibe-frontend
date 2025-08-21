@@ -53,12 +53,14 @@ export function AuthGuard({ children, requireAuth = true }: AuthGuardProps) {
 
       // Check wallet connection
       if (!isConnected && !isWalletConnected) {
+        console.log('Wallet not connected')
         router.push('/login')
         return
       }
 
       // Check wallet login status
       if (!isLoggedIn) {
+        console.log('Wallet not logged in')
         router.push('/login')
         return
       }
@@ -72,6 +74,7 @@ export function AuthGuard({ children, requireAuth = true }: AuthGuardProps) {
       if (error) {
         // If it's an authentication error, redirect to login page
         if (error.includes('401') || error.includes('Unauthorized')) {
+          console.log('Authentication error')
           router.push('/login')
           return
         }
@@ -83,8 +86,9 @@ export function AuthGuard({ children, requireAuth = true }: AuthGuardProps) {
         if (hasAttemptedRedirect) {
           return
         }
-        
+
         setHasAttemptedRedirect(true)
+        console.log('User not verified')
         router.push('/login')
         return
       }
