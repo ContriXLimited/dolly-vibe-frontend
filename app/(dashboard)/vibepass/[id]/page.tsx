@@ -1,16 +1,17 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowRight, Crown, Medal, Award, ChevronDown } from "lucide-react"
+import { ArrowRight, Crown, Medal, Award, ChevronDown, ArrowLeft } from "lucide-react"
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from "recharts"
 import { VibePassService, UserVibePass, LeaderboardEntry } from "@/services/vibepass"
 
 export default function VibePassDetailsPage() {
   const params = useParams()
+  const router = useRouter()
   const vibePassId = params.id as string
   const [selectedPeriod, setSelectedPeriod] = useState("all")
   const [expandedOpportunity, setExpandedOpportunity] = useState<number | null>(null)
@@ -187,9 +188,18 @@ export default function VibePassDetailsPage() {
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-white tracking-wider">MY VIBEPASS</h1>
-          <p className="text-sm text-neutral-400">Agent performance and community engagement</p>
+        <div className="flex items-start gap-4">
+          <button
+            onClick={() => router.back()}
+            className="mt-1 p-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 transition-colors border border-neutral-700 hover:border-neutral-600"
+            aria-label="Go back"
+          >
+            <ArrowLeft className="w-4 h-4 text-white" />
+          </button>
+          <div>
+            <h1 className="text-2xl font-bold text-white tracking-wider">MY VIBEPASS</h1>
+            <p className="text-sm text-neutral-400">Agent performance and community engagement</p>
+          </div>
         </div>
       </div>
 
