@@ -55,6 +55,14 @@ export default function VibePassPage() {
     },
   ]
 
+  // Helper function to check if user has minted for a specific project
+  const hasMintedForProject = (projectId: string) => {
+    return ownedPasses.some(pass => 
+      pass.vibeProjectId === projectId && 
+      pass.tokenId !== null
+    )
+  }
+
 
   // Parse params array to get attributes
   const parsePassAttributes = (params: number[]) => {
@@ -70,16 +78,15 @@ export default function VibePassPage() {
   // Handle join project
   const handleJoinProject = async () => {
     if (isJoiningProject) return // Prevent multiple calls
-    
+
     try {
       setIsJoiningProject(true)
       setError(null)
-      
+
       // Call the join project API using service
       await VibePassService.joinProject({})
 
-      // Refresh the owned passes
-      await fetchMyVibePasses()
+      // No need to refresh passes since we only show minted ones
     } catch (err: any) {
       setError(err.message || 'Failed to join project')
     } finally {
@@ -87,12 +94,28 @@ export default function VibePassPage() {
     }
   }
 
-  // Handle mint pass
-  const handleMintPass = async () => {
-    // Find the first owned pass to mint (since user has passes but no minted tokens)
-    if (ownedPasses.length > 0) {
+  // Handle join and mint flow
+  const handleJoinAndMint = async () => {
+    // Check if user already has passes
+    const hasAnyPass = ownedPasses.length > 0
+    const hasMintedPass = ownedPasses.some(pass => pass.tokenId !== null)
+
+    if (hasMintedPass) {
+      toast.info("You already have a minted INFT!", {
+        description: "You can only mint one INFT per project."
+      })
+      return
+    }
+
+    if (hasAnyPass) {
+      // User has passes but no minted tokens - just show mint modal
       const passToMint = ownedPasses.find(pass => !pass.tokenId) || ownedPasses[0]
+      console.log("passToMint", passToMint)
       setSelectedVibePass(passToMint)
+      setIsMintModalOpen(true)
+    } else {
+      // User needs to join first - open modal with join flow
+      setSelectedVibePass(null) // No specific pass yet
       setIsMintModalOpen(true)
     }
   }
@@ -158,7 +181,7 @@ export default function VibePassPage() {
           <div className="flex justify-center items-center py-12">
             <div className="text-red-500">Error: {error}</div>
           </div>
-        ) : ownedPasses.length === 0 ? (
+        ) : ownedPasses.filter(pass => pass.tokenId).length === 0 ? (
           // Empty State
           <div className="relative">
             <div className="border-2 border-dashed border-neutral-600 rounded-lg p-12 flex flex-col items-center justify-center space-y-4 bg-neutral-900/50">
@@ -176,9 +199,9 @@ export default function VibePassPage() {
             </div>
           </div>
         ) : (
-          // Passes Grid
+          // Passes Grid (only show minted passes)
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {ownedPasses.map((pass) => {
+            {ownedPasses.filter(pass => pass.tokenId).map((pass) => {
               const attributes = parsePassAttributes(pass.params)
               const radarData = [
                 { skill: "Engagement", value: attributes.engagement },
@@ -191,11 +214,10 @@ export default function VibePassPage() {
               return (
                 <Card
                   key={pass.id}
-                  className={`bg-gradient-to-br from-neutral-900 to-neutral-800 border border-neutral-700 transition-all duration-300 overflow-hidden ${
-                    pass.tokenId 
-                      ? "hover:border-orange-500/50 hover:scale-105 cursor-pointer" 
-                      : "cursor-pointer opacity-75 hover:opacity-90"
-                  }`}
+                  className={`bg-gradient-to-br from-neutral-900 to-neutral-800 border border-neutral-700 transition-all duration-300 overflow-hidden ${pass.tokenId
+                    ? "hover:border-orange-500/50 hover:scale-105 cursor-pointer"
+                    : "cursor-pointer opacity-75 hover:opacity-90"
+                    }`}
                   onClick={pass.tokenId ? () => handleCardClick(pass.id) : handleUnmintedCardClick}
                 >
                   <CardContent className="p-6">
@@ -288,94 +310,74 @@ export default function VibePassPage() {
 
         {/* Mintable Projects Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {mintableProjects.map((project) => (
-            <Card
-              key={project.id}
-              className="bg-gradient-to-br from-neutral-900 to-neutral-800 border border-neutral-700 hover:border-orange-500/50 transition-all duration-300 overflow-hidden"
-            >
-              <CardContent className="p-6">
-                {/* Project Logo */}
-                <div className="flex justify-center mb-4">
-                  <div className="w-24 h-24 rounded-full bg-neutral-800 flex items-center justify-center">
-                    <Image
-                      src={project.logo}
-                      alt={project.name}
-                      width={60}
-                      height={60}
-                      className="rounded-full"
-                    />
-                  </div>
-                </div>
-
-                {/* Project Info */}
-                <div className="text-center space-y-3">
-                  <div>
-                    <h3 className="text-xl font-bold text-white mb-1">{project.name}</h3>
-                    <p className="text-sm text-neutral-400">{project.description}</p>
+          {mintableProjects.map((project) => {
+            const isMinted = hasMintedForProject(project.id)
+            
+            return (
+              <Card
+                key={project.id}
+                className="bg-gradient-to-br from-neutral-900 to-neutral-800 border border-neutral-700 hover:border-orange-500/50 transition-all duration-300 overflow-hidden"
+              >
+                <CardContent className="p-6">
+                  {/* Project Logo */}
+                  <div className="flex justify-center mb-4">
+                    <div className="w-24 h-24 rounded-full bg-neutral-800 flex items-center justify-center">
+                      <Image
+                        src={project.logo}
+                        alt={project.name}
+                        width={60}
+                        height={60}
+                        className="rounded-full"
+                      />
+                    </div>
                   </div>
 
-                  {/* Dynamic Button */}
-                  {(() => {
-                    // Check if user has a vibepass (any vibepass means they've joined projects)
-                    const hasAnyPass = ownedPasses.length > 0
-                    // Check if user has a minted pass (tokenId exists)
-                    const hasMintedPass = ownedPasses.some(pass => pass.tokenId !== null)
+                  {/* Project Info */}
+                  <div className="text-center space-y-3">
+                    <div>
+                      <h3 className="text-xl font-bold text-white mb-1">{project.name}</h3>
+                      <p className="text-sm text-neutral-400">{project.description}</p>
+                    </div>
 
-                    if (hasMintedPass) {
-                      return (
-                        <Button
-                          className="w-full bg-neutral-600 text-neutral-400 font-bold cursor-not-allowed"
-                          disabled
-                        >
-                          Already Minted
-                        </Button>
-                      )
-                    } else if (hasAnyPass) {
-                      return (
-                        <Button
-                          className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleMintPass()
-                          }}
-                        >
-                          Mint
-                        </Button>
-                      )
-                    } else {
-                      return (
-                        <Button
-                          className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleJoinProject()
-                          }}
-                          disabled={isJoiningProject}
-                        >
-                          {isJoiningProject ? "Joining..." : "Join Project"}
-                        </Button>
-                      )
-                    }
-                  })()}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                    {/* Join Button */}
+                    <Button
+                      className={`w-full font-bold ${
+                        isMinted 
+                          ? "bg-neutral-600 text-neutral-400 cursor-not-allowed" 
+                          : "bg-blue-500 hover:bg-blue-600 text-white"
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        if (!isMinted) {
+                          handleJoinAndMint()
+                        }
+                      }}
+                      disabled={loading || isMinted}
+                    >
+                      {loading ? "Loading..." : (isMinted ? "Joined" : "Join")}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          })}
         </div>
       </div>
 
       {/* Mint Modal */}
-      {selectedVibePass && (
-        <MintModal
-          isOpen={isMintModalOpen}
-          onClose={() => {
-            setIsMintModalOpen(false)
-            setSelectedVibePass(null)
-          }}
-          vibePass={selectedVibePass}
-          onSuccess={handleMintSuccess}
-        />
-      )}
+      <MintModal
+        isOpen={isMintModalOpen}
+        onClose={() => {
+          setIsMintModalOpen(false)
+          setSelectedVibePass(null)
+        }}
+        vibePass={selectedVibePass}
+        onSuccess={handleMintSuccess}
+        onJoinSuccess={(vibePass) => {
+          setSelectedVibePass(vibePass)
+          fetchMyVibePasses() // Refresh the passes list
+        }}
+      />
     </div>
   )
 }

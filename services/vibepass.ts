@@ -119,7 +119,13 @@ export interface ConfirmMintResponse {
 export interface JoinProjectRequest {}
 
 export interface JoinProjectResponse {
-  data: UserVibePass;
+  data: {
+    message: string;
+    data: UserVibePass;
+  };
+  message: string;
+  statusCode: number;
+  timestamp: string;
 }
 
 export interface GetVibePassByIdResponse {
@@ -305,7 +311,7 @@ export class VibePassService {
       });
 
       console.log("📡 API Response:", response.data);
-      return response.data.data;
+      return response.data.data.data;
     } catch (error: any) {
       console.error("❌ API Error:", error.response?.data || error.message);
       throw error;

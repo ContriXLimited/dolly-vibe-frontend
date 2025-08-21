@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Modal } from "@/components/ui/modal"
 import { Button } from "@/components/ui/button"
 import { CheckCircle, Circle, ExternalLink } from "lucide-react"
@@ -12,8 +12,10 @@ import { toast } from "sonner"
 interface MintModalProps {
   isOpen: boolean
   onClose: () => void
-  vibePass: UserVibePass
+  vibePass: UserVibePass | null
   onSuccess: () => void
+  needsJoin?: boolean
+  onJoinSuccess?: (vibePass: UserVibePass) => void
 }
 
 interface MintStep {
@@ -34,103 +36,139 @@ interface UploadResult {
   sealedKey?: string
 }
 
-export function MintModal({ isOpen, onClose, vibePass, onSuccess }: MintModalProps) {
+export function MintModal({ isOpen, onClose, vibePass, onSuccess, onJoinSuccess }: MintModalProps) {
   const { address, chain } = useAccount()
   const { signMessageAsync } = useSignMessage()
+  const needsJoin = useMemo(() => vibePass == null, [vibePass])
   const { writeContract, data: hash, error: contractError, isPending: isContractPending } = useWriteContract()
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
     hash,
     confirmations: 3, // Wait for 3 block confirmations
   })
-  
+
   const [steps, setSteps] = useState<MintStep[]>([
     {
       id: 1,
+      title: "Join Project",
+      description: "Join the project to generate your VibePass",
+      status: needsJoin ? 'pending' : 'completed'
+    },
+    {
+      id: 2,
       title: "Upload Metadata to 0G Storage",
       description: "Uploading your profile data to decentralized storage",
       status: 'pending'
     },
     {
-      id: 2,
+      id: 3,
       title: "Mint Intelligent NFT",
       description: "Creating your unique INFT on the blockchain",
       status: 'pending'
     }
   ])
-  
+
   const [isProcessing, setIsProcessing] = useState(false)
-  const [currentStep, setCurrentStep] = useState(0)
+  const [currentStep, setCurrentStep] = useState(needsJoin ? 0 : 1)
+  const [isJoining, setIsJoining] = useState(false)
   const [mintResult, setMintResult] = useState<MintResult | null>(null)
   const [uploadResult, setUploadResult] = useState<UploadResult | null>(null)
-  const [mintParams, setMintParams] = useState<{contractAddress: string, methodName: string, params: any[], abi: any[], to: string, data: string, metadata: any} | null>(null)
+  const [mintParams, setMintParams] = useState<{ contractAddress: string, methodName: string, params: any[], abi: any[], to: string, data: string, metadata: any } | null>(null)
   const [isCompleted, setIsCompleted] = useState(false)
-  const [walletSignature, setWalletSignature] = useState<{nonce: string, signature: string} | null>(null)
+  const [walletSignature, setWalletSignature] = useState<{ nonce: string, signature: string } | null>(null)
+  const [localVibePass, setLocalVibePass] = useState<UserVibePass | null>(vibePass)
+
+  // Sync steps state when modal opens or needsJoin changes
+  useEffect(() => {
+    if (isOpen) {
+      setSteps(prev => prev.map(step => ({
+        ...step,
+        status: step.id === 1 ? (needsJoin ? 'pending' : 'completed') : 'pending'
+      })))
+      setCurrentStep(needsJoin ? 0 : 1)
+      // Reset other states when modal opens
+      setIsCompleted(false)
+      setMintResult(null)
+      setUploadResult(null)
+      setMintParams(null)
+      setWalletSignature(null)
+      // Sync local VibePass with prop
+      setLocalVibePass(vibePass)
+    }
+  }, [isOpen, needsJoin, vibePass])
 
   // Monitor transaction confirmation
   useEffect(() => {
-    if (isConfirmed && hash && mintParams && uploadResult) {
+    if (isConfirmed && hash && mintParams && uploadResult && localVibePass) {
       console.log('🎉 Transaction confirmed:', hash)
-      
+
       // Call confirmMint API to notify server
       const notifyServer = async () => {
         try {
           console.log('📡 Notifying server about successful mint...')
-          await VibePassService.confirmMint(vibePass.id, {
+          await VibePassService.confirmMint(localVibePass.id, {
             txHash: hash,
             rootHash: mintParams.metadata.rootHash,
             sealedKey: mintParams.metadata.sealedKey
           })
           console.log('✅ Server notified successfully')
-          
-          updateStepStatus(2, 'completed')
+
+          updateStepStatus(3, 'completed')
           setMintResult({
             mintTxHash: hash,
             mintedAt: new Date().toISOString()
           })
           setIsCompleted(true)
-          
+
           toast.success("🎉 INFT minted successfully!", {
             description: "Your intelligent NFT is now on the blockchain!"
           })
+          
+          // Immediately refresh the parent component's data
+          onSuccess()
         } catch (error: any) {
           console.error('❌ Failed to notify server:', error)
           // Still mark as completed since the mint was successful on-chain
-          updateStepStatus(2, 'completed')
+          updateStepStatus(3, 'completed')
           setMintResult({
             mintTxHash: hash,
             mintedAt: new Date().toISOString()
           })
           setIsCompleted(true)
-          
+
           toast.success("🎉 INFT minted successfully!", {
             description: "Your NFT is on-chain, but server notification failed"
           })
+          
+          // Immediately refresh the parent component's data
+          onSuccess()
         } finally {
           setIsProcessing(false)
         }
       }
-      
+
       notifyServer()
     }
-  }, [isConfirmed, hash, mintParams, uploadResult, vibePass.id])
+  }, [isConfirmed, hash, mintParams, uploadResult, localVibePass])
 
   // Monitor transaction errors
   useEffect(() => {
     if (contractError) {
       console.error('❌ Contract execution failed:', contractError)
-      
-      updateStepStatus(2, 'failed')
+
+      updateStepStatus(3, 'failed')
       toast.error("Transaction failed", {
-        description: contractError.message || "Failed to execute mint transaction"
+        description:  "Failed to execute mint transaction"
       })
-      
+
+      console.error('❌ Contract execution failed:', contractError)
+
       setIsProcessing(false)
     }
   }, [contractError])
 
   // Update step status
   const updateStepStatus = (stepId: number, status: MintStep['status']) => {
-    setSteps(prev => prev.map(step => 
+    setSteps(prev => prev.map(step =>
       step.id === stepId ? { ...step, status } : step
     ))
   }
@@ -154,9 +192,9 @@ export function MintModal({ isOpen, onClose, vibePass, onSuccess }: MintModalPro
 
     // Get nonce from backend using AuthService
     const nonceData = await AuthService.getNonce(address)
-    
+
     // Sign message with wallet
-    const signature = await signMessageAsync({ 
+    const signature = await signMessageAsync({
       message: nonceData.message,
       account: address
     })
@@ -170,10 +208,10 @@ export function MintModal({ isOpen, onClose, vibePass, onSuccess }: MintModalPro
       console.log('🔄 Using cached wallet signature')
       return walletSignature
     }
-    
+
     console.log('✍️ Getting new wallet signature...')
     toast.info("Please sign the message in your wallet")
-    
+
     try {
       const signature = await getWalletSignature()
       console.log('✅ Wallet signature obtained')
@@ -185,19 +223,53 @@ export function MintModal({ isOpen, onClose, vibePass, onSuccess }: MintModalPro
     }
   }
 
-  // Step 1: Upload Metadata (internal function)
-  const uploadMetadata = async (nonce: string, signature: string) => {
-    if (!validateNetwork() || !address) {
-      throw new Error("Network validation failed or wallet not connected")
-    }
+  // Step 1: Join Project
+  const joinProject = async () => {
+    if (!needsJoin) return null
 
-    console.log('🔄 Setting step 1 as in_progress...')
+    setIsJoining(true)
     updateStepStatus(1, 'in_progress')
     setCurrentStep(1)
-    
+
+    try {
+      toast.info("Joining project...")
+      const joinedVibePass = await VibePassService.joinProject({})
+      console.log('✅ Successfully joined project:', joinedVibePass)
+
+      updateStepStatus(1, 'completed')
+      toast.success("Successfully joined project!")
+
+      // Update local state with joined VibePass
+      setLocalVibePass(joinedVibePass)
+      
+      // Call onJoinSuccess to update parent component
+      if (onJoinSuccess) {
+        onJoinSuccess(joinedVibePass)
+      }
+
+      return joinedVibePass
+    } catch (error: any) {
+      console.error('❌ Failed to join project:', error)
+      updateStepStatus(1, 'failed')
+      throw error
+    } finally {
+      setIsJoining(false)
+    }
+  }
+
+  // Step 2: Upload Metadata (internal function)
+  const uploadMetadata = async (nonce: string, signature: string) => {
+    if (!validateNetwork() || !address || !localVibePass) {
+      throw new Error("Network validation failed, wallet not connected, or no VibePass available")
+    }
+
+    console.log('🔄 Setting step 2 as in_progress...')
+    updateStepStatus(2, 'in_progress')
+    setCurrentStep(2)
+
     toast.info("Uploading metadata to 0G Storage...")
-    
-    const metadataResult = await VibePassService.uploadMetadata(vibePass.id, {
+
+    const metadataResult = await VibePassService.uploadMetadata(localVibePass.id, {
       walletAddress: address,
       nonce,
       signature,
@@ -207,35 +279,35 @@ export function MintModal({ isOpen, onClose, vibePass, onSuccess }: MintModalPro
         attributes: []
       }
     })
-    
+
     setUploadResult(metadataResult)
-    updateStepStatus(1, 'completed')
+    updateStepStatus(2, 'completed')
     toast.success("Metadata uploaded successfully!")
-    
+
     return metadataResult
   }
 
-  // Step 2: Mint INFT (includes getting parameters + executing transaction)
+  // Step 3: Mint INFT (includes getting parameters + executing transaction)
   const mintINFTWithParams = async (metadataResult: UploadResult) => {
-    if (!validateNetwork() || !address) {
-      throw new Error("Network validation failed or wallet not connected")
+    if (!validateNetwork() || !address || !localVibePass) {
+      throw new Error("Network validation failed, wallet not connected, or no VibePass available")
     }
-    
+
     if (!metadataResult?.rootHash) {
       throw new Error("No metadata found, please upload metadata first")
     }
 
-    updateStepStatus(2, 'in_progress')
-    setCurrentStep(2)
-    
+    updateStepStatus(3, 'in_progress')
+    setCurrentStep(3)
+
     toast.info("Preparing mint transaction...")
-    
+
     // Get mint parameters (hidden from user)
     console.log('🔍 Getting mint parameters...')
-    const mintParams = await VibePassService.getMintParams(vibePass.id, address, metadataResult.rootHash)
+    const mintParams = await VibePassService.getMintParams(localVibePass.id, address, metadataResult.rootHash)
     console.log('✅ Mint parameters retrieved:', mintParams)
     setMintParams(mintParams)
-    
+
     // Execute mint transaction
     toast.info("Executing mint transaction...")
     console.log('🚀 Calling writeContract with params:', {
@@ -244,7 +316,7 @@ export function MintModal({ isOpen, onClose, vibePass, onSuccess }: MintModalPro
       functionName: mintParams.methodName,
       args: mintParams.params
     })
-    
+
     // Execute the contract write
     writeContract({
       address: mintParams.contractAddress as `0x${string}`,
@@ -254,35 +326,53 @@ export function MintModal({ isOpen, onClose, vibePass, onSuccess }: MintModalPro
       account: address,
       chain: chain
     })
-    
+
     // Note: We'll handle the success in the useEffect that monitors transaction status
+  }
+
+  // Handle join step
+  const handleJoin = async () => {
+    if (!needsJoin) return
+
+    try {
+      await joinProject()
+    } catch (error: any) {
+      toast.error("Join failed", {
+        description: error.response?.data?.message || error.message || "Failed to join project"
+      })
+    }
   }
 
   // Main function: Start full minting process (upload + mint)
   const startMinting = async () => {
-    if (!validateNetwork() || !address) return
+    if (!validateNetwork() || !address || !localVibePass) {
+      toast.error("Cannot start minting", {
+        description: "Please ensure wallet is connected and you have joined the project"
+      })
+      return
+    }
 
     setIsProcessing(true)
-    setCurrentStep(0)
+    setCurrentStep(needsJoin ? 1 : 2)
 
     try {
       // Get wallet signature once at the beginning
       console.log('✍️ Getting wallet signature...')
       const { nonce, signature } = await ensureWalletSignature()
       console.log('✅ Wallet signature obtained, nonce:', nonce)
-      
-      // Step 1: Upload metadata using the signature
+
+      // Step 2: Upload metadata using the signature
       console.log('📤 Starting metadata upload...')
-      setCurrentStep(1)
+      setCurrentStep(2)
       const metadataResult = await uploadMetadata(nonce, signature)
       console.log('✅ Upload completed:', metadataResult)
-      
-      // Step 2: Mint INFT (includes getting params + executing transaction)
+
+      // Step 3: Mint INFT (includes getting params + executing transaction)
       console.log('🪙 Starting mint process...')
-      setCurrentStep(2)
+      setCurrentStep(3)
       await mintINFTWithParams(metadataResult)
       console.log('✅ Mint transaction initiated!')
-      
+
       // Note: Transaction completion is handled by useEffect hooks
 
     } catch (error: any) {
@@ -294,25 +384,25 @@ export function MintModal({ isOpen, onClose, vibePass, onSuccess }: MintModalPro
         status: error.response?.status,
         config: error.config
       })
-      
+
       // Show appropriate error message based on current step
-      if (currentStep === 1) {
+      if (currentStep === 2) {
         // Upload metadata failed
-        updateStepStatus(1, 'failed')
+        updateStepStatus(2, 'failed')
         toast.error("Metadata upload failed", {
           description: error.response?.data?.message || error.message || "Failed to upload to 0G Storage"
         })
-      } else if (currentStep === 2) {
+      } else if (currentStep === 3) {
         // Mint process failed (could be getting params or executing transaction)
-        updateStepStatus(2, 'failed')
+        updateStepStatus(3, 'failed')
         toast.error("Minting failed", {
           description: error.response?.data?.message || error.message || "Failed to mint INFT"
         })
       } else {
-        // Error occurred before any step started (step 0) - likely during signature
-        if (currentStep === 0) {
-          setCurrentStep(1) // Set to step 1 so UI shows the right context
-          updateStepStatus(1, 'failed')
+        // Error occurred during signature step
+        if (currentStep <= 2) {
+          setCurrentStep(2) // Set to step 2 so UI shows the right context
+          updateStepStatus(2, 'failed')
         }
         toast.error("Process failed", {
           description: error.response?.data?.message || error.message || "Failed to start the minting process"
@@ -331,28 +421,31 @@ export function MintModal({ isOpen, onClose, vibePass, onSuccess }: MintModalPro
     setMintParams(null)
     setMintResult(null)
     setIsCompleted(false)
-    
-    // Reset step statuses
-    setSteps(prev => prev.map(step => ({ ...step, status: 'pending' })))
-    setCurrentStep(0)
-    
+
+    // Reset step statuses (skip join step if already completed)
+    setSteps(prev => prev.map(step => ({
+      ...step,
+      status: step.id === 1 && !needsJoin ? 'completed' : 'pending'
+    })))
+    setCurrentStep(needsJoin ? 0 : 1)
+
     // Start fresh process
     await startMinting()
   }
 
-  // Handle complete and refresh
+  // Handle complete and close modal
   const handleComplete = () => {
-    onSuccess()
     onClose()
-    // Refresh the page to update tokenId
-    window.location.reload()
   }
 
   // Reset modal state when closed
   const handleClose = () => {
-    if (!isProcessing && !isContractPending && !isConfirming) {
-      setSteps(prev => prev.map(step => ({ ...step, status: 'pending' })))
-      setCurrentStep(0)
+    if (!isProcessing && !isContractPending && !isConfirming && !isJoining) {
+      setSteps(prev => prev.map(step => ({
+        ...step,
+        status: step.id === 1 && !needsJoin ? 'completed' : 'pending'
+      })))
+      setCurrentStep(needsJoin ? 0 : 1)
       setIsCompleted(false)
       setMintResult(null)
       setUploadResult(null)
@@ -368,37 +461,149 @@ export function MintModal({ isOpen, onClose, vibePass, onSuccess }: MintModalPro
 
         {/* Steps */}
         <div className="space-y-4">
-          {steps.map((step) => (
-            <div key={step.id} className="flex items-start gap-3 p-4 rounded-lg bg-neutral-800/50">
+          {/* Step 1: Join Project */}
+          <div className="flex items-start justify-between p-4 rounded-lg bg-neutral-800/50">
+            <div className="flex items-start gap-3">
               <div className="mt-0.5">
-                {step.status === 'completed' && (
+                {steps[0].status === 'completed' && (
                   <CheckCircle className="w-5 h-5 text-green-500" />
                 )}
-                {step.status === 'in_progress' && (
+                {steps[0].status === 'in_progress' && (
                   <div className="w-5 h-5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
                 )}
-                {step.status === 'failed' && (
+                {steps[0].status === 'failed' && (
                   <Circle className="w-5 h-5 text-red-500" />
                 )}
-                {step.status === 'pending' && (
+                {steps[0].status === 'pending' && (
                   <Circle className="w-5 h-5 text-neutral-500" />
                 )}
               </div>
               <div className="flex-1">
-                <h3 className={`font-medium ${
-                  step.status === 'completed' ? 'text-green-400' :
-                  step.status === 'in_progress' ? 'text-orange-400' :
-                  step.status === 'failed' ? 'text-red-400' :
-                  'text-neutral-300'
-                }`}>
-                  {step.title}
+                <h3 className={`font-medium ${steps[0].status === 'completed' ? 'text-green-400' :
+                  steps[0].status === 'in_progress' ? 'text-orange-400' :
+                    steps[0].status === 'failed' ? 'text-red-400' :
+                      'text-neutral-300'
+                  }`}>
+                  {steps[0].title}
                 </h3>
                 <p className="text-sm text-neutral-400 mt-1">
-                  {step.id === 2 && isConfirming ? "Waiting for 3 block confirmations..." : step.description}
+                  {steps[0].description}
                 </p>
               </div>
             </div>
-          ))}
+
+            {/* Join Button */}
+            {needsJoin && steps[0].status !== 'completed' && (
+              <Button
+                onClick={handleJoin}
+                disabled={isJoining || steps[0].status === 'in_progress'}
+                className="bg-blue-500 hover:bg-blue-600 text-white"
+                size="sm"
+              >
+                {isJoining ? "Joining..." : "Join"}
+              </Button>
+            )}
+          </div>
+
+          {/* Steps 2 & 3: Combined Mint Process */}
+          <div className="flex items-start justify-between p-4 rounded-lg bg-neutral-800/50">
+            <div className="flex-1 space-y-3">
+              {/* Step 2: Upload Metadata */}
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5">
+                  {steps[1].status === 'completed' && (
+                    <CheckCircle className="w-5 h-5 text-green-500" />
+                  )}
+                  {steps[1].status === 'in_progress' && (
+                    <div className="w-5 h-5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+                  )}
+                  {steps[1].status === 'failed' && (
+                    <Circle className="w-5 h-5 text-red-500" />
+                  )}
+                  {steps[1].status === 'pending' && (
+                    <Circle className="w-5 h-5 text-neutral-500" />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <h3 className={`font-medium text-sm ${steps[1].status === 'completed' ? 'text-green-400' :
+                    steps[1].status === 'in_progress' ? 'text-orange-400' :
+                      steps[1].status === 'failed' ? 'text-red-400' :
+                        'text-neutral-300'
+                    }`}>
+                    {steps[1].title}
+                  </h3>
+                  <p className="text-xs text-neutral-400 mt-1">
+                    {steps[1].description}
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 3: Mint INFT */}
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5">
+                  {steps[2].status === 'completed' && (
+                    <CheckCircle className="w-5 h-5 text-green-500" />
+                  )}
+                  {steps[2].status === 'in_progress' && (
+                    <div className="w-5 h-5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+                  )}
+                  {steps[2].status === 'failed' && (
+                    <Circle className="w-5 h-5 text-red-500" />
+                  )}
+                  {steps[2].status === 'pending' && (
+                    <Circle className="w-5 h-5 text-neutral-500" />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <h3 className={`font-medium text-sm ${steps[2].status === 'completed' ? 'text-green-400' :
+                    steps[2].status === 'in_progress' ? 'text-orange-400' :
+                      steps[2].status === 'failed' ? 'text-red-400' :
+                        'text-neutral-300'
+                    }`}>
+                    {steps[2].title}
+                  </h3>
+                  <p className="text-xs text-neutral-400 mt-1">
+                    {steps[2].id === 3 && isConfirming ? "Waiting for 3 block confirmations..." : steps[2].description}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Mint Button */}
+            {(!needsJoin || steps[0].status === 'completed') && 
+             !isProcessing && 
+             !isCompleted && (
+              <div className="ml-4">
+                {(steps[1].status === 'failed' || steps[2].status === 'failed') ? (
+                  <Button
+                    onClick={resetAndRestart}
+                    disabled={isProcessing || isContractPending || isConfirming}
+                    className="bg-red-500 hover:bg-red-600 text-white"
+                    size="sm"
+                  >
+                    {(isProcessing || isContractPending) ? "Retrying..." : "Retry"}
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={startMinting}
+                    disabled={isProcessing || isContractPending || isConfirming || !localVibePass}
+                    className="bg-orange-500 hover:bg-orange-600 text-white"
+                    size="sm"
+                  >
+                    {isProcessing || isContractPending || isConfirming ? (
+                      currentStep === 2 ? "Uploading..." :
+                        currentStep === 3 ? "Minting..." :
+                          isContractPending ? "Confirm Transaction..." :
+                            isConfirming ? "Confirming..." :
+                              "Processing..."
+                    ) : (
+                      "Mint INFT"
+                    )}
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Mint Result */}
@@ -441,43 +646,14 @@ export function MintModal({ isOpen, onClose, vibePass, onSuccess }: MintModalPro
         {/* Action Buttons */}
         <div className="flex gap-3">
           {!isCompleted ? (
-            <>
-              <Button
-                variant="outline"
-                onClick={handleClose}
-                disabled={isProcessing || isContractPending || isConfirming}
-                className="flex-1"
-              >
-                Cancel
-              </Button>
-              
-              {/* Main Mint Button */}
-              {(steps[0].status === 'failed' || steps[1].status === 'failed') ? (
-                <Button
-                  onClick={resetAndRestart}
-                  disabled={isProcessing || isContractPending || isConfirming}
-                  className="flex-1 bg-red-500 hover:bg-red-600"
-                >
-                  {(isProcessing || isContractPending) ? "Retrying..." : "Retry"}
-                </Button>
-              ) : (
-                <Button
-                  onClick={startMinting}
-                  disabled={isProcessing || isContractPending || isConfirming}
-                  className="flex-1 bg-orange-500 hover:bg-orange-600"
-                >
-                  {isProcessing || isContractPending || isConfirming ? (
-                    currentStep === 1 ? "Uploading..." : 
-                    currentStep === 2 ? "Minting..." : 
-                    isContractPending ? "Confirm Transaction..." :
-                    isConfirming ? "Confirming..." :
-                    "Processing..."
-                  ) : (
-                    "Mint INFT"
-                  )}
-                </Button>
-              )}
-            </>
+            <Button
+              variant="outline"
+              onClick={handleClose}
+              disabled={isProcessing || isContractPending || isConfirming || isJoining}
+              className="w-full"
+            >
+              Cancel
+            </Button>
           ) : (
             <Button
               onClick={handleComplete}
