@@ -105,7 +105,7 @@ export default function SpacePage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4">
         {statsData.map((stat, index) => (
           <Card key={index} className="bg-neutral-900 border-orange-500/30">
             <CardHeader className="pb-2">
@@ -128,8 +128,8 @@ export default function SpacePage() {
                     <TrendingDown className="w-4 h-4 text-red-500" />
                   )}
                   <span className={`text-sm font-medium px-2 py-1 rounded ${stat.trend === "up"
-                      ? "text-teal-500 bg-teal-500/20"
-                      : "text-red-500 bg-red-500/20"
+                    ? "text-teal-500 bg-teal-500/20"
+                    : "text-red-500 bg-red-500/20"
                     }`}>
                     {stat.change}
                   </span>
