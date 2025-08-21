@@ -66,16 +66,6 @@ export default function DashboardLayout({
                 <div className={`${sidebarCollapsed ? "hidden" : "block"}`}>
                   <Logo size="sm" className="mb-2" />
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                  className="text-neutral-400 hover:text-orange-500"
-                >
-                  <ChevronRight
-                    className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform ${sidebarCollapsed ? "" : "rotate-180"}`}
-                  />
-                </Button>
               </div>
 
               <nav className="space-y-2">
