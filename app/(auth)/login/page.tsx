@@ -66,7 +66,8 @@ export default function LoginPage() {
   // Monitor login status changes
   useEffect(() => {
     if (isLoggedIn && userStatus) {
-      if (userStatus.allConnected) {
+      // Since we only require Discord verification now, check if Discord is completed
+      if (userStatus.discordConnected && userStatus.isJoined) {
         setCurrentStep('complete')
       } else {
         setCurrentStep('social')
@@ -94,6 +95,18 @@ export default function LoginPage() {
   // Handle Discord connection
   const handleDiscordConnect = async () => {
     clearError()
+    
+    // If connected but not joined, redirect to Discord server
+    if (userStatus?.discordConnected && !userStatus.isJoined) {
+      window.open('https://discord.com/invite/0glabs', '_blank')
+      // Refresh status after 5 seconds to check if joined
+      setTimeout(() => {
+        refreshUserStatus()
+      }, 5000)
+      return
+    }
+    
+    // If not connected, proceed with OAuth authorization
     try {
       await connectDiscord()
       // Wait for user to complete authorization in new window, then refresh status

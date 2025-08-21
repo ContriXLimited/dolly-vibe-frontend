@@ -70,8 +70,7 @@ export const useAuthStore = create<AuthStore>()(
             
             // Recalculate allConnected status
             const allConnected = user.walletConnected && 
-                                user.discordConnected && user.isJoined && 
-                                user.twitterConnected && user.isFollowed
+                                user.discordConnected && user.isJoined 
 
             // Construct UserStatusResponse
             const userStatus: UserStatusResponse = {

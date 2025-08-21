@@ -14,7 +14,7 @@ interface AuthGuardProps {
 export function AuthGuard({ children, requireAuth = true }: AuthGuardProps) {
   const router = useRouter()
   const { isConnected } = useAccount()
-  
+
   // Use AuthStore
   const {
     isWalletConnected,
@@ -25,10 +25,10 @@ export function AuthGuard({ children, requireAuth = true }: AuthGuardProps) {
     error,
     initialize
   } = useAuthStore()
-  
+
   // Sync wallet state
   useWalletSync()
-  
+
   const [isChecking, setIsChecking] = useState(true)
   const [hasAttemptedRedirect, setHasAttemptedRedirect] = useState(false)
 
