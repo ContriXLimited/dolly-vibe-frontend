@@ -67,9 +67,8 @@ export class SocialService {
     
     try {
       const params: any = { code, state }
-      if (callbackUrl) {
-        params.callbackUrl = callbackUrl
-      }
+
+      params.callbackUrl = `${window.location.protocol}//${window.location.host}/discord-callback`
       
       const response = await request<{data: {
         success: boolean

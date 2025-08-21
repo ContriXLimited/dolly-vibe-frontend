@@ -52,9 +52,9 @@ function DiscordCallbackContent() {
             isInGuild: result.isInGuild
           })
           
-          // Redirect to login page after 3 seconds
+          // Close window after 3 seconds
           setTimeout(() => {
-            router.push('/login')
+            window.close()
           }, 3000)
         } else {
           setStatus('error')
@@ -125,7 +125,7 @@ function DiscordCallbackContent() {
                   )}
                   
                   <p className="text-neutral-400 text-xs mt-4">
-                    Redirecting to login page in 3 seconds...
+                    This window will close automatically in 3 seconds...
                   </p>
                 </div>
               </>
@@ -138,10 +138,10 @@ function DiscordCallbackContent() {
                   <h2 className="text-white font-medium text-lg mb-2">Connection failed</h2>
                   <p className="text-red-400 text-sm mb-4">{message}</p>
                   <button
-                    onClick={() => router.push('/login')}
+                    onClick={() => window.close()}
                     className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg transition-colors"
                   >
-                    Return to login page
+                    Close Window
                   </button>
                 </div>
               </>

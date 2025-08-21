@@ -75,6 +75,17 @@ export default function LoginPage() {
     }
   }, [isLoggedIn, userStatus])
 
+  // Auto-refresh user status every 5 seconds when in social step
+  // useEffect(() => {
+  //   if (currentStep === 'social' && isLoggedIn) {
+  //     const interval = setInterval(() => {
+  //       refreshUserStatus()
+  //     }, 5000)
+      
+  //     return () => clearInterval(interval)
+  //   }
+  // }, [currentStep, isLoggedIn, refreshUserStatus])
+
   // Handle wallet signature verification
   const handleWalletLogin = async () => {
     clearError()
@@ -99,20 +110,12 @@ export default function LoginPage() {
     // If connected but not joined, redirect to Discord server
     if (userStatus?.discordConnected && !userStatus.isJoined) {
       window.open('https://discord.com/invite/0glabs', '_blank')
-      // Refresh status after 5 seconds to check if joined
-      setTimeout(() => {
-        refreshUserStatus()
-      }, 5000)
       return
     }
     
     // If not connected, proceed with OAuth authorization
     try {
       await connectDiscord()
-      // Wait for user to complete authorization in new window, then refresh status
-      setTimeout(() => {
-        refreshUserStatus()
-      }, 5000)
     } catch (err) {
     }
   }

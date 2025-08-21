@@ -78,7 +78,7 @@ export class AuthService {
     }>({
       method: 'GET',
       url: '/auth/discord/callback',
-      params: { code, state }
+      params: { code, state, callbackUrl: `${window.location.protocol}//${window.location.host}/discord-callback` }
     })
     return response.data
   }
