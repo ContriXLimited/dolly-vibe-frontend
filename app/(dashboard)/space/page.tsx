@@ -12,7 +12,7 @@ export default function SpacePage() {
   const statsData = [
     {
       title: "Messages",
-      value: "39,098,000",
+      value: "39,098",
       change: "+30%",
       trend: "up",
       icon: MessageSquare,
@@ -127,11 +127,10 @@ export default function SpacePage() {
                   ) : (
                     <TrendingDown className="w-4 h-4 text-red-500" />
                   )}
-                  <span className={`text-sm font-medium px-2 py-1 rounded ${
-                    stat.trend === "up" 
-                      ? "text-teal-500 bg-teal-500/20" 
+                  <span className={`text-sm font-medium px-2 py-1 rounded ${stat.trend === "up"
+                      ? "text-teal-500 bg-teal-500/20"
                       : "text-red-500 bg-red-500/20"
-                  }`}>
+                    }`}>
                     {stat.change}
                   </span>
                 </div>
