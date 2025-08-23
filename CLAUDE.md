@@ -2,6 +2,17 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Product Overview
+
+DollyVibe is a core component of the AskDolly ecosystem, working alongside DollyMod (AI community manager) to build identity infrastructure for the Agent era. It serves as a revolutionary "Human Interface designed for Agents" - a standardized solution allowing humans to demonstrate "who they are" to any Agent.
+
+### Key Product Features
+- **Intelligent Identity Tokenization (iNFT)**: Converts user on-chain behavior, community contributions, and social interactions into verifiable iNFTs (ERC-7857)
+- **Selective Identity Disclosure (VibePass)**: Users selectively display identity attributes through VibePass cards based on different scenarios
+- **Multi-dimensional Behavioral Scoring**: Real-time user behavior assessment across five dimensions (engagement, relevance, expertise, interactivity, civility)
+- **Agent Interoperability Protocol**: Supports MCP, A2A, ADP protocols for seamless identity flow across different Agent ecosystems
+- **Decentralized Identity Marketplace (Agent Playground)**: Agent competition arena with Key-based reputation economy
+
 ## Development Commands
 
 ### Core Development
