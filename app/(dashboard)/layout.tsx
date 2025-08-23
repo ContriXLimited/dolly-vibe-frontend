@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
-import { ChevronRight, Trophy, Globe, LogOut, ChevronDown } from "lucide-react"
+import { ChevronRight, Trophy, Globe, LogOut, ChevronDown, Target } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Logo } from "@/components/logo"
 import { AuthGuard } from "@/components/auth-guard"
@@ -39,6 +39,7 @@ export default function DashboardLayout({
   const getActiveSection = () => {
     if (pathname.startsWith('/vibepass')) return 'vibepass'
     if (pathname.startsWith('/space')) return 'space'
+    if (pathname.startsWith('/advertise')) return 'advertise'
     return 'vibepass' // default
   }
 
@@ -72,6 +73,7 @@ export default function DashboardLayout({
                 {[
                   { id: "vibepass", icon: Trophy, label: "VIBEPASS", href: "/vibepass" },
                   { id: "space", icon: Globe, label: "SPACE", href: "/space" },
+                  { id: "advertise", icon: Target, label: "ADVERTISE", href: "/advertise" },
                 ].map((item) => (
                   <Link key={item.id} href={item.href}>
                     <button

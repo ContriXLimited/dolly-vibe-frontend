@@ -5,9 +5,11 @@ import { useParams, useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowRight, Crown, Medal, Award, ChevronDown, ArrowLeft } from "lucide-react"
+import { ArrowRight, Crown, Medal, Award, ChevronDown, ArrowLeft, MessageCircle } from "lucide-react"
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from "recharts"
 import { VibePassService, UserVibePass, LeaderboardEntry } from "@/services/vibepass"
+import { AgentChat } from "@/components/agent-chat"
+import { Button } from "@/components/ui/button"
 
 export default function VibePassDetailsPage() {
   const params = useParams()
@@ -20,6 +22,7 @@ export default function VibePassDetailsPage() {
   const [loading, setLoading] = useState(true)
   const [leaderboardLoading, setLeaderboardLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isAgentChatOpen, setIsAgentChatOpen] = useState(false)
 
   // Contract address constant
   const CONTRACT_ADDRESS = "0x1B1594813C197a9dFD163d76C6EcA9F829e5a4fa"
@@ -282,6 +285,20 @@ export default function VibePassDetailsPage() {
                         </div>
                       )}
                     </div>
+                    
+                    {/* Agent Chat Button */}
+                    <div className="mt-4 pt-3 border-t border-neutral-700">
+                      <Button
+                        onClick={() => setIsAgentChatOpen(true)}
+                        className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium"
+                      >
+                        <MessageCircle className="w-4 h-4 mr-2" />
+                        Chat with Agent
+                      </Button>
+                      <p className="text-xs text-neutral-400 mt-2 text-center">
+                        Interact with this user's AI representative
+                      </p>
+                    </div>
                   </div>
                 </div>
 
@@ -481,6 +498,13 @@ export default function VibePassDetailsPage() {
         </div>
       </div>
 
+      {/* Agent Chat Modal */}
+      <AgentChat
+        isOpen={isAgentChatOpen}
+        onClose={() => setIsAgentChatOpen(false)}
+        userAttributes={parsePassAttributes(vibePass?.params || [0, 0, 0, 0, 0])}
+        userName={`User ${vibePass?.id ? vibePass.id.slice(0, 8) : 'Anonymous'}`}
+      />
     </div>
   )
 }
