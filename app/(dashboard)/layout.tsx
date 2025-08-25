@@ -3,12 +3,13 @@
 import { useState, useEffect, useRef } from "react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
-import { ChevronRight, Trophy, Globe, LogOut, ChevronDown, Target } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Trophy, Globe, LogOut, ChevronDown, Target, User, Building } from "lucide-react"
+import { Switch } from "@/components/ui/switch"
 import { Logo } from "@/components/logo"
 import { AuthGuard } from "@/components/auth-guard"
 import { NetworkSwitchButton } from "@/components/network-switch-button"
 import { useAuthStore } from "@/store/auth"
+import { useAppModeStore } from "@/store/app-mode"
 
 export default function DashboardLayout({
   children,
@@ -20,6 +21,7 @@ export default function DashboardLayout({
   const [showUserMenu, setShowUserMenu] = useState(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
   const { logout } = useAuthStore()
+  const { mode, toggleMode } = useAppModeStore()
 
   // Close user menu when clicking outside
   useEffect(() => {
@@ -65,16 +67,33 @@ export default function DashboardLayout({
             <div>
               <div className="flex items-center justify-between mb-8">
                 <div className={`${sidebarCollapsed ? "hidden" : "block"}`}>
-                  <Logo size="sm" className="mb-2" />
+                  <div className="flex items-center gap-3">
+                    <Logo size="sm" />
+                    <div className="flex items-center justify-center w-8 h-8 bg-neutral-800 rounded">
+                      {mode === 'b2c' ? (
+                        <User className="w-4 h-4 text-orange-500" />
+                      ) : (
+                        <Building className="w-4 h-4 text-orange-500" />
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
 
               <nav className="space-y-2">
-                {[
-                  { id: "vibepass", icon: Trophy, label: "VIBEPASS", href: "/vibepass" },
-                  { id: "space", icon: Globe, label: "SPACE", href: "/space" },
-                  { id: "advertise", icon: Target, label: "ADVERTISE", href: "/advertise" },
-                ].map((item) => (
+                {(() => {
+                  const consumerItems = [
+                    { id: "vibepass", icon: Trophy, label: "VIBEPASS", href: "/vibepass" },
+                    { id: "space", icon: Globe, label: "SPACE", href: "/space" },
+                  ]
+                  
+                  const businessItems = [
+                    { id: "advertise", icon: Target, label: "ADVERTISE", href: "/advertise" },
+                  ]
+                  
+                  const menuItems = mode === 'b2b' ? businessItems : consumerItems
+                  
+                  return menuItems.map((item) => (
                   <Link key={item.id} href={item.href}>
                     <button
                       className={`w-full flex items-center gap-3 p-3 rounded transition-colors ${activeSection === item.id
@@ -86,7 +105,8 @@ export default function DashboardLayout({
                       {!sidebarCollapsed && <span className="text-sm font-medium">{item.label}</span>}
                     </button>
                   </Link>
-                ))}
+                  ))
+                })()}
               </nav>
               
               {/* Network Switch Button */}
@@ -149,7 +169,28 @@ export default function DashboardLayout({
                     <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
                   </div>
                 </div>
-                
+                {/* Mode Toggle Switch */}
+            {!sidebarCollapsed && (
+              <div className="mt-4 pt-4 border-t border-neutral-700">
+                <div className="space-y-3">
+                  <h4 className="text-xs font-medium text-neutral-400 uppercase tracking-wider">Mode</h4>
+                  <div className="flex items-center justify-center gap-3 p-3 rounded-lg">
+                    <User className={`w-4 h-4 transition-colors ${mode === 'b2c' ? 'text-orange-500' : 'text-neutral-400'}`} />
+                    <Switch
+                      checked={mode === 'b2b'}
+                      onCheckedChange={toggleMode}
+                      className="data-[state=checked]:bg-orange-500"
+                    />
+                    <Building className={`w-4 h-4 transition-colors ${mode === 'b2b' ? 'text-orange-500' : 'text-neutral-400'}`} />
+                  </div>
+                  <div className="text-center">
+                    <span className="text-xs text-neutral-400">
+                      {mode === 'b2c' ? 'Consumer Mode' : 'Business Mode'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
                 {/* User Menu Dropdown */}
                 {showUserMenu && (
                   <div className="absolute bottom-full left-0 right-0 mb-2 bg-neutral-800 border border-neutral-700 rounded shadow-lg">
