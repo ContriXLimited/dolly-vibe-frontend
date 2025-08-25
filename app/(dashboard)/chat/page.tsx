@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { MessageCircle, Send, Bot, User, Target, TrendingUp } from "lucide-react"
+import { MessageCircle, Send, Bot, User, Target, TrendingUp, RotateCcw } from "lucide-react"
 
 interface ChatMessage {
   id: string
@@ -96,6 +96,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [inputValue, setInputValue] = useState("")
   const [isTyping, setIsTyping] = useState(false)
+  const [analysisCompleted, setAnalysisCompleted] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -240,19 +241,41 @@ export default function ChatPage() {
       <UsersDisplay />
       <LeaderboardButton />
     </div>)
+    
+    setAnalysisCompleted(true)
   }
 
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return
 
-    // Always show the hardcoded message regardless of input
-    const hardcodedMessage = "I want users to be active in the community, engage in meaningful conversations, help Mods answer community member questions, comfort users who encounter problems, actively participate in community activities, and share their profit situations"
-    
-    addMessage('user', hardcodedMessage)
+    if (messages.length === 0) {
+      // First message - show hardcoded message regardless of input
+      const hardcodedMessage = "I want users to be active in the community, engage in meaningful conversations, help Mods answer community member questions, comfort users who encounter problems, actively participate in community activities, and share their profit situations"
+      
+      addMessage('user', hardcodedMessage)
+      setInputValue("")
+      
+      // Start automated analysis
+      await startAnalysisSequence()
+    } else {
+      // Subsequent messages - show actual user input
+      addMessage('user', inputValue)
+      setInputValue("")
+      
+      // Simple bot response for follow-up messages
+      setIsTyping(true)
+      await sleep(1500)
+      setIsTyping(false)
+      
+      addMessage('bot', "Thank you for the additional information. The analysis above remains the most relevant match for your requirements.")
+    }
+  }
+
+  const handleReset = () => {
+    setMessages([])
     setInputValue("")
-    
-    // Start automated analysis
-    await startAnalysisSequence()
+    setIsTyping(false)
+    setAnalysisCompleted(false)
   }
 
   const getWeightColor = (value: number) => {
@@ -266,10 +289,23 @@ export default function ChatPage() {
       {/* Chat Interface - Full Height within Layout */}
       <Card className="bg-neutral-900 border-neutral-700 h-full flex flex-col">
         <CardHeader className="border-b border-neutral-700">
-          <CardTitle className="text-lg font-bold text-white tracking-wider flex items-center gap-2">
-            <MessageCircle className="w-5 h-5 text-orange-500" />
-            REQUIREMENT ANALYSIS BOT
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg font-bold text-white tracking-wider flex items-center gap-2">
+              <MessageCircle className="w-5 h-5 text-orange-500" />
+              REQUIREMENT ANALYSIS BOT
+            </CardTitle>
+            {messages.length > 0 && (
+              <Button
+                onClick={handleReset}
+                variant="ghost"
+                size="sm"
+                className="text-neutral-400 hover:text-white hover:bg-neutral-800"
+              >
+                <RotateCcw className="w-4 h-4 mr-2" />
+                Reset Chat
+              </Button>
+            )}
+          </div>
         </CardHeader>
 
         <CardContent className="flex-1 flex flex-col p-0 min-h-0">
@@ -344,13 +380,17 @@ export default function ChatPage() {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                placeholder="Describe your ideal community member requirements..."
+                placeholder={
+                  messages.length === 0 
+                    ? "Describe your ideal community member requirements..." 
+                    : "Continue the conversation..."
+                }
                 className="flex-1 bg-neutral-800 border-neutral-600 text-white placeholder-neutral-400"
-                disabled={isTyping || messages.length > 0}
+                disabled={isTyping}
               />
               <Button 
                 onClick={handleSendMessage}
-                disabled={!inputValue.trim() || isTyping || messages.length > 0}
+                disabled={!inputValue.trim() || isTyping}
                 className="bg-orange-500 hover:bg-orange-600 text-white"
               >
                 <Send className="w-4 h-4" />
