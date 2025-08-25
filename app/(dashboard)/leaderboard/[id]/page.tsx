@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useParams, useSearchParams } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
@@ -40,7 +41,7 @@ const MOCK_MEMBERS: CommunityMember[] = [
     rank: 1,
     name: "CommunityChad",
     discriminator: "1234",
-    avatar: "🔥",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=CommunityChad&backgroundColor=f97316",
     totalScore: 94,
     attributes: { engagement: 0.98, relevance: 0.95, expertise: 0.92, interaction: 0.97, civility: 0.89 },
     trend: "up",
@@ -50,7 +51,7 @@ const MOCK_MEMBERS: CommunityMember[] = [
     rank: 2,
     name: "DeFiDegen",
     discriminator: "8888", 
-    avatar: "⚡",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=DeFiDegen&backgroundColor=10b981",
     totalScore: 89,
     attributes: { engagement: 0.85, relevance: 0.91, expertise: 0.88, interaction: 0.87, civility: 0.93 },
     trend: "up",
@@ -60,7 +61,7 @@ const MOCK_MEMBERS: CommunityMember[] = [
     rank: 3,
     name: "0xWhale",
     discriminator: "1337",
-    avatar: "🐋",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=0xWhale&backgroundColor=3b82f6",
     totalScore: 86,
     attributes: { engagement: 0.78, relevance: 0.95, expertise: 0.96, interaction: 0.82, civility: 0.85 },
     trend: "down",
@@ -70,7 +71,7 @@ const MOCK_MEMBERS: CommunityMember[] = [
     rank: 4,
     name: "vibes_only",
     discriminator: "6969",
-    avatar: "✨",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=vibes_only&backgroundColor=a855f7",
     totalScore: 82,
     attributes: { engagement: 0.96, relevance: 0.74, expertise: 0.65, interaction: 0.98, civility: 0.91 },
     trend: "up",
@@ -80,7 +81,7 @@ const MOCK_MEMBERS: CommunityMember[] = [
     rank: 5,
     name: "anon_builder",
     discriminator: "0000",
-    avatar: "🛠️",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=anon_builder&backgroundColor=6b7280",
     totalScore: 78,
     attributes: { engagement: 0.72, relevance: 0.88, expertise: 0.94, interaction: 0.73, civility: 0.85 },
     trend: "up",
@@ -90,7 +91,7 @@ const MOCK_MEMBERS: CommunityMember[] = [
     rank: 6,
     name: "TokenMaster",
     discriminator: "2024",
-    avatar: "💎",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=TokenMaster&backgroundColor=ec4899",
     totalScore: 75,
     attributes: { engagement: 0.75, relevance: 0.82, expertise: 0.78, interaction: 0.71, civility: 0.89 },
     trend: "up",
@@ -100,7 +101,7 @@ const MOCK_MEMBERS: CommunityMember[] = [
     rank: 7,
     name: "CryptoSage", 
     discriminator: "1111",
-    avatar: "🧙",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=CryptoSage&backgroundColor=8b5cf6",
     totalScore: 73,
     attributes: { engagement: 0.69, relevance: 0.85, expertise: 0.91, interaction: 0.68, civility: 0.92 },
     trend: "down",
@@ -110,7 +111,7 @@ const MOCK_MEMBERS: CommunityMember[] = [
     rank: 8,
     name: "NodeRunner",
     discriminator: "3333",
-    avatar: "🖥️",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=NodeRunner&backgroundColor=14b8a6",
     totalScore: 72,
     attributes: { engagement: 0.76, relevance: 0.79, expertise: 0.89, interaction: 0.65, civility: 0.81 },
     trend: "up",
@@ -120,7 +121,7 @@ const MOCK_MEMBERS: CommunityMember[] = [
     rank: 9,
     name: "GamingGuru",
     discriminator: "7777",
-    avatar: "🎮",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=GamingGuru&backgroundColor=f59e0b",
     totalScore: 70,
     attributes: { engagement: 0.88, relevance: 0.71, expertise: 0.63, interaction: 0.91, civility: 0.87 },
     trend: "up",
@@ -130,7 +131,7 @@ const MOCK_MEMBERS: CommunityMember[] = [
     rank: 10,
     name: "MetaExplorer",
     discriminator: "4200",
-    avatar: "🌐",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=MetaExplorer&backgroundColor=06b6d4",
     totalScore: 69,
     attributes: { engagement: 0.73, relevance: 0.76, expertise: 0.68, interaction: 0.79, civility: 0.84 },
     trend: "down",
@@ -140,7 +141,7 @@ const MOCK_MEMBERS: CommunityMember[] = [
     rank: 11,
     name: "NFTCollector",
     discriminator: "5555",
-    avatar: "🖼️",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=NFTCollector&backgroundColor=f97316",
     totalScore: 67,
     attributes: { engagement: 0.71, relevance: 0.73, expertise: 0.72, interaction: 0.75, civility: 0.86 },
     trend: "up",
@@ -150,7 +151,7 @@ const MOCK_MEMBERS: CommunityMember[] = [
     rank: 12,
     name: "DAOVoter",
     discriminator: "2222",
-    avatar: "🗳️",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=DAOVoter&backgroundColor=ef4444",
     totalScore: 66,
     attributes: { engagement: 0.68, relevance: 0.78, expertise: 0.69, interaction: 0.72, civility: 0.93 },
     trend: "up",
@@ -160,7 +161,7 @@ const MOCK_MEMBERS: CommunityMember[] = [
     rank: 13,
     name: "YieldHunter",
     discriminator: "9999",
-    avatar: "📈",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=YieldHunter&backgroundColor=22c55e",
     totalScore: 64,
     attributes: { engagement: 0.65, relevance: 0.81, expertise: 0.77, interaction: 0.63, civility: 0.79 },
     trend: "down",
@@ -170,7 +171,7 @@ const MOCK_MEMBERS: CommunityMember[] = [
     rank: 14,
     name: "BugBounty",
     discriminator: "0101",
-    avatar: "🐛",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=BugBounty&backgroundColor=dc2626",
     totalScore: 63,
     attributes: { engagement: 0.62, relevance: 0.75, expertise: 0.88, interaction: 0.59, civility: 0.82 },
     trend: "up",
@@ -180,7 +181,7 @@ const MOCK_MEMBERS: CommunityMember[] = [
     rank: 15,
     name: "MemeKing",
     discriminator: "6666",
-    avatar: "😄",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=MemeKing&backgroundColor=fbbf24",
     totalScore: 62,
     attributes: { engagement: 0.89, relevance: 0.58, expertise: 0.47, interaction: 0.94, civility: 0.82 },
     trend: "up",
@@ -190,7 +191,7 @@ const MOCK_MEMBERS: CommunityMember[] = [
     rank: 16,
     name: "StakingPro",
     discriminator: "1212",
-    avatar: "🥩",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=StakingPro&backgroundColor=8b5cf6",
     totalScore: 61,
     attributes: { engagement: 0.64, relevance: 0.72, expertise: 0.74, interaction: 0.66, civility: 0.83 },
     trend: "down",
@@ -200,7 +201,7 @@ const MOCK_MEMBERS: CommunityMember[] = [
     rank: 17,
     name: "ChainAnalyst",
     discriminator: "8080",
-    avatar: "🔍",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=ChainAnalyst&backgroundColor=64748b",
     totalScore: 60,
     attributes: { engagement: 0.58, relevance: 0.77, expertise: 0.85, interaction: 0.55, civility: 0.88 },
     trend: "up",
@@ -210,7 +211,7 @@ const MOCK_MEMBERS: CommunityMember[] = [
     rank: 18,
     name: "DexTrader",
     discriminator: "4444",
-    avatar: "💱",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=DexTrader&backgroundColor=059669",
     totalScore: 59,
     attributes: { engagement: 0.61, relevance: 0.74, expertise: 0.71, interaction: 0.63, civility: 0.81 },
     trend: "down",
@@ -220,7 +221,7 @@ const MOCK_MEMBERS: CommunityMember[] = [
     rank: 19,
     name: "BridgeBuilder",
     discriminator: "1010",
-    avatar: "🌉",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=BridgeBuilder&backgroundColor=0ea5e9",
     totalScore: 58,
     attributes: { engagement: 0.63, relevance: 0.69, expertise: 0.76, interaction: 0.61, civility: 0.85 },
     trend: "up",
@@ -230,7 +231,7 @@ const MOCK_MEMBERS: CommunityMember[] = [
     rank: 20,
     name: "AIEnthusiast",
     discriminator: "2030",
-    avatar: "🤖",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=AIEnthusiast&backgroundColor=7c3aed",
     totalScore: 57,
     attributes: { engagement: 0.66, relevance: 0.71, expertise: 0.68, interaction: 0.67, civility: 0.86 },
     trend: "up",
@@ -240,7 +241,7 @@ const MOCK_MEMBERS: CommunityMember[] = [
     rank: 21,
     name: "LayerZero",
     discriminator: "0000",
-    avatar: "🔗",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=LayerZero&backgroundColor=f59e0b",
     totalScore: 56,
     attributes: { engagement: 0.59, relevance: 0.73, expertise: 0.72, interaction: 0.58, civility: 0.82 },
     trend: "down",
@@ -250,7 +251,7 @@ const MOCK_MEMBERS: CommunityMember[] = [
     rank: 22,
     name: "FlashLoan",
     discriminator: "1234",
-    avatar: "⚡",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=FlashLoan&backgroundColor=eab308",
     totalScore: 55,
     attributes: { engagement: 0.57, relevance: 0.75, expertise: 0.78, interaction: 0.54, civility: 0.81 },
     trend: "up",
@@ -260,7 +261,7 @@ const MOCK_MEMBERS: CommunityMember[] = [
     rank: 23,
     name: "OraculumBot",
     discriminator: "7890",
-    avatar: "🔮",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=OraculumBot&backgroundColor=9333ea",
     totalScore: 54,
     attributes: { engagement: 0.55, relevance: 0.69, expertise: 0.79, interaction: 0.56, civility: 0.84 },
     trend: "up",
@@ -270,7 +271,7 @@ const MOCK_MEMBERS: CommunityMember[] = [
     rank: 24,
     name: "PrivacyCoin",
     discriminator: "9876",
-    avatar: "🕶️",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=PrivacyCoin&backgroundColor=374151",
     totalScore: 53,
     attributes: { engagement: 0.53, relevance: 0.67, expertise: 0.77, interaction: 0.52, civility: 0.87 },
     trend: "down",
@@ -280,7 +281,7 @@ const MOCK_MEMBERS: CommunityMember[] = [
     rank: 25,
     name: "RektDetector",
     discriminator: "5432",
-    avatar: "⚠️",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=RektDetector&backgroundColor=dc2626",
     totalScore: 52,
     attributes: { engagement: 0.58, relevance: 0.65, expertise: 0.74, interaction: 0.59, civility: 0.79 },
     trend: "up",
@@ -518,7 +519,15 @@ export default function LeaderboardDetailPage() {
                 </div>
                 <CardContent className="p-4">
                   <div className="text-center mb-3">
-                    <div className="text-2xl mb-1">{member.avatar}</div>
+                    <div className="mb-1">
+                      <Image 
+                        src={member.avatar} 
+                        alt={member.name}
+                        width={48}
+                        height={48}
+                        className="rounded-full mx-auto"
+                      />
+                    </div>
                     <div className="text-lg font-bold text-white mb-1">
                       {member.name}
                       <span className="text-neutral-300 text-sm">#{member.discriminator}</span>
@@ -547,7 +556,13 @@ export default function LeaderboardDetailPage() {
                 </div>
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="text-xl">{member.avatar}</div>
+                    <Image 
+                      src={member.avatar} 
+                      alt={member.name}
+                      width={36}
+                      height={36}
+                      className="rounded-full"
+                    />
                     <div>
                       <div className="text-lg font-bold text-white">
                         {member.name}
@@ -618,7 +633,13 @@ export default function LeaderboardDetailPage() {
                           </td>
                           <td className="p-3">
                             <div className="flex items-center gap-3">
-                              <span className="text-lg">{member.avatar}</span>
+                              <Image 
+                                src={member.avatar} 
+                                alt={member.name}
+                                width={32}
+                                height={32}
+                                className="rounded-full"
+                              />
                               <div>
                                 <div className="text-white font-medium">{member.name}</div>
                                 <div className="text-xs text-neutral-500">#{member.discriminator}</div>
@@ -708,7 +729,13 @@ export default function LeaderboardDetailPage() {
                   >
                     <div className="col-span-1 text-neutral-400 font-mono">{member.rank}</div>
                     <div className="col-span-6 flex items-center gap-2">
-                      <span className="text-sm">{member.avatar}</span>
+                      <Image 
+                        src={member.avatar} 
+                        alt={member.name}
+                        width={24}
+                        height={24}
+                        className="rounded-full"
+                      />
                       <div>
                         <div className="text-white font-medium truncate">
                           {member.name}
