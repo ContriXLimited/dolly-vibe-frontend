@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
-import { Trophy, Globe, LogOut, ChevronDown, Target, User, Building, MessageSquare } from "lucide-react"
+import { Trophy, Globe, LogOut, ChevronDown, Target, User, Building, MessageSquare, Crown } from "lucide-react"
 import { Switch } from "@/components/ui/switch"
 import { Logo } from "@/components/logo"
 import { AuthGuard } from "@/components/auth-guard"
@@ -43,6 +43,7 @@ export default function DashboardLayout({
     if (pathname.startsWith('/space')) return 'space'
     if (pathname.startsWith('/advertise')) return 'advertise'
     if (pathname.startsWith('/chat')) return 'chat'
+    if (pathname.startsWith('/leaderboard')) return 'leaderboard'
     return 'vibepass' // default
   }
 
@@ -86,11 +87,13 @@ export default function DashboardLayout({
                   const consumerItems = [
                     { id: "vibepass", icon: Trophy, label: "VIBEPASS", href: "/vibepass" },
                     { id: "space", icon: Globe, label: "SPACE", href: "/space" },
+                    { id: "leaderboard", icon: Crown, label: "LEADERBOARD", href: "/leaderboard" },
                   ]
                   
                   const businessItems = [
                     { id: "advertise", icon: Target, label: "ADVERTISE", href: "/advertise" },
                     { id: "chat", icon: MessageSquare, label: "CHAT", href: "/chat" },
+                    { id: "leaderboard", icon: Crown, label: "LEADERBOARD", href: "/leaderboard" },
                   ]
                   
                   const menuItems = mode === 'b2b' ? businessItems : consumerItems
