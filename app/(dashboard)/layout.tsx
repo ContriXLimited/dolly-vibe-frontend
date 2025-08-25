@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
-import { Trophy, Globe, LogOut, ChevronDown, Target, User, Building, MessageSquare, Crown } from "lucide-react"
+import { Trophy, Globe, LogOut, ChevronDown, Target, User, Building, MessageSquare, Crown, Gift } from "lucide-react"
 import { Switch } from "@/components/ui/switch"
 import { Logo } from "@/components/logo"
 import { AuthGuard } from "@/components/auth-guard"
@@ -40,6 +40,7 @@ export default function DashboardLayout({
   // Helper function to get active section from pathname
   const getActiveSection = () => {
     if (pathname.startsWith('/vibepass')) return 'vibepass'
+    if (pathname.startsWith('/opportunity')) return 'opportunity'
     if (pathname.startsWith('/space')) return 'space'
     if (pathname.startsWith('/advertise')) return 'advertise'
     if (pathname.startsWith('/chat')) return 'chat'
@@ -86,6 +87,7 @@ export default function DashboardLayout({
                 {(() => {
                   const consumerItems = [
                     { id: "vibepass", icon: Trophy, label: "VIBEPASS", href: "/vibepass" },
+                    { id: "opportunity", icon: Gift, label: "OPPORTUNITY", href: "/opportunity" },
                     { id: "space", icon: Globe, label: "SPACE", href: "/space" },
                     { id: "leaderboard", icon: Crown, label: "LEADERBOARD", href: "/leaderboard" },
                   ]

@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Modal } from "@/components/ui/modal"
 import { MessageCircle, Send, Bot, User, Target, TrendingUp, RotateCcw } from "lucide-react"
+import { toast } from "sonner"
 
 interface ChatMessage {
   id: string
@@ -296,7 +297,20 @@ export default function ChatPage() {
     <div className="mt-4 flex justify-center">
       <Button
         onClick={() => {
-          console.log("Send offer to eligible users")
+          // Set localStorage flag for special offer
+          const offerData = {
+            sent: true,
+            timestamp: new Date().toISOString(),
+            offerType: 'staking_boost',
+            percentage: 10,
+            protocol: 'Partner Protocol'
+          }
+          localStorage.setItem('specialOfferSent', JSON.stringify(offerData))
+          
+          // Show success notification
+          toast.success("Offer sent successfully!", {
+            description: "Eligible users will see the special staking offer in their Opportunity page."
+          })
         }}
         className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white px-6 py-2 font-semibold tracking-wider"
       >
@@ -428,6 +442,14 @@ export default function ChatPage() {
     setInputValue("")
     setIsTyping(false)
     setAnalysisCompleted(false)
+    
+    // Clear special offer flag from localStorage
+    localStorage.removeItem('specialOfferSent')
+    
+    // Show notification that offer flag was cleared
+    toast.info("Chat reset complete", {
+      description: "All messages and special offers have been cleared."
+    })
   }
 
   const getWeightColor = (value: number) => {
