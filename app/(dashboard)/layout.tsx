@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
-import { Trophy, Globe, LogOut, ChevronDown, Target, User, Building } from "lucide-react"
+import { Trophy, Globe, LogOut, ChevronDown, Target, User, Building, MessageSquare } from "lucide-react"
 import { Switch } from "@/components/ui/switch"
 import { Logo } from "@/components/logo"
 import { AuthGuard } from "@/components/auth-guard"
@@ -42,6 +42,7 @@ export default function DashboardLayout({
     if (pathname.startsWith('/vibepass')) return 'vibepass'
     if (pathname.startsWith('/space')) return 'space'
     if (pathname.startsWith('/advertise')) return 'advertise'
+    if (pathname.startsWith('/chat')) return 'chat'
     return 'vibepass' // default
   }
 
@@ -89,6 +90,7 @@ export default function DashboardLayout({
                   
                   const businessItems = [
                     { id: "advertise", icon: Target, label: "ADVERTISE", href: "/advertise" },
+                    { id: "chat", icon: MessageSquare, label: "CHAT", href: "/chat" },
                   ]
                   
                   const menuItems = mode === 'b2b' ? businessItems : consumerItems
